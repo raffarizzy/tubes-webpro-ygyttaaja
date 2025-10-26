@@ -3,8 +3,8 @@ const btnKeranjang = document.getElementById("btn-Keranjang");
 const btnBeli = document.getElementById("btn-Beli");
 const cartCount = document.getElementById("cart-count");
 
-// Ambil jumlah keranjang dari localStorage (biar ga ilang pas reload)
-let count = localStorage.getItem("cartCount") ? parseInt(localStorage.getItem("cartCount")) : 0;
+// Jumlah awal keranjang
+let count = 0;
 cartCount.textContent = count;
 
 // Event: Tambah ke keranjang
