@@ -1,47 +1,61 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home Page - SpareHub</title>
-    <link rel="icon" href="img/iconSpareHub.png">
-    <link rel="stylesheet" href="css/login.css">
-</head>
-<body>
-    <!-- Navigasi -->
+    <link rel="icon" href="img/iconSpareHub.png" />
+    <link rel="stylesheet" href="css/login.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
     <nav>
-        <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub">
-        <ul>
-            <li><a href="#">Beranda</a></li>
-            <li><a href="#">Keranjang</a></li>
-            <li><a href="#">Toko Saya</a></li>
-            <li><a href="#">Login</a></li>
-        </ul>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="index.html">Beranda</a></li>
+        <li>
+          <a href="keranjang.html"
+            >Keranjang <span id="cart-count" class="cart-count">0</span></a
+          >
+        </li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <img src="img/iconPengguna.png" id="iconPengguna" />
+            <a href="#">Pengguna</a>
+          </div>
+        </li>
+      </ul>
     </nav>
 
     <!-- Hero -->
     <section class="hero">
-        <h1>Selamat Datang di <span>SpareHub</span></h1>
-        <p>Tempat terbaik untuk mencari suku cadang kendaraan Anda!</p>
-        <button>Jelajahi Produk</button>
+      <h1>Selamat Datang di <span>SpareHub</span></h1>
+      <p>Tempat terbaik untuk mencari suku cadang kendaraan Anda!</p>
+      <button>Jelajahi Produk</button>
     </section>
 
     <!-- Produk -->
     <section class="produk">
-        <h2>Produk Unggulan</h2>
+      <h2>Produk Unggulan</h2>
 
-        <div class="card-produk">
-            <img src="img/oli-mobil.jpg" alt="Oli Mobil">
-            <h3>Oli Mobil Premium</h3>
-            <p class="harga">Rp 125.000</p>
-            <p class="deskripsi">Oli berkualitas tinggi yang menjaga performa mesin Anda tetap maksimal.</p>
-            <button class="btn-beli">Beli Sekarang</button>
-        </div>
+      <div class="card-produk">
+        <img src="img/iconOli.png" alt="Oli Mobil" />
+        <h3>Oli Mobil Shell</h3>
+        <p class="harga">Rp 125.000</p>
+        <p class="deskripsi">
+          Oli berkualitas tinggi yang menjaga performa mesin Anda tetap
+          maksimal.
+        </p>
+        <a href="detail-produk.html"
+          ><button class="btn-beli">Lihat Detail</button></a
+        >
+      </div>
     </section>
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+      <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
     </footer>
-</body>
+  </body>
 </html>

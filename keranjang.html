@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Keranjang - SpareHub</title>
+    <link rel="icon" href="img/iconSpareHub.png" />
+    <link rel="stylesheet" href="css/keranjang.css" />
+  </head>
+  <body>
+    <!-- Navigasi -->
+    <nav>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="login.html">Beranda</a></li>
+        <li><a href="keranjang.html" class="active">Keranjang</a></li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <img
+              src="img/iconPengguna.png"
+              id="iconPengguna"
+              alt="Ikon Pengguna"
+            />
+            <a href="#">Pengguna</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Isi Keranjang -->
+    <section class="keranjang">
+      <h2>Keranjang Belanja Anda</h2>
+      <div class="container-keranjang">
+        <!-- Item 1 -->
+        <div class="item-keranjang" data-harga="125000">
+          <img src="img/oli-mobil.jpg" alt="Oli Mobil Premium" />
+          <div class="info-produk">
+            <h3>Oli Mobil Premium</h3>
+            <p class="harga">Rp 125.000</p>
+            <p class="deskripsi">
+              Oli berkualitas tinggi untuk menjaga performa mesin Anda.
+            </p>
+            <div class="kuantitas">
+              <button class="btn-minus">-</button>
+              <input type="number" value="1" min="1" />
+              <button class="btn-plus">+</button>
+            </div>
+          </div>
+          <button class="btn-hapus">Hapus</button>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="item-keranjang" data-harga="45000">
+          <img src="img/busi.jpg" alt="Busi Motor NGK" />
+          <div class="info-produk">
+            <h3>Busi Motor NGK</h3>
+            <p class="harga">Rp 45.000</p>
+            <p class="deskripsi">
+              Busi tahan panas untuk performa mesin yang optimal.
+            </p>
+            <div class="kuantitas">
+              <button class="btn-minus">-</button>
+              <input type="number" value="2" min="1" />
+              <button class="btn-plus">+</button>
+            </div>
+          </div>
+          <button class="btn-hapus">Hapus</button>
+        </div>
+      </div>
+
+      <!-- Ringkasan -->
+      <div class="ringkasan">
+        <h3>Ringkasan Belanja</h3>
+        <p>Total Item: <span id="total-item">0</span></p>
+        <p>Total Harga: <span id="total-harga">Rp 0</span></p>
+        <a href="checkout.html"
+          ><button class="btn-checkout">Lanjut ke Pembayaran</button></a
+        >
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+    </footer>
+
+    <script src="js/keranjang.js"></script>
+  </body>
+</html>

@@ -27,6 +27,8 @@ nav ul {
     display: flex;
     gap: 20px;
     margin: 0;
+    justify-content: center;
+    align-items: center;
 }
 
 nav ul li a {
@@ -139,4 +141,16 @@ footer {
     text-align: center;
     padding: 15px;
     margin-top: 40px;
+}
+
+#profil {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 15px;
+}
+
+#iconPengguna {
+    width: 30px;
+    margin-right: 5px;
 }

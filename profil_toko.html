@@ -7,20 +7,29 @@
 </head>
 <body>
     <!-- Navigasi Utama -->
-    <nav class="main-nav">
-        <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub">
-        <ul>
-            <li><a href="#">Beranda</a></li>
-            <li><a href="#">Keranjang</a></li>
-            <li><a href="#">Toko Saya</a></li>
-            <li><a href="#">Login</a></li>
-        </ul>
+    <nav>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="login.html">Beranda</a></li>
+        <li><a href="keranjang.html" class="active">Keranjang</a></li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <img
+              src="img/iconPengguna.png"
+              id="iconPengguna"
+              alt="Ikon Pengguna"
+            />
+            <a href="#">Pengguna</a>
+          </div>
+        </li>
+      </ul>
     </nav>
 
     <!-- Header Toko -->
     <section class="toko-header">
         <div class="toko-info">
-        <img src="img/iconSpareHub.png" alt="Profil Toko" class="profil">
+        <img src="img/iconPengguna.png" alt="Profil Toko" class="profil">
         <div class="toko-detail">
             <h2>Toko Sumber Motor</h2>
             <p class="status">Aktif 5 menit lalu</p>
@@ -48,9 +57,9 @@
         <h3>Produk Unggulan</h3>
         <div class="produk-list">
         <div class="produk-card">
-            <img src="img/iconSpareHub.png" alt="Oli Mobil Premium">
+            <img src="img/iconOli.png" alt="Oli Mobil Premium">
             <h4>Oli Mobil Premium</h4>
-            <p class="harga">Rp70.000</p>
+            <p class="harga">Rp125.000</p>
             <p class="terjual">⭐ 4.9 • 120 terjual</p>
         </div>
         </div>
@@ -66,6 +75,6 @@
         <p>✅ Berhasil disimpan</p>
     </div>
 
-    <script src="profil_toko.js"></script>
+    <script src="js/profil_toko.js"></script>
 </body>
 </html>
