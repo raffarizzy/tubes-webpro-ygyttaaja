@@ -1,0 +1,62 @@
+.formContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 82vh;
+}
+
+.rectangleForm {
+    margin-top: 20px;
+    padding: 20px;
+    width: 1000px;
+    border-radius: 5px;
+    border: 1px solid rgb(177, 177, 177);
+}
+
+.profilSayaTxt {
+    margin: 0;
+    padding: 0;
+}
+
+.deskripsiKecilTxt {
+    margin-top: 5px;
+    padding: 0;
+}
+
+.containerField {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+.containerField label {
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.containerField input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.radioRow {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.submitBtn {
+    margin-top: 10px;
+    background-color: rgb(13, 116, 235);
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.submitBtn:hover {
+    background-color: rgb(13, 99, 197);
+    cursor: pointer;
+}
