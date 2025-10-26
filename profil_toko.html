@@ -1,0 +1,80 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Toko | SpareHub</title>
+  <link rel="stylesheet" href="css/profil_toko.css">
+</head>
+<body>
+    <!-- Navigasi Utama -->
+    <nav>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="login.html">Beranda</a></li>
+        <li><a href="keranjang.html" class="active">Keranjang</a></li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <img
+              src="img/iconPengguna.png"
+              id="iconPengguna"
+              alt="Ikon Pengguna"
+            />
+            <a href="#">Pengguna</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Header Toko -->
+    <section class="toko-header">
+        <div class="toko-info">
+        <img src="img/iconPengguna.png" alt="Profil Toko" class="profil">
+        <div class="toko-detail">
+            <h2>Toko Sumber Motor</h2>
+            <p class="status">Aktif 5 menit lalu</p>
+            <button id="btnEdit" class="btn-Edit">✏️ Edit</button>
+            <button id="btnSave" class="btn-save">simpan</button>
+        </div>
+        </div>
+
+        <div class="toko-statistik">
+        <p><strong>Produk:</strong> 1</p>
+        <p><strong>Pengikut:</strong> 236</p>
+        <p><strong>Penilaian:</strong> ⭐ 4.8</p>
+        <p><strong>Bergabung:</strong> 8 Bulan Lalu</p>
+        </div>
+    </section>
+
+    <!-- Navigasi Toko -->
+    <nav class="toko-nav">
+        <a href="#" class="aktif">Halaman Utama</a>
+        <a href="#">Produk</a>
+    </nav>
+
+    <!-- Daftar Produk -->
+    <section class="produk-section">
+        <h3>Produk Unggulan</h3>
+        <div class="produk-list">
+        <div class="produk-card">
+            <img src="img/iconOli.png" alt="Oli Mobil Premium">
+            <h4>Oli Mobil Premium</h4>
+            <p class="harga">Rp125.000</p>
+            <p class="terjual">⭐ 4.9 • 120 terjual</p>
+        </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 SpareHub. Semua Hak Dilindungi.</p>
+    </footer>
+
+    <!-- Pop-up alert -->
+    <div id="popup" class="popup">
+        <p>✅ Berhasil disimpan</p>
+    </div>
+
+    <script src="js/profil_toko.js"></script>
+</body>
+</html>

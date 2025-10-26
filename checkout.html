@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - SpareHub</title>
+    <link rel="icon" href="img/iconSpareHub.png" />
+    <link rel="stylesheet" href="css/checkout.css" />
+  </head>
+  <body>
+    <!-- Navigasi -->
+    <nav>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="login.html">Beranda</a></li>
+        <li><a href="keranjang.html" class="active">Keranjang</a></li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <img
+              src="img/iconPengguna.png"
+              id="iconPengguna"
+              alt="Ikon Pengguna"
+            />
+            <a href="#">Pengguna</a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main -->
+
+    <main>
+      <h1>Checkout</h1>
+      <div class="checkout-layout">
+        <!-- Container kiri -->
+
+        <div class="left-container">
+          <p class="label">Choose address</p>
+          <div class="address-container">
+            <div class="address-card">
+              <h3>Bagas</h3>
+              <p>
+                Jl. Kenanga No. 21, RT 05/RW 03, Kelurahan Sukamaju, Kecamatan
+                Tebet, Jakarta Selatan
+              </p>
+              <p class="mobile-no">Mobile No : 081636472738</p>
+            </div>
+            <div class="address-card">
+              <h3>Slamet</h3>
+              <p>Jl. Merpati No. 45, Perum Griya Asri, Blok B3, Bekasi Timur</p>
+              <p class="mobile-no">Mobile No : 081311283830</p>
+            </div>
+            <div class="add-address-card">
+              <h3>+ Tambahkan Alamat</h3>
+            </div>
+          </div>
+          <div class="item-container">
+            <p class="label">Item Detail</p>
+            <div class="item-detail-card">
+              <div class="item-detail-image">
+                <img src="img/knalpot.webp" alt="" />
+              </div>
+              <div class="item-detail-desc">
+                <h3>Knalpot Racing</h3>
+                <p>Knalpot Racing ganteng</p>
+                <p>
+                  <span class="price">Rp.700.000,00</span
+                  ><span class="from-price">Rp.1.000.000,00</span
+                  ><span class="discount">(30% offer)</span>
+                </p>
+                <p>Total : 1 pcs</p>
+              </div>
+            </div>
+          </div>
+          <div class="payment-layout">
+            <div>
+              <p class="label">Choose Payment Method</p>
+            </div>
+            <div>
+              <div class="payment-container">
+                <div class="payment-card">
+                  <div class="payment-card-image">
+                    <img src="img/visa.png" alt="" />
+                  </div>
+                  <div class="payment-card-desc">
+                    <h3>**** **** **** 0817</h3>
+                    <p>Expires 12-29</p>
+                  </div>
+                </div>
+                <div class="payment-card">
+                  <div class="payment-card-image">
+                    <img src="img/mastercard.png" alt="" />
+                  </div>
+                  <div class="payment-card-desc">
+                    <h3>**** **** **** 3830</h3>
+                    <p>Expires 10-27</p>
+                  </div>
+                </div>
+                <div class="payment-card-add">
+                  <h3>+ Tambahkan Metode Pembayaran</h3>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Container Kanan -->
+
+        <div class="right-container">
+          <div class="price-detail">
+            <h3>Order Details</h3>
+            <table>
+              <tr>
+                <td class="title">Price</td>
+                <td class="price">Rp.700.000,00</td>
+              </tr>
+              <tr>
+                <td class="title">Delivery charges</td>
+                <td class="delivery-charges">Free</td>
+              </tr>
+              <tr class="discount-row">
+                <td class="title">Discount Price</td>
+                <td class="discount-price">- Rp.300.000</td>
+              </tr>
+              <tr class="price-detail-total">
+                <td><p>Total Amount</p></td>
+                <td class="price">Rp.700.000,00</td>
+              </tr>
+            </table>
+          </div>
+          <div class="payment-button-container">
+            <button>Pay Now</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      <p>&copy; 2025 SpareHub</p>
+    </footer>
+  </body>
+  <script src="js/checkout.js"></script>
+</html>
