@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Pengguna - SpareHub</title>
+    <link rel="icon" href="img/iconSpareHub.png">
+    <link rel="stylesheet" href="css/homepage.css">
+    <link rel="stylesheet" href="css/pengguna.css">
+</head>
+<body>
+    <nav>
+        <a href="login.html" class="wrapperLogo"><img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub"></a>
+        <ul>
+            <li><a href="homepage.html">Beranda</a></li>
+            <li><a href="keranjang.html">Keranjang</a></li>
+            <li><a href="profil_toko.html">Toko Saya</a></li>
+            <li>
+                <div id="profil">
+                    <img src="img/iconPengguna.png" id="iconPengguna">
+                    <a href="pengguna.html" id="namaPengguna">Pengguna</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="formContainer">
+        <div class="rectangleForm">
+            <h3 class="profilSayaTxt">Profil Saya</h3>
+            <p class="deskripsiKecilTxt">Kelola informasi profil Anda untuk mengontrol akun</p>
+            <hr>
+            <form class="formFieldContainer">
+                <div class="containerField">
+                    <label for="username">Username</label>
+                    <input name="username" id="username" placeholder="Masukan username" value="">
+                </div>
+
+                <div class="containerField">
+                    <label for="email">Email</label>
+                    <input name="email" id="email" placeholder="Masukan email">
+                </div>
+
+                <div class="containerField">
+                    <label for="nomorTelp">Nomor Telepon</label>
+                    <input name="nomorTelp" id="nomorTelp" type="number" placeholder="Masukan nomor">
+                </div>
+
+                <div class="containerField">
+                    <label for="alamat">Alamat</label>
+                    <input name="alamat" placeholder="Masukan alamat" id="alamat">
+                </div>
+
+                <div class="containerField">
+                    <label for="kelamin">Jenis Kelamin</label>
+                    <div class="radioRow">
+                        <label><input name="kelamin" type="radio" value="Laki-Laki">Laki-Laki</label>
+                        <label><input name="kelamin" type="radio" value="Perempuan">Perempuan</label>
+                    </div>
+                </div>
+
+                <input type="submit" class="submitBtn" id="submitBtn">
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+    </footer>
+
+    <script src="js/pengguna.js"></script>
+</body>
+</html>
