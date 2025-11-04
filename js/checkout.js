@@ -269,6 +269,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     alert("Pembayaran berhasil!");
     localStorage.removeItem("checkoutData");
+    window.location.href = "homepage.html";
   });
 
   updatePayButtonState();
