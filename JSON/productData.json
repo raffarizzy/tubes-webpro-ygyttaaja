@@ -7,14 +7,15 @@
     "imagePath": "img/oli-mobil.jpg",
     "tokoId": 1,
     "stok": 10,
-    "kategori": "Otomotif"
+    "kategori": "Otomotif",
+    "diskon": 0.1
   },
   {
     "id": 2,
     "nama": "Oli Motor",
     "harga": 100700,
     "deskripsi": "Oli motor original dengan performa tinggi.",
-    "imagePath": "img/oliMotor.png",
+    "imagePath": "img/.png",
     "tokoId": 1,
     "stok": 20,
     "kategori": "Otomotif"

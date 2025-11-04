@@ -63,14 +63,15 @@ main {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
-  gap: 100px;
+  gap: 50px;
   flex-wrap: wrap;
 }
 
 .right-container {
   display: flex;
   flex-direction: column;
-  gap: 50px;
+  gap: 30px;
+  padding-top: 60px;
 }
 
 /* =============== user detail ============ */
@@ -80,7 +81,7 @@ main {
   flex-direction: column;
   padding: 20px 50px;
   background-color: white;
-  width: 1220px;
+  width: 880px;
   max-width: 100%;
   gap: 20px;
 }
@@ -96,39 +97,130 @@ main {
 .address-container {
   display: flex;
   flex-direction: row;
-  gap: 40px;
-  flex-wrap: wrap;
+  gap: 30px;
+  flex-wrap: nowrap; /* biar gak turun */
+  overflow-x: auto; /* bisa discroll horizontal kalau gak muat */
+  padding-bottom: 10px;
 }
 
 .address-card,
 .payment-card {
-  padding: 10px 15px;
-  width: 350px;
-  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0px 15px;
+  width: 250px;
+  height: 130px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   color: black;
 }
 
+.address-card h3 {
+  margin-top: 0px;
+  margin-bottom: 10px;
+}
+
 .address-card p {
   color: gray;
+  font-size: 13px;
 }
 
 .mobile-no {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .add-address-card,
 .payment-card-add {
   display: flex;
-  padding: 10px;
-  width: 350px;
-  height: 160px;
+  padding: 0;
+  width: 250px;
+  height: 130px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   color: gray;
   background-color: rgba(236, 235, 235, 0.349);
   text-align: center;
   align-items: center;
   justify-content: center;
+  font-size: 13px;
+}
+
+/* =================== Add Address Form ==================== */
+.add-address-form {
+  margin-top: 20px;
+  padding: 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  background-color: white;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-address-form h3 {
+  margin-bottom: 10px;
+}
+
+.add-address-form input,
+.add-address-form textarea {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.add-address-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.form-buttons button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#saveAddress {
+  background-color: rgb(0, 180, 120);
+  color: white;
+}
+
+#cancelAdd {
+  background-color: #ccc;
+}
+
+.delete-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.address-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.edit-address-text {
+  font-size: 13px;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+
+.edit-address-text:hover {
+  color: #0056b3;
 }
 
 /*========================= item container ============================ */
@@ -142,9 +234,9 @@ main {
   display: flex;
   flex-direction: row;
   gap: 30px;
-  width: 1210px;
+  width: 100%;
   max-width: 100%;
-  height: 160px;
+  height: 130px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   align-items: center;
   flex-wrap: wrap;
@@ -153,7 +245,7 @@ main {
 .item-detail-image {
   width: 200px;
   height: 100%;
-  margin-left: 30px;
+  margin-left: 20px;
 }
 
 .item-detail-card img {
@@ -167,23 +259,25 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 20px;
+  padding-left: 10px;
 }
 
 .item-detail-desc h3 {
   margin-top: 0;
   margin-bottom: 5px;
+  font-size: 16px;
 }
 
 .item-detail-desc p {
   color: gray;
   margin-top: 0px;
   margin-bottom: 13px;
+  font-size: 13px;
 }
 
 .price {
   font-weight: bold;
-  font-size: 20px;
+  font-size: 16px;
   margin-right: 10px;
   color: black;
 }
@@ -215,32 +309,34 @@ main {
 }
 
 .payment-card {
-  width: 340px;
-  height: 180px;
+  width: 255px;
+  height: 130px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 0px 20px;
+  padding: 0px;
+  padding-left: 20px;
 }
 
 .payment-card-image img {
-  width: 80px;
+  width: 60px;
   height: auto;
   object-fit: contain;
 }
 
 .payment-card-desc {
-  margin-top: 30px;
+  margin-top: 10px;
 }
 
 .payment-card h3 {
-  margin-top: 10px;
   margin-bottom: 5px;
+  font-size: 16px;
 }
 
 .payment-card p {
   margin: 0;
   color: gray;
+  font-size: 13px;
 }
 
 /* ==================== price detail ================== */
@@ -248,15 +344,16 @@ main {
 .price-detail {
   padding: 0px 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  width: 450px;
+  width: 320px;
   max-width: 100%;
-  height: 260px;
+  height: 240px;
 }
 
 .price-detail h3 {
   margin-bottom: 20px;
   border-bottom: 2px solid #eee;
   padding-bottom: 10px;
+  font-size: 16px;
 }
 
 .price-detail table {
@@ -275,6 +372,7 @@ main {
 
 .price-detail .title {
   color: gray;
+  font-size: 13px;
 }
 
 .price-detail-total {
@@ -282,15 +380,26 @@ main {
   padding-top: 30px;
 }
 
-.price-detail-total td {
-  padding-top: 18px;
-  font-size: 20px;
+.price-detail .price {
+  text-align: right;
+  font-size: 16px;
 }
 
-.price-detail .price,
+.price-detail-total td {
+  padding-top: 18px;
+  font-size: 18px;
+}
+
+.price-detail-total p {
+  font-size: 18px;
+}
+
 .discount-price {
   text-align: right;
+  font-size: 13px;
+  color: red;
 }
+
 .price-detail .delivery-charges {
   text-align: right;
   color: rgb(0, 180, 120);
@@ -299,9 +408,9 @@ main {
 /* ======================= payment button ============= */
 
 .payment-button-container {
-  width: 490px;
+  width: 365px;
   max-width: 100%;
-  height: 70px;
+  height: 55px;
 }
 
 .payment-button-container button {
@@ -312,6 +421,7 @@ main {
   color: white;
   border-radius: 10px;
   font-size: 20px;
+  font-size: 16px;
 }
 
 .payment-button-container button:hover {
