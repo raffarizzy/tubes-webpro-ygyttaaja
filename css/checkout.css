@@ -88,7 +88,7 @@ main {
 
 .label {
   font-weight: bold;
-  font-size: 17px;
+  font-size: 15px;
   color: gray;
 }
 
@@ -97,7 +97,7 @@ main {
 .address-container {
   display: flex;
   flex-direction: row;
-  gap: 30px;
+  gap: 40px;
   flex-wrap: wrap; /* ✅ biar bisa turun ke bawah */
   overflow-x: visible; /* ✅ tidak perlu scroll horizontal */
   padding-bottom: 10px;
@@ -292,6 +292,10 @@ main {
 
 .discount {
   color: rgb(0, 180, 120);
+  font-size: 13px;
+}
+
+.delivery-charges {
   font-size: 13px;
 }
 

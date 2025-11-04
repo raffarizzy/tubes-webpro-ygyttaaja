@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Hitung harga setelah diskon jika ada
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon) / 100;
+        hargaSetelahDiskon = Math.round(hargaAsli - (hargaAsli * diskon) / 100);
       }
 
       const subtotal = hargaSetelahDiskon * jumlah;
@@ -77,13 +77,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
             ${
               diskon > 0
-                ? `<span class="discount" style="color: green; margin-left: 8px;">(offer ${
+                ? `<span class="discount" style="color: green; margin-left: 8px;">(${
                     diskon < 1 ? diskon * 100 : diskon
-                  }%)</span>`
+                  }% Offer)</span>`
                 : ""
             }
           </div>
-          <p>Total: ${jumlah} pcs</p>
+          <p style="margin-top: 10px;">Total: ${jumlah} pcs</p>
         </div>
       `;
 
@@ -107,8 +107,10 @@ document.addEventListener("DOMContentLoaded", function () {
       // Hitung harga setelah diskon
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        const persenDiskon = diskon < 1 ? diskon * 100 : diskon; // kalau 0.1 jadi 10
-        hargaSetelahDiskon = hargaAsli - (hargaAsli * persenDiskon) / 100;
+        const persenDiskon = diskon < 1 ? diskon * 100 : diskon;
+        hargaSetelahDiskon = Math.round(
+          hargaAsli - (hargaAsli * persenDiskon) / 100
+        );
       }
 
       const subtotalAsli = hargaAsli * jumlah;
@@ -120,28 +122,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
     totalDiskon = totalHargaAsli - totalHargaSetelahDiskon;
 
-    // Update UI
     priceDetail.textContent = formatRupiah(totalHargaAsli);
 
-    // Delivery charges (bisa disesuaikan logic nya)
-    const biayaPengiriman = 0; // Free shipping
+    const biayaPengiriman = 0;
     deliveryCharges.textContent =
-      biayaPengiriman === 0 ? "Free" : formatRupiah(biayaPengiriman);
+      biayaPengiriman === 0 ? "Gratis" : formatRupiah(biayaPengiriman);
 
     // Discount
     if (totalDiskon > 0) {
       discountDetail.textContent = `- ${formatRupiah(totalDiskon)}`;
       discountDetail.parentElement.style.display = "";
     } else {
-      discountDetail.parentElement.style.display = "none";
+      discountDetail.textContent = "- Rp 0";
+      discountDetail.parentElement.style.display = "";
     }
 
-    // Total akhir
     const totalAkhir = totalHargaSetelahDiskon + biayaPengiriman;
     totalDetail.textContent = formatRupiah(totalAkhir);
   }
 
-  // 🔹 Fungsi bantu format Rupiah
+  // Fungsi bantu format Rupiah
   function formatRupiah(angka) {
     const num = typeof angka === "string" ? parseFloat(angka) : angka;
     return num.toLocaleString("id-ID", {
@@ -152,9 +152,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// =====================================================
 // Logika alamat & metode pembayaran
-// =====================================================
+
 document.addEventListener("DOMContentLoaded", function () {
   const addressContainer = document.getElementById("addressContainer");
   const addAddressCard = document.getElementById("addAddressCard");
