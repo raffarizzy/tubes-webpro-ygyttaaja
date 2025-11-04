@@ -22,10 +22,23 @@ async function loadData() {
     const ratingResponse = await fetch('JSON/ratingData.json');
     ratingData = await ratingResponse.json();
 
-    // Load keranjang dari localStorage
+    // Load keranjang dari localStorage (PENTING: Key yang sama dengan keranjang.js)
     const savedCart = localStorage.getItem('keranjangData');
     if (savedCart) {
       keranjangData = JSON.parse(savedCart);
+      console.log('✅ Keranjang dimuat dari localStorage');
+    } else {
+      // Jika tidak ada, coba load dari JSON sebagai fallback
+      try {
+        const cartResponse = await fetch('JSON/keranjangData.json');
+        keranjangData = await cartResponse.json();
+        // Simpan ke localStorage
+        localStorage.setItem('keranjangData', JSON.stringify(keranjangData));
+        console.log('⚠️ Keranjang dimuat dari JSON (fallback)');
+      } catch (err) {
+        keranjangData = [];
+        console.log('📭 Keranjang kosong');
+      }
     }
 
     // Initialize halaman setelah data dimuat
@@ -153,16 +166,42 @@ function formatRupiah(amount) {
 
 // Fungsi untuk tambah ke keranjang
 function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
+  // Validasi stok
+  const produk = getProdukById(produkId);
+  if (!produk) {
+    console.error('Produk tidak ditemukan');
+    return false;
+  }
+
   // Cari apakah produk sudah ada di keranjang
   const existingItemIndex = keranjangData.findIndex(
     item => item.userId === userId && item.produkId === produkId
   );
 
   if (existingItemIndex !== -1) {
-    // Produk sudah ada, tambah quantity
-    keranjangData[existingItemIndex].jumlah += jumlahTambahan;
+    // Produk sudah ada, cek total jumlah tidak melebihi stok
+    const newTotal = keranjangData[existingItemIndex].jumlah + jumlahTambahan;
+    
+    if (newTotal > produk.stok) {
+      showNotification(
+        `⚠️ Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+        'warning'
+      );
+      return false;
+    }
+    
+    keranjangData[existingItemIndex].jumlah = newTotal;
   } else {
-    // Produk belum ada, tambah item baru
+    // Produk belum ada, validasi jumlah tidak melebihi stok
+    if (jumlahTambahan > produk.stok) {
+      showNotification(
+        `⚠️ Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+        'warning'
+      );
+      return false;
+    }
+    
+    // Tambah item baru
     keranjangData.push({
       userId: userId,
       produkId: produkId,
@@ -170,11 +209,14 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
     });
   }
 
-  // Simpan ke localStorage
+  // Simpan ke localStorage (PENTING: Key yang sama dengan keranjang.js)
   localStorage.setItem('keranjangData', JSON.stringify(keranjangData));
+  console.log('💾 Keranjang disimpan ke localStorage');
   
   // Update cart count
   updateCartCount();
+  
+  return true;
 }
 
 // Fungsi untuk update cart count badge
@@ -207,6 +249,13 @@ function initializePage() {
   
   if (!currentProduct) {
     console.error('Product not found!');
+    document.body.innerHTML = `
+      <div style="text-align: center; padding: 100px;">
+        <h1>❌ Produk tidak ditemukan</h1>
+        <p>Produk yang Anda cari tidak tersedia.</p>
+        <a href="homepage.html" style="color: #007bff; text-decoration: none;">← Kembali ke Beranda</a>
+      </div>
+    `;
     return;
   }
 
@@ -367,7 +416,7 @@ function initializeQuantityControls() {
       quantityDisplay.textContent = currentQuantity;
       updateTotalPrice();
     } else {
-      alert('Stok tidak mencukupi!');
+      showNotification(`⚠️ Stok ${currentProduct.nama} hanya tersedia ${currentProduct.stok} item`, 'warning');
     }
   });
 }
@@ -389,22 +438,33 @@ function initializeActionButtons() {
   btnKeranjang.addEventListener('click', () => {
     const userId = 1; // Hardcode, nanti pakai user login
     
-    tambahKeKeranjang(userId, currentProduct.id, currentQuantity);
+    const success = tambahKeKeranjang(userId, currentProduct.id, currentQuantity);
     
-    // Show notification
-    showNotification(
-      `${currentQuantity} ${currentProduct.nama} berhasil ditambahkan ke keranjang!`,
-      'success'
-    );
+    if (success) {
+      // Show notification
+      showNotification(
+        `✅ ${currentQuantity} ${currentProduct.nama} berhasil ditambahkan ke keranjang!`,
+        'success'
+      );
 
-    // Reset quantity
-    currentQuantity = 1;
-    document.getElementById('quantity-display').textContent = currentQuantity;
-    updateTotalPrice();
+      // Reset quantity
+      currentQuantity = 1;
+      document.getElementById('quantity-display').textContent = currentQuantity;
+      updateTotalPrice();
+    }
   });
 
   // Tombol Beli Sekarang
   btnBeli.addEventListener('click', () => {
+    // Validasi stok
+    if (currentQuantity > currentProduct.stok) {
+      showNotification(
+        `⚠️ Stok ${currentProduct.nama} hanya tersedia ${currentProduct.stok} item`,
+        'warning'
+      );
+      return;
+    }
+
     // Simpan data checkout ke localStorage
     const checkoutData = [
       {
@@ -429,47 +489,66 @@ function initializeActionButtons() {
 // ============================================
 
 function showNotification(message, type = 'success') {
+  // Hapus notifikasi lama jika ada
+  const existingNotif = document.querySelector('.notification-toast');
+  if (existingNotif) {
+    existingNotif.remove();
+  }
+
   // Buat elemen notifikasi
   const notification = document.createElement('div');
+  notification.className = 'notification-toast';
+  
+  const bgColor = type === 'success' ? '#28a745' : 
+                  type === 'warning' ? '#ffc107' : 
+                  type === 'error' ? '#dc3545' : '#17a2b8';
+  
+  const textColor = type === 'warning' ? '#000' : '#fff';
+  
   notification.style.cssText = `
     position: fixed;
     top: 80px;
     right: 20px;
-    background-color: ${type === 'success' ? '#28a745' : '#dc3545'};
-    color: white;
+    background-color: ${bgColor};
+    color: ${textColor};
     padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     z-index: 10000;
     animation: slideIn 0.3s ease-out;
+    font-weight: 500;
+    max-width: 350px;
   `;
   notification.textContent = message;
 
-  // Tambahkan CSS animation
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideIn {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
+  // Tambahkan CSS animation jika belum ada
+  if (!document.getElementById('notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'notification-styles';
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
       }
-      to {
-        transform: translateX(0);
-        opacity: 1;
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
       }
-    }
-    @keyframes slideOut {
-      from {
-        transform: translateX(0);
-        opacity: 1;
-      }
-      to {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-    }
-  `;
-  document.head.appendChild(style);
+    `;
+    document.head.appendChild(style);
+  }
 
   // Tambahkan ke body
   document.body.appendChild(notification);
@@ -478,7 +557,9 @@ function showNotification(message, type = 'success') {
   setTimeout(() => {
     notification.style.animation = 'slideOut 0.3s ease-out';
     setTimeout(() => {
-      document.body.removeChild(notification);
+      if (notification.parentNode) {
+        document.body.removeChild(notification);
+      }
     }, 300);
   }, 3000);
 }
@@ -490,4 +571,3 @@ function showNotification(message, type = 'success') {
 document.addEventListener('DOMContentLoaded', () => {
   loadData();
 });
-
