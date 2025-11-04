@@ -60,7 +60,7 @@ function renderProducts() {
         <td>${p.stok}</td>
         <td>${p.kategori}</td>
         <td>
-          <button class="btn-icon delete" onclick="hapusProduk(${i})" title="Hapus">🗑️</button>
+          <button class="btn-icon delete" onclick="hapusProduk(${i})" title="Hapus">Hapus</button>
         </td>
       </tr>
     `
