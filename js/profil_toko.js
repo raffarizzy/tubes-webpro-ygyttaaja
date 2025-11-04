@@ -135,7 +135,7 @@ saveBtn.addEventListener('click', async () => {
 
 // tombol manajemen toko
 document.getElementById('btnManage').addEventListener('click', () => {
-  // simpan id toko ke localStorage biar bisa diakses dari halaman lu
+  // simpan id toko ke localStorage biar bisa diakses dari halaman 
   localStorage.setItem('selectedTokoId', 1);
   window.location.href = 'mengelolaProdukCRUD.html';
 });
