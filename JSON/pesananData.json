@@ -12,10 +12,10 @@
   {
     "id": 2,
     "userId": 1,
-    "produkId": 3,
+    "produkId": 2,
     "jumlah": 1,
     "totalHarga": 75000,
-    "status": "dikirim",
+    "status": "selesai",
     "tanggal": "2025-11-02",
     "alamatPengiriman": "Jl. Kebon Jeruk No. 45, Jakarta Barat"
   }

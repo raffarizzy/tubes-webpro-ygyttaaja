@@ -15,7 +15,7 @@
     "nama": "Oli Motor",
     "harga": 100700,
     "deskripsi": "Oli motor original dengan performa tinggi.",
-    "imagePath": "img/.png",
+    "imagePath": "img/iconOli.png",
     "tokoId": 1,
     "stok": 20,
     "kategori": "Otomotif",
