@@ -1,86 +1,90 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil Toko | SpareHub</title>
   <link rel="stylesheet" href="css/profil_toko.css">
 </head>
+
 <body>
-    <!-- Navigasi Utama -->
-    <nav>
-      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
-      <ul>
-        <li><a href="homepage.html">Beranda</a></li>
-        <li><a href="keranjang.html" class="active">Keranjang</a></li>
-        <li><a href="profil_toko.html">Toko Saya</a></li>
-        <li>
-          <div id="profil">
-            <img src="img/iconPengguna.png" id="iconPengguna" alt="Ikon Pengguna"/>
-            <a href="pengguna.html">Pengguna</a>
-          </div>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Header Toko -->
-    <section class="toko-header">
-      <div class="toko-info">
-        <img src="img/iconPengguna.png" alt="Profil Toko" class="profil">
-        <div class="toko-detail">
-          <h2>Nama Toko</h2>
-          <p class="status">Aktif 5 menit lalu</p>
-          <button id="btnEdit" class="btn-Edit">Edit</button>
-          <button id="btnHapus" class="btn-hapus">Hapus Toko</button>
+  <!-- Navigasi Utama -->
+  <nav>
+    <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+    <ul>
+      <li><a href="homepage.html">Beranda</a></li>
+      <li><a href="keranjang.html" class="active">Keranjang</a></li>
+      <li><a href="profil_toko.html">Toko Saya</a></li>
+      <li>
+        <div id="profil">
+          <img src="img/iconPengguna.png" id="iconPengguna" alt="Ikon Pengguna" />
+          <a href="pengguna.html">Pengguna</a>
         </div>
-      </div>
+      </li>
+    </ul>
+  </nav>
 
-      <div class="toko-statistik">
-        <p><strong>Produk:</strong> <span id="jumlah-produk">0</span></p>
-        <p><strong>Pengikut:</strong> 236</p>
-        <p><strong>Penilaian:</strong> 4.8</p>
-        <p><strong>Bergabung:</strong> 8 Bulan Lalu</p>
-      </div>
-    </section>
-
-    <!-- Popup Edit Toko -->
-    <div id="editPopup" class="popup-edit">
-      <div class="popup-content">
-        <h3>Edit Toko</h3>
-        <label>Nama Toko:</label>
-        <input type="text" id="editNamaToko">
-
-        <label>Lokasi:</label>
-        <input type="text" id="editLokasi">
-
-        <label>Logo (URL gambar):</label>
-        <input type="text" id="editLogo">
-
-        <div class="popup-buttons">
-          <button id="saveEdit">Simpan</button>
-          <button id="cancelEdit">Batal</button>
-        </div>
+  <!-- Header Toko -->
+  <section class="toko-header">
+    <div class="toko-info">
+      <img src="img/iconPengguna.png" alt="Profil Toko" class="profil">
+      <div class="toko-detail">
+        <h2>Nama Toko</h2>
+        <p class="status">Aktif 5 menit lalu</p>
+        <button id="btnEdit" class="btn-Edit">Edit</button>
+        <button id="btnHapus" class="btn-hapus">Hapus Toko</button>
+        <button id="btnManage" class="btn-manage">Manajemen Toko</button>
       </div>
     </div>
 
+    <div class="toko-statistik">
+      <p><strong>Produk:</strong> <span id="jumlah-produk">0</span></p>
+      <p><strong>Pengikut:</strong> 236</p>
+      <p><strong>Penilaian:</strong> 4.8</p>
+      <p><strong>Bergabung:</strong> 8 Bulan Lalu</p>
+    </div>
+  </section>
 
-    <!-- Navigasi Toko -->
-    <nav class="toko-nav">
-      <a href="#" class="aktif">Produk</a>
-    </nav>
+  <!-- Popup Edit Toko -->
+  <div id="editPopup" class="popup-edit">
+    <div class="popup-content">
+      <h3>Edit Toko</h3>
+      <label>Nama Toko:</label>
+      <input type="text" id="editNamaToko">
 
-    <!-- Daftar Produk -->
-    <section class="produk-section">
-      <h3>Produk</h3>
-      <div class="produk-list">
+      <label>Lokasi:</label>
+      <input type="text" id="editLokasi">
+
+      <label>Logo (URL gambar):</label>
+      <input type="text" id="editLogo">
+
+      <div class="popup-buttons">
+        <button id="saveEdit">Simpan</button>
+        <button id="cancelEdit">Batal</button>
       </div>
-    </section>
+    </div>
+  </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-      <p>© 2025 SpareHub. Semua Hak Dilindungi.</p>
-    </footer>
 
-    <script src="js/profil_toko.js"></script>
+  <!-- Navigasi Toko -->
+  <nav class="toko-nav">
+    <a href="#" class="aktif">Produk</a>
+  </nav>
+
+  <!-- Daftar Produk -->
+  <section class="produk-section">
+    <h3>Produk</h3>
+    <div class="produk-list">
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>© 2025 SpareHub. Semua Hak Dilindungi.</p>
+  </footer>
+
+  <script src="js/profil_toko.js"></script>
 </body>
+
 </html>

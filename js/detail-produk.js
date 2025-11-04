@@ -1,5 +1,5 @@
 // ============================================
-// DATA MANAGEMENT (seperti di Flutter)
+// DATA MANAGEMENT
 // ============================================
 
 let produkData = [];
@@ -113,7 +113,7 @@ function useFallbackData() {
 }
 
 // ============================================
-// HELPER FUNCTIONS (seperti di Flutter)
+// HELPER FUNCTIONS
 // ============================================
 
 // Fungsi untuk mendapatkan produk by ID
@@ -148,7 +148,7 @@ function formatRupiah(amount) {
 }
 
 // ============================================
-// CART MANAGEMENT (seperti di Flutter)
+// CART MANAGEMENT
 // ============================================
 
 // Fungsi untuk tambah ke keranjang
