@@ -14,9 +14,9 @@
       <ul>
         <li><a href="homepage.html">Beranda</a></li>
         <li>
-          <a href="keranjang.html"
-            >Keranjang <span id="cart-count" class="cart-count">0</span></a
-          >
+          <a href="keranjang.html">
+            Keranjang <span id="cart-count" class="cart-count">0</span>
+          </a>
         </li>
         <li><a href="profil_toko.html">Toko Saya</a></li>
         <li>
@@ -30,28 +30,83 @@
 
     <!-- Konten Detail -->
     <section class="container">
+      <!-- Gambar Produk -->
       <div class="gambar-produk">
-        <img src="img/iconOli.png" alt="Oli Mobil Premium" />
+        <img id="product-image" src="img/iconOli.png" alt="Produk" />
       </div>
 
+      <!-- Info Produk -->
       <div class="info-produk">
-        <h1>Oli Mobil Shell Helix HX6 10W-40 (4L)</h1>
-        <p class="harga">Rp125.000</p>
+        <!-- Nama Produk -->
+        <h1 id="product-name">Loading...</h1>
 
-        <p><strong>Kondisi:</strong> Baru</p>
-        <p><strong>Stok:</strong> 120 Tersedia</p>
-
-        <p class="deskripsi">
-          Shell Helix HX6 10W-40 adalah pelumas mesin mobil full sintetik yang
-          dirancang untuk melawan kotoran pembakaran dan menjaga performa mesin
-          tetap maksimal.
-        </p>
-        <div class="aksi">
-          <button class="btn-keranjang" id="btn-Keranjang">+ Keranjang</button>
-          <a href="checkout.html"
-            ><button class="btn-beli" id="btn-Beli">Beli Sekarang</button></a
-          >
+        <!-- Harga -->
+        <div class="price-container">
+          <p class="harga" id="product-price">Rp0</p>
+          <p class="harga-asli" id="product-original-price"></p>
+          <span class="badge-diskon" id="product-discount"></span>
         </div>
+
+        <!-- Kondisi & Stok -->
+        <p class="kondisi-row"><strong>Kondisi:</strong> <span id="product-kondisi">-</span></p>
+        <p><strong>Stok:</strong> <span id="product-stok">-</span> Tersedia</p>
+
+        <!-- Quantity Selector -->
+        <div class="quantity-section">
+          <p><strong>Jumlah:</strong></p>
+          <div class="quantity-controls">
+            <button id="btn-decrease" class="btn-quantity">-</button>
+            <span id="quantity-display" class="quantity-value">1</span>
+            <button id="btn-increase" class="btn-quantity">+</button>
+          </div>
+          <p class="total-price">
+            <strong>Total:</strong> <span id="total-price">Rp0</span>
+          </p>
+        </div>
+
+        <!-- Info Toko -->
+        <div class="toko-info">
+          <div class="toko-icon">
+            🏪
+          </div>
+          <div class="toko-detail">
+            <p class="toko-nama" id="toko-nama">-</p>
+            <p class="toko-lokasi" id="toko-lokasi">-</p>
+          </div>
+        </div>
+
+        <!-- Deskripsi -->
+        <div class="deskripsi-section">
+          <h3>Deskripsi</h3>
+          <p class="deskripsi" id="product-description">-</p>
+        </div>
+
+        <!-- Rating Section -->
+        <div class="rating-section">
+          <div class="rating-summary">
+            <span class="star-icon">★</span>
+            <span class="rating-value" id="avg-rating">0.0</span>
+            <span class="rating-count" id="rating-count">(0 ulasan)</span>
+          </div>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="aksi">
+          <button class="btn-keranjang" id="btn-Keranjang">
+            Tambah ke Keranjang
+          </button>
+          <button class="btn-beli" id="btn-Beli">
+            Beli Sekarang
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ulasan Section -->
+    <section class="ulasan-container">
+      <h2>Ulasan Pengguna</h2>
+      <div id="reviews-list" class="reviews-list">
+        <!-- Reviews akan dimuat di sini -->
       </div>
     </section>
 
@@ -60,8 +115,7 @@
       <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
     </footer>
 
-    <!-- JS disini -->
+    <!-- JS -->
     <script src="js/detail-produk.js"></script>
   </body>
 </html>
-

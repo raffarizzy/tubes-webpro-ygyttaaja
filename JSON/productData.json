@@ -4,7 +4,7 @@
     "nama": "Oli Mobil",
     "harga": 125000,
     "deskripsi": "Oli mobil berkualitas tinggi, dijamin original.",
-    "imagePath": "img/oliMobil.png",
+    "imagePath": "img/oli-mobil.jpg",
     "tokoId": 1,
     "stok": 10,
     "kategori": "Otomotif"

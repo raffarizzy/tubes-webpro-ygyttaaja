@@ -6,14 +6,15 @@ body {
   flex-direction: column;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
 }
 
 /* Navbar */
 nav {
-  background-color: #122C4F;
+  background-color: #122c4f;
   color: white;
   height: 60px;
   display: flex;
@@ -55,44 +56,231 @@ nav ul li a:hover {
   margin-right: 5px;
 }
 
+/* Cart Badge */
+.cart-count {
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 50%;
+  margin-left: 5px;
+  min-width: 18px;
+  display: inline-block;
+  text-align: center;
+}
+
 /* Konten Produk */
 .container {
   display: flex;
   justify-content: center;
-  align-items:flex-start;
+  align-items: flex-start;
   gap: 50px;
   padding: 50px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .gambar-produk img {
   width: 365px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .info-produk {
   max-width: 500px;
+  flex: 1;
 }
 
 .info-produk h1 {
-  color: #122C4F;
+  color: #122c4f;
   margin-bottom: 10px;
+  font-size: 24px;
+}
+
+/* Price Container */
+.price-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
 .harga {
-  color: #0066cc;
+  color: #122c4f;
   font-weight: bold;
   font-size: 24px;
-  margin-bottom: 15px;
+  margin: 0;
+}
+
+.harga-asli {
+  color: #999;
+  font-size: 16px;
+  text-decoration: line-through;
+  margin: 0;
+}
+
+.badge-diskon {
+  background-color: #ff4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Quantity Section */
+.quantity-section {
+  background-color: #f2f5ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.quantity-section > p:first-child {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #122c4f;
+  font-weight: 600;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.btn-quantity {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #122c4f;
+  background-color: white;
+  color: #122c4f;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-quantity:hover {
+  background-color: #122c4f;
+  color: white;
+}
+
+.btn-quantity:active {
+  transform: scale(0.95);
+}
+
+.quantity-value {
+  background-color: white;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 18px;
+  color: #122c4f;
+  min-width: 50px;
+  text-align: center;
+}
+
+.total-price {
+  margin: 10px 0 0 0;
+  font-size: 18px;
+  color: #122c4f;
+}
+
+.total-price strong {
+  font-weight: 600;
+}
+
+/* Toko Info */
+.toko-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.toko-icon {
+  background-color: #122c4f;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.toko-detail {
+  flex: 1;
+}
+
+.toko-nama {
+  font-weight: 600;
+  color: #122c4f;
+  margin: 0 0 4px 0;
+  font-size: 14px;
+}
+
+.toko-lokasi {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 12px;
+}
+
+/* Deskripsi */
+.deskripsi-section {
+  margin: 20px 0;
+}
+
+.deskripsi-section h3 {
+  color: #122c4f;
+  font-size: 16px;
+  margin-bottom: 8px;
 }
 
 .deskripsi {
   color: #555;
   font-size: 15px;
   line-height: 1.6;
-  margin-top: 15px;
+  margin: 0;
 }
 
+/* Rating Section */
+.rating-section {
+  margin: 20px 0;
+}
+
+.rating-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.star-icon {
+  color: #ffa500;
+  font-size: 24px;
+}
+
+.rating-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffa500;
+}
+
+.rating-count {
+  color: #999;
+  font-size: 14px;
+}
+
+/* Tombol Aksi */
 .aksi {
   margin-top: 25px;
   display: flex;
@@ -101,15 +289,21 @@ nav ul li a:hover {
 
 .btn-keranjang,
 .btn-beli {
+  flex: 1;
   border: none;
-  border-radius: 6px;
-  padding: 10px 20px;
+  border-radius: 8px;
+  padding: 14px 20px;
   font-weight: bold;
   cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
 }
 
 .btn-keranjang {
-  background-color: #0066cc;
+  background-color: #122c4f;
   color: white;
 }
 
@@ -119,27 +313,124 @@ nav ul li a:hover {
 }
 
 .btn-keranjang:hover {
-  background-color: #004c99;
+  background-color: #0d1f38;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .btn-beli:hover {
   background-color: #1e7e34;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.cart-count {
-  background-color: red;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%;
-  margin-left: 5px;
+.btn-keranjang:active,
+.btn-beli:active {
+  transform: translateY(0);
 }
+
+/* Ulasan Container */
+.ulasan-container {
+  max-width: 1200px;
+  margin: 0 auto 50px;
+  padding: 0 50px;
+}
+
+.ulasan-container h2 {
+  color: #122c4f;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.review-item {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 12px;
+}
+
+.review-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #122c4f;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 20px;
+}
+
+.review-icon svg {
+  fill: white;
+}
+
+.review-content {
+  flex: 1;
+}
+
+.review-rating {
+  color: #ffa500;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.review-text {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+
+.review-date {
+  color: #999;
+  font-size: 12px;
+}
+
 /* Footer */
 footer {
-    background-color: #122C4F;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    margin-top: auto;
+  background-color: #122c4f;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin-top: auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    padding: 20px;
+    gap: 30px;
+  }
+
+  .gambar-produk img {
+    width: 100%;
+    max-width: 365px;
+  }
+
+  .info-produk {
+    max-width: 100%;
+  }
+
+  .aksi {
+    flex-direction: column;
+  }
+
+  .btn-keranjang,
+  .btn-beli {
+    width: 100%;
+  }
+
+  .ulasan-container {
+    padding: 0 20px;
+  }
 }
