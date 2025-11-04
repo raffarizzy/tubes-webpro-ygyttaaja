@@ -1,10 +1,6 @@
-// =====================================================
-// ✅ Semua logika dijalankan hanya sekali
-// =====================================================
 document.addEventListener("DOMContentLoaded", function () {
-  // =====================================================
-  // 🔹 Ambil data checkout dari localStorage & tampilkan
-  // =====================================================
+  // Ambil data checkout dari localStorage & tampilkan
+
   const checkoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
 
   // Elemen-elemen produk
@@ -26,15 +22,12 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     const product = checkoutData[0];
 
-    // =====================================================
-    // 🔹 Logika gambar & placeholder
-    // =====================================================
+    // Logika gambar & placeholder
+
     const imageContainer = document.querySelector(".item-detail-image");
 
     if (product.imagePath && product.imagePath.trim() !== "") {
       itemImage.src = product.imagePath;
-
-      // Kalau gambar gagal dimuat → tampilkan placeholder
       itemImage.onerror = function () {
         imageContainer.innerHTML = `
           <div style="
@@ -53,7 +46,6 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
       };
     } else {
-      // Kalau imagePath kosong → langsung tampilkan placeholder
       imageContainer.innerHTML = `
         <div style="
           width: 100%;
@@ -71,9 +63,8 @@ document.addEventListener("DOMContentLoaded", function () {
       `;
     }
 
-    // =====================================================
-    // 🔹 Detail produk & harga
-    // =====================================================
+    // Detail produk & harga
+
     itemName.textContent = product.nama;
     itemDesc.textContent = product.deskripsi || "Tidak ada deskripsi produk.";
 
@@ -110,9 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
     totalDetail.textContent = formatRupiah(totalHarga);
   }
 
-  // =====================================================
-  // 🔹 Logika alamat & metode pembayaran
-  // =====================================================
+  // Logika alamat & metode pembayaran
+
   const addressContainer = document.getElementById("addressContainer");
   const addAddressCard = document.getElementById("addAddressCard");
   const addAddressForm = document.getElementById("addAddressForm");
@@ -284,9 +274,8 @@ document.addEventListener("DOMContentLoaded", function () {
   updatePayButtonState();
 });
 
-// =====================================================
 // 🔹 Fungsi bantu format Rupiah
-// =====================================================
+
 function formatRupiah(angka) {
   const num = typeof angka === "string" ? parseFloat(angka) : angka;
   return num.toLocaleString("id-ID", {
