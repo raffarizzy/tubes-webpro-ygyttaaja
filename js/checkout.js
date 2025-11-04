@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Buat card untuk setiap item
       const itemCard = document.createElement("div");
       itemCard.className = "item-detail-card";
-      itemCard.style.marginBottom = "15px";
+      itemCard.style.marginBottom = "10px";
 
       itemCard.innerHTML = `
         <div class="item-detail-image">
@@ -351,5 +351,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 500);
   });
 
+  const currentPage = window.location.pathname.split("/").pop();
+  const navLinks = document.querySelectorAll("nav ul li a");
+
+  navLinks.forEach((link) => {
+    const linkPage = link.getAttribute("href");
+    if (linkPage === currentPage) {
+      link.classList.add("active");
+    } else {
+      link.classList.remove("active");
+    }
+  });
   updatePayButtonState();
 });
