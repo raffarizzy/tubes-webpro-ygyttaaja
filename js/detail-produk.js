@@ -1,5 +1,5 @@
 // ============================================
-// DATA MANAGEMENT (seperti di Flutter)
+// DATA MANAGEMENT
 // ============================================
 
 let produkData = [];

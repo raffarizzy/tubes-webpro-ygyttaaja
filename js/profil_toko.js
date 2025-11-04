@@ -12,7 +12,8 @@ async function getTokoData() {
 async function getProdukData() {
   const res = await fetch('JSON/productData.json');
   const data = await res.json();
-  return data;
+  const saved = JSON.parse(localStorage.getItem('productDataExtra')) || [];
+  return [...data, ...saved];
 }
 
 // Menampilkan data toko dan produk
@@ -130,4 +131,11 @@ saveBtn.addEventListener('click', async () => {
 
   alert('Perubahan disimpan (sementara)');
   popupEdit.classList.remove('show');
+});
+
+// tombol manajemen toko
+document.getElementById('btnManage').addEventListener('click', () => {
+  // simpan id toko ke localStorage biar bisa diakses dari halaman lu
+  localStorage.setItem('selectedTokoId', 1);
+  window.location.href = 'mengelolaProdukCRUD.html';
 });

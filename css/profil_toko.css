@@ -115,6 +115,23 @@ nav ul li a:hover {
 .btn-Edit:hover, .btn-hapus:hover {
     opacity: 0.8;
 }
+
+/* Tombol Manajemen Toko */
+.btn-manage {
+    background-color: #ffc107; /* warna kuning biar beda dari edit/hapus */
+    color: #0b2c54;
+    border: none;
+    padding: 0.45rem 1.1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-manage:hover {
+    background-color: #e0a800;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
 .toko-statistik p {
     margin: 0.3rem 0;
     font-size: 0.95rem;
