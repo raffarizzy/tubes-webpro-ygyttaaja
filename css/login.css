@@ -1,0 +1,179 @@
+/* =====================================================
+   ✅ RESET & BASE
+===================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f4f6fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* =====================================================
+   ✅ CONTAINER & CARD
+===================================================== */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.login-card {
+  background: white;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 380px;
+}
+
+/* =====================================================
+   ✅ LOGO & TITLE
+===================================================== */
+.logo {
+  width: 70px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  color: #0d2857;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+/* =====================================================
+   ✅ INPUT GROUPS
+===================================================== */
+.input-group {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background-color: #fff;
+}
+
+.input-wrapper i {
+  color: #0d2857;
+  font-size: 15px;
+}
+
+/* input */
+.input-wrapper input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+/* =====================================================
+   ✅ PASSWORD FIELD (GEMBOK + MATA)
+===================================================== */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* ruang untuk ikon mata */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0d2857;
+  font-size: 16px;
+  outline: none;
+}
+
+.toggle-password:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* =====================================================
+   ✅ LOGIN BUTTON
+===================================================== */
+.btn-login {
+  width: 100%;
+  background-color: #0d2857;
+  color: white;
+  font-size: 15px;
+  border: none;
+  padding: 12px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn-login:hover {
+  background-color: #153e8f;
+}
+
+/* =====================================================
+   ✅ REGISTER LINK
+===================================================== */
+.register-text {
+  margin-top: 20px;
+  color: #555;
+  font-size: 13px;
+}
+
+.register-text a {
+  color: #0d2857;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.register-text a:hover {
+  text-decoration: underline;
+}
+
+/* =====================================================
+   ✅ RESPONSIVE
+===================================================== */
+@media (max-width: 420px) {
+  .login-card {
+    width: 90%;
+    padding: 30px 25px;
+  }
+
+  .input-wrapper input {
+    font-size: 13px;
+  }
+}

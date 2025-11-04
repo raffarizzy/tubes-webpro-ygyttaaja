@@ -7,7 +7,8 @@
     "imagePath": "img/oli-mobil.jpg",
     "tokoId": 1,
     "stok": 10,
-    "kategori": "Otomotif"
+    "kategori": "Otomotif",
+    "diskon": 0.1
   },
   {
     "id": 2,
@@ -17,7 +18,8 @@
     "imagePath": "img/.png",
     "tokoId": 1,
     "stok": 20,
-    "kategori": "Otomotif"
+    "kategori": "Otomotif",
+    "diskon": 0.1
   },
   {
     "id": 3,
