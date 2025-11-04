@@ -12,7 +12,7 @@
   {
     "id": 2,
     "userId": 1,
-    "produkId": 3,
+    "produkId": 2,
     "jumlah": 1,
     "totalHarga": 75000,
     "status": "dikirim",

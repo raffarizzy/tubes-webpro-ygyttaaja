@@ -62,11 +62,13 @@ footer {
 
 .formContainer {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-direction: column;
-    height: 82vh;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
+
 
 .rectangleForm {
     margin-top: 20px;
@@ -119,6 +121,45 @@ footer {
 }
 
 .submitBtn:hover {
+    background-color: rgb(13, 99, 197);
+    cursor: pointer;
+}
+
+.rectangleRiwayatPesanan {
+    width: 1000px;
+    border: 1px solid rgb(177, 177, 177);
+    border-radius: 5px;
+    padding: 20px;
+    background-color: white;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.riwayatTitle {
+    margin: 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #122C4F;
+}
+
+.riwayatDesc {
+    margin: 10px 0 20px 0;
+    color: #555;
+    font-size: 15px;
+}
+
+.riwayatBtn {
+    display: inline-block;
+    background-color: rgb(13, 116, 235);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.riwayatBtn:hover {
     background-color: rgb(13, 99, 197);
     cursor: pointer;
 }

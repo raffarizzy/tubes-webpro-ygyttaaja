@@ -6,13 +6,5 @@
     "rating": 5,
     "komentar": "Barang ori dan bagus banget, pengiriman cepat!",
     "tanggal": "2025-11-03"
-  },
-  {
-    "id": 2,
-    "produkId": 2,
-    "userId": 1,
-    "rating": 4,
-    "komentar": "Oli motor sesuai deskripsi, recommended.",
-    "tanggal": "2025-11-03"
   }
 ]
