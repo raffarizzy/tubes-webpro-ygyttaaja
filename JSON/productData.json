@@ -18,7 +18,8 @@
     "imagePath": "img/.png",
     "tokoId": 1,
     "stok": 20,
-    "kategori": "Otomotif"
+    "kategori": "Otomotif",
+    "diskon": 0.1
   },
   {
     "id": 3,

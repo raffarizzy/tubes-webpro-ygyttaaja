@@ -1,7 +1,6 @@
-// =====================================================
-// 🔹 Ambil data checkout dari localStorage & tampilkan
-// =====================================================
 document.addEventListener("DOMContentLoaded", function () {
+  // Ambil data checkout dari localStorage & tampilkan
+
   const checkoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
 
   // Container untuk multiple items
@@ -13,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const discountDetail = document.querySelector(".discount-price");
   const totalDetail = document.querySelector(".price-detail-total td.price");
 
-  // Tidak ada produk
   if (checkoutData.length === 0) {
     itemContainer.innerHTML = `
       <p class="label">Item Detail</p>
@@ -203,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <p class="mobile-no">Mobile No : ${nomor}</p>
     `;
 
-    // Klik kartu untuk pilih alamat
+    // Klik kartu
     card.addEventListener("click", () => {
       document
         .querySelectorAll(".address-card")
@@ -213,7 +211,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updatePayButtonState();
     });
 
-    // Tombol Edit
+    // Edit
     const editBtn = card.querySelector(".edit-address-text");
     editBtn.addEventListener("click", (e) => {
       e.stopPropagation();

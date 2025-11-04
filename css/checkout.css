@@ -98,9 +98,10 @@ main {
   display: flex;
   flex-direction: row;
   gap: 30px;
-  flex-wrap: nowrap; /* biar gak turun */
-  overflow-x: auto; /* bisa discroll horizontal kalau gak muat */
+  flex-wrap: wrap; /* ✅ biar bisa turun ke bawah */
+  overflow-x: visible; /* ✅ tidak perlu scroll horizontal */
   padding-bottom: 10px;
+  justify-content: flex-start; /* opsional, biar rapi di kiri */
 }
 
 .address-card,
@@ -109,7 +110,7 @@ main {
   flex-direction: column;
   justify-content: center;
   padding: 0px 15px;
-  width: 250px;
+  width: 240px;
   height: 130px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   color: black;
@@ -133,7 +134,7 @@ main {
 .payment-card-add {
   display: flex;
   padding: 0;
-  width: 250px;
+  width: 245px;
   height: 130px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
   color: gray;
@@ -286,10 +287,16 @@ main {
   text-decoration: line-through;
   color: red;
   margin-right: 10px;
+  font-size: 13px;
 }
 
 .discount {
   color: rgb(0, 180, 120);
+  font-size: 13px;
+}
+
+.item-detail-desc .total-text {
+  margin-top: 10px !important;
 }
 
 /* ============== payment method ============*/
