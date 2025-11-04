@@ -1,20 +1,30 @@
 async function loadRiwayat() {
     try {
     // Ambil data produk dan pesanan
-    const [produkRes, pesananRes] = await Promise.all([
+    const [produkRes, pesananRes, ratingRes] = await Promise.all([
         fetch("JSON/productData.json"),
-        fetch("JSON/pesananData.json")
+        fetch("JSON/pesananData.json"),
+        fetch("JSON/ratingData.json")
     ]);
 
-    const [produkList, pesananList] = await Promise.all([
+    const [produkList, pesananList, ratingList] = await Promise.all([
         produkRes.json(),
-        pesananRes.json()
+        pesananRes.json(),
+        ratingRes.json()
     ]);
 
     const container = document.getElementById("pesananContainer");
 
     pesananList.forEach(pesanan => {
         const produk = produkList.find(p => p.id === pesanan.produkId);
+        const sudahDirating = ratingList.some(r => r.produkId === pesanan.id);
+        let reviewBtn = '';
+
+        if (pesanan.status === 'selesai' && sudahDirating) {
+            reviewBtn += '<a href="rating.html"><button class="review-btn">Tampilkan Review</button></a>';
+        } else if (pesanan.status === 'selesai') {
+            reviewBtn += '<a href="rating.html"><button class="review-btn">Review</button></a>';
+        }
 
         const card = document.createElement("div");
         card.classList.add("pesanan-card");
@@ -29,7 +39,7 @@ async function loadRiwayat() {
             <p>Tanggal: ${pesanan.tanggal}</p>
             <p>Alamat: ${pesanan.alamatPengiriman}</p>
             <p class="status ${pesanan.status}">Status: ${pesanan.status}</p>
-            <a href="rating.html"><button class="review-btn">Review</button></a>
+            ${reviewBtn}
         </div>
         `;
         container.appendChild(card);
