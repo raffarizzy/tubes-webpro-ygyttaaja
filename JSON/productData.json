@@ -4,7 +4,7 @@
     "nama": "Oli Mobil",
     "harga": 125000,
     "deskripsi": "Oli mobil berkualitas tinggi, dijamin original.",
-    "imagePath": "assets/images/oliMobil.png",
+    "imagePath": "img/oliMobil.png",
     "tokoId": 1,
     "stok": 10,
     "kategori": "Otomotif"
@@ -14,7 +14,7 @@
     "nama": "Oli Motor",
     "harga": 100700,
     "deskripsi": "Oli motor original dengan performa tinggi.",
-    "imagePath": "assets/images/oliMotor.png",
+    "imagePath": "img/oliMotor.png",
     "tokoId": 1,
     "stok": 20,
     "kategori": "Otomotif"
@@ -24,7 +24,7 @@
     "nama": "Filter Udara Mobil",
     "harga": 75000,
     "deskripsi": "Filter udara mobil kualitas OEM.",
-    "imagePath": "assets/images/filterUdara.png",
+    "imagePath": "img/filterUdara.png",
     "tokoId": 2,
     "stok": 15,
     "kategori": "Suku Cadang"

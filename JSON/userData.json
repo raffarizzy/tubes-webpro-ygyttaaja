@@ -5,7 +5,7 @@
     "email": "raffa@mail.com",
     "password": "123456",
     "alamat": "Jakarta Barat",
-    "imagePath": "assets/images/profile1.png"
+    "imagePath": "img/profile1.png"
   },
   {
     "id": 2,
@@ -13,6 +13,6 @@
     "email": "dewi@mail.com",
     "password": "654321",
     "alamat": "Bandung",
-    "imagePath": "assets/images/profile2.png"
+    "imagePath": "img/profile2.png"
   }
 ]

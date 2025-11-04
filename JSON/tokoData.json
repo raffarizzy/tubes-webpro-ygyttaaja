@@ -4,7 +4,7 @@
     "namaToko": "Bengkel Jaya Motor",
     "pemilikId": 1,
     "deskripsi": "Spesialis oli dan sparepart kendaraan.",
-    "logoPath": "assets/images/logoToko1.png",
+    "logoPath": "img/logoToko1.png",
     "lokasi": "Jakarta Barat"
   },
   {
@@ -12,7 +12,7 @@
     "namaToko": "Otomax Shop",
     "pemilikId": 2,
     "deskripsi": "Toko perlengkapan otomotif lengkap dan terpercaya.",
-    "logoPath": "assets/images/logoToko2.png",
+    "logoPath": "img/logoToko2.png",
     "lokasi": "Bandung"
   }
 ]
