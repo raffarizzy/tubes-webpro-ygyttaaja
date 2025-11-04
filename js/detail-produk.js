@@ -1,7 +1,4 @@
-// ============================================
-// DATA MANAGEMENT
-// ============================================
-
+// Data Management - Variabel untuk menyimpan data aplikasi
 let produkData = [];
 let tokoData = [];
 let ratingData = [];
@@ -34,14 +31,14 @@ async function loadData() {
         keranjangData = await cartResponse.json();
         // Simpan ke localStorage
         localStorage.setItem('keranjangData', JSON.stringify(keranjangData));
-        console.log('⚠️ Keranjang dimuat dari JSON (fallback)');
+        console.log('Keranjang dimuat dari JSON (fallback)');
       } catch (err) {
         keranjangData = [];
-        console.log('📭 Keranjang kosong');
+        console.log('Keranjang kosong');
       }
     }
 
-    // Initialize halaman setelah data dimuat
+    // Inisialisasi halaman setelah semua data berhasil dimuat
     initializePage();
   } catch (error) {
     console.error("Error loading data:", error);
@@ -51,8 +48,9 @@ async function loadData() {
   }
 }
 
-// Fallback data jika JSON tidak bisa dimuat
+// Data backup jika file JSON tidak bisa dimuat
 function useFallbackData() {
+  // Data produk default
   produkData = [
     {
       id: 1,
@@ -86,6 +84,7 @@ function useFallbackData() {
     },
   ];
 
+  // Data toko default
   tokoData = [
     {
       id: 1,
@@ -105,6 +104,7 @@ function useFallbackData() {
     },
   ];
 
+  // Data rating default
   ratingData = [
     {
       id: 1,
@@ -125,33 +125,31 @@ function useFallbackData() {
   ];
 }
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
+// Helper Functions
 
-// Fungsi untuk mendapatkan produk by ID
+// Mendapatkan data produk berdasarkan ID
 function getProdukById(id) {
   return produkData.find((produk) => produk.id === id);
 }
 
-// Fungsi untuk mendapatkan toko by ID
+// Mendapatkan data toko berdasarkan ID
 function getTokoById(id) {
   return tokoData.find((toko) => toko.id === id);
 }
 
-// Fungsi untuk mendapatkan rating by produk ID
+// Mendapatkan semua rating untuk produk tertentu
 function getRatingByProdukId(produkId) {
   return ratingData.filter((rating) => rating.produkId === produkId);
 }
 
-// Fungsi untuk menghitung rata-rata rating
+// Menghitung rata-rata rating dari array rating
 function calculateAvgRating(ratings) {
   if (ratings.length === 0) return 0;
   const sum = ratings.reduce((acc, rating) => acc + rating.rating, 0);
   return sum / ratings.length;
 }
 
-// Format harga ke Rupiah
+// Format angka menjadi format mata uang Rupiah
 function formatRupiah(amount) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -160,11 +158,9 @@ function formatRupiah(amount) {
   }).format(amount);
 }
 
-// ============================================
-// CART MANAGEMENT
-// ============================================
+// Cart Management Functions
 
-// Fungsi untuk tambah ke keranjang
+// Menambahkan produk ke keranjang belanja
 function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
   // Validasi stok
   const produk = getProdukById(produkId);
@@ -184,7 +180,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
     
     if (newTotal > produk.stok) {
       showNotification(
-        `⚠️ Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+        `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
         'warning'
       );
       return false;
@@ -195,7 +191,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
     // Produk belum ada, validasi jumlah tidak melebihi stok
     if (jumlahTambahan > produk.stok) {
       showNotification(
-        `⚠️ Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+        `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
         'warning'
       );
       return false;
@@ -213,13 +209,13 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
   localStorage.setItem('keranjangData', JSON.stringify(keranjangData));
   console.log('Keranjang disimpan ke localStorage');
   
-  // Update cart count
+  // Update tampilan badge jumlah item di keranjang
   updateCartCount();
   
   return true;
 }
 
-// Fungsi untuk update cart count badge
+// Update badge jumlah item di keranjang pada navbar
 function updateCartCount() {
   const userId = 1; // Hardcode untuk sekarang, nanti bisa pakai user login
   const userCart = keranjangData.filter((item) => item.userId === userId);
@@ -232,19 +228,18 @@ function updateCartCount() {
   }
 }
 
-// ============================================
-// PAGE INITIALIZATION
-// ============================================
+// Page Initialization
 
 let currentProduct = null;
 let currentQuantity = 1;
 
+// Inisialisasi halaman product detail
 function initializePage() {
-  // Ambil product ID dari URL parameter atau gunakan default
+  // Ambil ID produk dari parameter URL, default ke ID 1
   const urlParams = new URLSearchParams(window.location.search);
   const productId = parseInt(urlParams.get("id")) || 1;
 
-  // Get product data
+  // Ambil data produk berdasarkan ID
   currentProduct = getProdukById(productId);
 
   if (!currentProduct) {
@@ -259,67 +254,64 @@ function initializePage() {
     return;
   }
 
-  // Render product details
+  // Render detail produk ke halaman
   renderProductDetails(currentProduct);
 
-  // Render toko info
+  // Render informasi toko
   const toko = getTokoById(currentProduct.tokoId);
   if (toko) {
     renderTokoInfo(toko);
   }
 
-  // Render ratings
+  // Render rating dan ulasan
   const ratings = getRatingByProdukId(currentProduct.id);
   renderRatings(ratings);
 
-  // Initialize quantity controls
+  // Setup kontrol quantity
   initializeQuantityControls();
 
-  // Initialize action buttons
+  // Setup tombol aksi (keranjang & beli)
   initializeActionButtons();
 
-  // Update cart count - PENTING: Load dari localStorage
+  // Update badge jumlah keranjang
   updateCartCount();
 }
 
-// ============================================
-// RENDERING FUNCTIONS
-// ============================================
+// Rendering Functions
 
+// Render detail produk ke elemen HTML
 function renderProductDetails(product) {
-  // Image with error handling
-  const imgElement = document.getElementById("product-image");
+  // Set gambar produk dengan error handling
+  const imgElement = document.getElementById('product-image');
   imgElement.src = product.imagePath;
   imgElement.alt = product.nama;
-
-  // Debug: Log image path
-  console.log("Loading image from:", product.imagePath);
-
-  // Add error handler for broken images
-  imgElement.onerror = function () {
-    console.error("Failed to load image:", product.imagePath);
-    // If image fails to load, show placeholder
-    this.src =
-      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ddd" width="300" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="20"%3ENo Image%3C/text%3E%3C/svg%3E';
-    this.style.backgroundColor = "#f0f0f0";
+  
+  // Log path gambar untuk debugging
+  console.log('Loading image from:', product.imagePath);
+  
+  // Handler jika gambar gagal dimuat
+  imgElement.onerror = function() {
+    console.error('Failed to load image:', product.imagePath);
+    // Tampilkan placeholder jika gambar tidak ditemukan
+    this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ddd" width="300" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="20"%3ENo Image%3C/text%3E%3C/svg%3E';
+    this.style.backgroundColor = '#f0f0f0';
+  };
+  
+  // Handler jika gambar berhasil dimuat
+  imgElement.onload = function() {
+    console.log('Image loaded successfully!');
   };
 
-  imgElement.onload = function () {
-    console.log("Image loaded successfully!");
-  };
+  // Set nama produk
+  document.getElementById('product-name').textContent = product.nama;
 
-  // Nama
-  document.getElementById("product-name").textContent = product.nama;
-
-  // Harga
-  document.getElementById("product-price").textContent = formatRupiah(
-    product.harga
-  );
-
-  // Harga asli & diskon (jika ada)
-  const originalPriceEl = document.getElementById("product-original-price");
-  const discountEl = document.getElementById("product-discount");
-
+  // Set harga produk
+  document.getElementById('product-price').textContent = formatRupiah(product.harga);
+  
+  // Handle harga asli dan diskon jika ada
+  const originalPriceEl = document.getElementById('product-original-price');
+  const discountEl = document.getElementById('product-discount');
+  
   if (product.hargaAsli && product.diskon) {
     originalPriceEl.textContent = formatRupiah(product.hargaAsli);
     originalPriceEl.style.display = "block";
@@ -343,35 +335,34 @@ function renderProductDetails(product) {
     }
   }
 
-  // Stok
-  document.getElementById("product-stok").textContent = product.stok;
+  // Set stok produk
+  document.getElementById('product-stok').textContent = product.stok;
 
-  // Deskripsi
-  document.getElementById("product-description").textContent =
-    product.deskripsi;
+  // Set deskripsi produk
+  document.getElementById('product-description').textContent = product.deskripsi;
 
-  // Update total price
+  // Update total harga berdasarkan quantity
   updateTotalPrice();
 }
 
+// Render informasi toko
 function renderTokoInfo(toko) {
   document.getElementById("toko-nama").textContent = toko.namaToko;
   document.getElementById("toko-lokasi").textContent = toko.lokasi;
 }
 
+// Render rating dan ulasan produk
 function renderRatings(ratings) {
-  // Calculate average
+  // Hitung rata-rata rating
   const avgRating = calculateAvgRating(ratings);
+  
+  // Update ringkasan rating
+  document.getElementById('avg-rating').textContent = avgRating.toFixed(1);
+  document.getElementById('rating-count').textContent = `(${ratings.length} ulasan)`;
 
-  // Update rating summary
-  document.getElementById("avg-rating").textContent = avgRating.toFixed(1);
-  document.getElementById(
-    "rating-count"
-  ).textContent = `(${ratings.length} ulasan)`;
-
-  // Render reviews list
-  const reviewsList = document.getElementById("reviews-list");
-  reviewsList.innerHTML = "";
+  // Render list ulasan
+  const reviewsList = document.getElementById('reviews-list');
+  reviewsList.innerHTML = '';
 
   if (ratings.length === 0) {
     reviewsList.innerHTML =
@@ -379,12 +370,14 @@ function renderRatings(ratings) {
     return;
   }
 
-  ratings.forEach((rating) => {
-    const reviewItem = document.createElement("div");
-    reviewItem.className = "review-item";
-
-    const stars = "★".repeat(rating.rating) + "☆".repeat(5 - rating.rating);
-
+  // Loop setiap rating dan buat elemen HTML
+  ratings.forEach(rating => {
+    const reviewItem = document.createElement('div');
+    reviewItem.className = 'review-item';
+    
+    // Generate bintang rating
+    const stars = '★'.repeat(rating.rating) + '☆'.repeat(5 - rating.rating);
+    
     reviewItem.innerHTML = `
       <div class="review-icon">
         👤
@@ -400,16 +393,16 @@ function renderRatings(ratings) {
   });
 }
 
-// ============================================
-// QUANTITY CONTROLS
-// ============================================
+// Quantity Control Functions
 
+// Setup event listener untuk kontrol quantity
 function initializeQuantityControls() {
   const btnDecrease = document.getElementById("btn-decrease");
   const btnIncrease = document.getElementById("btn-increase");
   const quantityDisplay = document.getElementById("quantity-display");
 
-  btnDecrease.addEventListener("click", () => {
+  // Tombol kurang quantity
+  btnDecrease.addEventListener('click', () => {
     if (currentQuantity > 1) {
       currentQuantity--;
       quantityDisplay.textContent = currentQuantity;
@@ -417,7 +410,8 @@ function initializeQuantityControls() {
     }
   });
 
-  btnIncrease.addEventListener("click", () => {
+  // Tombol tambah quantity
+  btnIncrease.addEventListener('click', () => {
     if (currentQuantity < currentProduct.stok) {
       currentQuantity++;
       quantityDisplay.textContent = currentQuantity;
@@ -428,15 +422,15 @@ function initializeQuantityControls() {
   });
 }
 
+// Update total harga berdasarkan quantity
 function updateTotalPrice() {
   const totalPrice = currentProduct.harga * currentQuantity;
   document.getElementById("total-price").textContent = formatRupiah(totalPrice);
 }
 
-// ============================================
-// ACTION BUTTONS
-// ============================================
+// Action Button Functions
 
+// Setup event listener untuk tombol aksi
 function initializeActionButtons() {
   const btnKeranjang = document.getElementById("btn-Keranjang");
   const btnBeli = document.getElementById("btn-Beli");
@@ -450,7 +444,7 @@ function initializeActionButtons() {
     if (success) {
       // Show notification
       showNotification(
-        `✅ ${currentQuantity} ${currentProduct.nama} berhasil ditambahkan ke keranjang!`,
+        `${currentQuantity} ${currentProduct.nama} berhasil ditambahkan ke keranjang!`,
         'success'
       );
 
@@ -461,12 +455,12 @@ function initializeActionButtons() {
     }
   });
 
-  // Tombol Beli Sekarang
+  // Event handler tombol beli sekarang
   btnBeli.addEventListener('click', () => {
     // Validasi stok
     if (currentQuantity > currentProduct.stok) {
       showNotification(
-        `⚠️ Stok ${currentProduct.nama} hanya tersedia ${currentProduct.stok} item`,
+        `Stok ${currentProduct.nama} hanya tersedia ${currentProduct.stok} item`,
         'warning'
       );
       return;
@@ -484,18 +478,18 @@ function initializeActionButtons() {
         deskripsi: currentProduct.deskripsi,
       },
     ];
-
-    localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-
+    
+    // Simpan data checkout ke localStorage
+    localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+    
     // Redirect ke halaman checkout
     window.location.href = "checkout.html";
   });
 }
 
-// ============================================
-// NOTIFICATION SYSTEM
-// ============================================
+// Notification System
 
+// Menampilkan notifikasi popup
 function showNotification(message, type = 'success') {
   // Hapus notifikasi lama jika ada
   const existingNotif = document.querySelector('.notification-toast');
@@ -558,10 +552,10 @@ function showNotification(message, type = 'success') {
     document.head.appendChild(style);
   }
 
-  // Tambahkan ke body
+  // Tambahkan notifikasi ke body
   document.body.appendChild(notification);
 
-  // Hapus setelah 3 detik
+  // Auto hapus notifikasi setelah 3 detik
   setTimeout(() => {
     notification.style.animation = "slideOut 0.3s ease-out";
     setTimeout(() => {
@@ -572,10 +566,9 @@ function showNotification(message, type = 'success') {
   }, 3000);
 }
 
-// ============================================
-// INITIALIZE ON PAGE LOAD
-// ============================================
+// Initialize Application
 
-document.addEventListener("DOMContentLoaded", () => {
+// Event listener saat halaman selesai dimuat
+document.addEventListener('DOMContentLoaded', () => {
   loadData();
 });
