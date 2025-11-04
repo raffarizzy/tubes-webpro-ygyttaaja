@@ -47,7 +47,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Hitung harga setelah diskon jika ada
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        hargaSetelahDiskon = Math.round(hargaAsli - (hargaAsli * diskon) / 100);
+        const persenDiskon = diskon < 1 ? diskon : diskon / 100;
+        hargaSetelahDiskon = Math.round(hargaAsli - hargaAsli * persenDiskon);
       }
 
       const subtotal = hargaSetelahDiskon * jumlah;
@@ -70,16 +71,16 @@ document.addEventListener("DOMContentLoaded", function () {
             <span class="price">${formatRupiah(hargaSetelahDiskon)}</span>
             ${
               hargaAsli > hargaSetelahDiskon
-                ? `<span class="from-price" style="text-decoration: line-through; color: red; margin-left: 8px;">${formatRupiah(
+                ? `<span class="from-price" style="text-decoration: line-through; color: red; font-size: 13px;">${formatRupiah(
                     hargaAsli
                   )}</span>`
                 : ""
             }
             ${
               diskon > 0
-                ? `<span class="discount" style="color: green; margin-left: 8px;">(${
+                ? `<span class="discount" style="color: green;">(Lebih hemat ${
                     diskon < 1 ? diskon * 100 : diskon
-                  }% Offer)</span>`
+                  }%)</span>`
                 : ""
             }
           </div>
@@ -107,10 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Hitung harga setelah diskon
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        const persenDiskon = diskon < 1 ? diskon * 100 : diskon;
-        hargaSetelahDiskon = Math.round(
-          hargaAsli - (hargaAsli * persenDiskon) / 100
-        );
+        const persenDiskon = diskon < 1 ? diskon : diskon / 100;
+        hargaSetelahDiskon = Math.round(hargaAsli - hargaAsli * persenDiskon);
       }
 
       const subtotalAsli = hargaAsli * jumlah;
@@ -206,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         <span class="edit-address-text" style="cursor:pointer; color:#007BFF;">Edit</span>
       </div>
       <p>${alamat}</p>
-      <p class="mobile-no">Mobile No : ${nomor}</p>
+      <p class="mobile-no">No. Telepon : ${nomor}</p>
     `;
 
     // Klik kartu
