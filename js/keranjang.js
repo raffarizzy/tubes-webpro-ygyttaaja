@@ -300,7 +300,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           imagePath: produk.imagePath,
           deskripsi: produk.deskripsi
         };
-      }).filter(item => item !== null); // Remove null items
+      }).filter(item => item !== null);
 
       // Simpan ke localStorage untuk dibaca di checkout.html
       localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
