@@ -7,6 +7,7 @@
     <link rel="icon" href="img/iconSpareHub.png" />
     <link rel="stylesheet" href="css/checkout.css" />
   </head>
+
   <body>
     <!-- Navigasi -->
     <nav>
@@ -29,87 +30,101 @@
     </nav>
 
     <!-- Main -->
-
     <main>
       <h1>Checkout</h1>
       <div class="checkout-layout">
-        <!-- Container kiri -->
-
+        <!-- Kiri -->
         <div class="left-container">
           <p class="label">Choose Address</p>
-          <div class="address-container">
-            <div class="address-card">
-              <h3>Bagas</h3>
-              <p>
-                Jl. Kenanga No. 21, RT 05/RW 03, Kelurahan Sukamaju, Kecamatan
-                Tebet, Jakarta Selatan
-              </p>
-              <p class="mobile-no">Mobile No : 081636472738</p>
-            </div>
-            <div class="address-card">
-              <h3>Slamet</h3>
-              <p>Jl. Merpati No. 45, Perum Griya Asri, Blok B3, Bekasi Timur</p>
-              <p class="mobile-no">Mobile No : 081311283830</p>
-            </div>
-            <div class="add-address-card">
+          <div class="address-container" id="addressContainer">
+            <!-- Kartu alamat akan dimasukkan via JS -->
+            <div class="add-address-card" id="addAddressCard">
               <h3>+ Add Address</h3>
             </div>
           </div>
+
+          <!-- FORM TAMBAH / EDIT ALAMAT -->
+          <div
+            class="add-address-form"
+            id="addAddressForm"
+            style="display: none"
+          >
+            <h3 id="formTitle">Add New Address</h3>
+            <input type="text" id="namaInput" placeholder="Nama" required />
+            <textarea
+              id="alamatInput"
+              placeholder="Alamat Lengkap"
+              required
+            ></textarea>
+            <input
+              type="text"
+              id="nomorInput"
+              placeholder="Nomor HP"
+              required
+            />
+            <div class="form-buttons">
+              <button id="saveAddress">Save</button>
+              <button id="cancelAdd" class="cancel-btn">Cancel</button>
+              <button
+                id="deleteAddress"
+                class="delete-btn"
+                style="display: none"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+
+          <!-- Item Detail -->
           <div class="item-container">
             <p class="label">Item Detail</p>
             <div class="item-detail-card">
               <div class="item-detail-image">
-                <img src="img/iconOli.png" alt="" />
+                <img src="" alt="" />
               </div>
               <div class="item-detail-desc">
-                <h3>Oli Mobil Shell</h3>
-                <p>
-                  Oli berkualitas tinggi yang menjaga performa mesin Anda tetap
-                  maksimal.
-                </p>
-                <p>
-                  <span class="price">Rp.125.000,00</span
-                  ><span class="from-price">Rp.200.000,00</span
-                  ><span class="discount">(37,5% off)</span>
-                </p>
-                <p>Total : 1 pcs</p>
+                <h3>Oli Mobil</h3>
+                <p>Tidak ada deskripsi produk.</p>
+                <div class="price-wrapper">
+                  <span class="price">Rp 125.000</span>
+                  <span class="from-price">Rp 150.000</span>
+                  <span class="discount">(offer 10%)</span>
+                </div>
+                <p>Total : 4 pcs</p>
               </div>
             </div>
           </div>
+
+          <!-- Metode Pembayaran -->
           <div class="payment-layout">
-            <div>
-              <p class="label">Choose Payment Method</p>
-            </div>
-            <div>
-              <div class="payment-container">
-                <div class="payment-card">
-                  <div class="payment-card-image">
-                    <img src="img/visa.png" alt="" />
-                  </div>
-                  <div class="payment-card-desc">
-                    <h3>**** **** **** 0817</h3>
-                    <p>Expires 12-29</p>
-                  </div>
+            <p class="label">Choose Payment Method</p>
+            <div class="payment-container">
+              <div class="payment-card">
+                <div class="payment-card-image">
+                  <img src="img/visa.png" alt="" />
                 </div>
-                <div class="payment-card">
-                  <div class="payment-card-image">
-                    <img src="img/mastercard.png" alt="" />
-                  </div>
-                  <div class="payment-card-desc">
-                    <h3>**** **** **** 3830</h3>
-                    <p>Expires 10-27</p>
-                  </div>
+                <div class="payment-card-desc">
+                  <h3>**** **** **** 0817</h3>
+                  <p>Expires 12-29</p>
                 </div>
-                <div class="payment-card-add">
-                  <h3>+ Add Payment Method</h3>
+              </div>
+              <div class="payment-card">
+                <div class="payment-card-image">
+                  <img src="img/mastercard.png" alt="" />
                 </div>
+                <div class="payment-card-desc">
+                  <h3>**** **** **** 3830</h3>
+                  <p>Expires 10-27</p>
+                </div>
+              </div>
+              <div class="payment-card-add">
+                <h3>+ Add Payment Method</h3>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Container Kanan -->
-
+        <!-- Kanan -->
         <div class="right-container">
           <div class="price-detail">
             <h3>Order Details</h3>
@@ -139,10 +154,11 @@
       </div>
     </main>
 
-    <!-- Footer -->
     <footer>
       <p>&copy; 2025 SpareHub</p>
     </footer>
+
+    <!-- Script -->
+    <script src="js/checkout.js"></script>
   </body>
-  <script src="js/checkout.js"></script>
 </html>
