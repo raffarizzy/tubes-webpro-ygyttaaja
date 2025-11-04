@@ -1,7 +1,10 @@
 // =====================================================
-// 🔹 Ambil data checkout dari localStorage & tampilkan
+// ✅ Semua logika dijalankan hanya sekali
 // =====================================================
 document.addEventListener("DOMContentLoaded", function () {
+  // =====================================================
+  // 🔹 Ambil data checkout dari localStorage & tampilkan
+  // =====================================================
   const checkoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
 
   // Elemen-elemen produk
@@ -18,66 +21,98 @@ document.addEventListener("DOMContentLoaded", function () {
   const discountDetail = document.querySelector(".discount-price");
   const totalDetail = document.querySelector(".price-detail-total td.price");
 
-  // Tidak ada produk
   if (checkoutData.length === 0) {
     itemName.textContent = "Tidak ada produk untuk di-checkout.";
-    return;
+  } else {
+    const product = checkoutData[0];
+
+    // =====================================================
+    // 🔹 Logika gambar & placeholder
+    // =====================================================
+    const imageContainer = document.querySelector(".item-detail-image");
+
+    if (product.imagePath && product.imagePath.trim() !== "") {
+      itemImage.src = product.imagePath;
+
+      // Kalau gambar gagal dimuat → tampilkan placeholder
+      itemImage.onerror = function () {
+        imageContainer.innerHTML = `
+          <div style="
+            width: 100%;
+            height: 100%;
+            background-color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #777;
+            font-size: 14px;
+            border-radius: 8px;
+          ">
+            Tidak ada gambar
+          </div>
+        `;
+      };
+    } else {
+      // Kalau imagePath kosong → langsung tampilkan placeholder
+      imageContainer.innerHTML = `
+        <div style="
+          width: 100%;
+          height: 100%;
+          background-color: #e0e0e0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #777;
+          font-size: 14px;
+          border-radius: 8px;
+        ">
+          Tidak ada gambar
+        </div>
+      `;
+    }
+
+    // =====================================================
+    // 🔹 Detail produk & harga
+    // =====================================================
+    itemName.textContent = product.nama;
+    itemDesc.textContent = product.deskripsi || "Tidak ada deskripsi produk.";
+
+    const hargaAsli =
+      parseFloat(product.hargaAsli) || parseFloat(product.harga);
+    const harga = parseFloat(product.harga);
+    let diskon = parseFloat(product.diskon) || 0;
+    const jumlah = parseInt(product.jumlah) || 1;
+
+    // Jika diskon berbentuk desimal (misal 0.1), ubah ke persen
+    if (diskon < 1) diskon = diskon * 100;
+
+    const hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon) / 100;
+    const totalHarga = hargaSetelahDiskon * jumlah;
+
+    // Tampilkan
+    priceEl.textContent = formatRupiah(hargaSetelahDiskon);
+    fromPriceEl.textContent =
+      hargaAsli > hargaSetelahDiskon ? formatRupiah(hargaAsli) : "";
+    discountEl.textContent = diskon > 0 ? `(${diskon}% Offer)` : "";
+    totalEl.textContent = `Total : ${jumlah} pcs`;
+
+    fromPriceEl.style.textDecoration = "line-through";
+    fromPriceEl.style.color = "red";
+    discountEl.style.color = "green";
+    discountEl.style.marginLeft = "8px";
+
+    // Update kanan
+    priceDetail.textContent = formatRupiah(hargaSetelahDiskon);
+    discountDetail.textContent =
+      diskon > 0
+        ? `- ${formatRupiah(hargaAsli - hargaSetelahDiskon)}`
+        : "- Rp0";
+    totalDetail.textContent = formatRupiah(totalHarga);
   }
 
-  const product = checkoutData[0];
-
-  // Gambar produk
-  if (product.imagePath) {
-    itemImage.src = product.imagePath;
-  }
-
-  // Nama dan deskripsi
-  itemName.textContent = product.nama;
-  itemDesc.textContent = product.deskripsi || "Tidak ada deskripsi produk.";
-
-  // Hitung harga dan diskon
-  const hargaAsli = parseFloat(product.hargaAsli) || parseFloat(product.harga);
-  const harga = parseFloat(product.harga);
-  const diskon =
-    parseFloat(product.diskon) || Math.round((1 - harga / hargaAsli) * 100);
-  const jumlah = parseInt(product.jumlah) || 1;
-  const hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon) / 100;
-  const totalHarga = hargaSetelahDiskon * jumlah;
-
-  // --- 💸 Tampilkan di tampilan produk ---
-  priceEl.textContent = formatRupiah(hargaSetelahDiskon);
-  fromPriceEl.textContent =
-    hargaAsli > hargaSetelahDiskon ? formatRupiah(hargaAsli) : "";
-  discountEl.textContent = diskon > 0 ? `(offer ${diskon}%)` : "";
-  totalEl.textContent = `Total : ${jumlah} pcs`;
-
-  // Tambah style biar jelas
-  fromPriceEl.style.textDecoration = "line-through";
-  fromPriceEl.style.color = "red";
-  discountEl.style.color = "green";
-  discountEl.style.marginLeft = "8px";
-
-  // --- 💰 Update Order Detail ---
-  priceDetail.textContent = formatRupiah(hargaSetelahDiskon);
-  discountDetail.textContent =
-    diskon > 0 ? `- ${formatRupiah(hargaAsli - hargaSetelahDiskon)}` : "- Rp0";
-  totalDetail.textContent = formatRupiah(totalHarga);
-});
-
-// 🔹 Fungsi bantu format Rupiah
-function formatRupiah(angka) {
-  const num = typeof angka === "string" ? parseFloat(angka) : angka;
-  return num.toLocaleString("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  });
-}
-
-// =====================================================
-// 🔹 Logika alamat & metode pembayaran
-// =====================================================
-document.addEventListener("DOMContentLoaded", function () {
+  // =====================================================
+  // 🔹 Logika alamat & metode pembayaran
+  // =====================================================
   const addressContainer = document.getElementById("addressContainer");
   const addAddressCard = document.getElementById("addAddressCard");
   const addAddressForm = document.getElementById("addAddressForm");
@@ -93,7 +128,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let alamatList = JSON.parse(localStorage.getItem("alamatList")) || [];
   let editIndex = null;
 
-  // 🔹 Load alamat awal dari JSON jika localStorage kosong
+  // Load alamat awal dari JSON jika kosong
   if (alamatList.length === 0) {
     fetch("JSON/alamatData.json")
       .then((res) => res.json())
@@ -107,7 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
     renderSemuaAlamat();
   }
 
-  // 🔹 Render semua alamat ke container
+  // Render semua alamat
   function renderSemuaAlamat() {
     document.querySelectorAll(".address-card").forEach((c) => c.remove());
     alamatList.forEach((alamat, index) => {
@@ -116,7 +151,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addAddressCard.style.display = alamatList.length > 2 ? "none" : "flex";
   }
 
-  // 🔹 Buat kartu alamat
+  // Buat kartu alamat
   function buatAddressCard(nama, alamat, nomor, index) {
     const card = document.createElement("div");
     card.classList.add("address-card");
@@ -129,7 +164,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <p class="mobile-no">Mobile No : ${nomor}</p>
     `;
 
-    // Klik kartu untuk pilih alamat
+    // Klik kartu
     card.addEventListener("click", () => {
       document
         .querySelectorAll(".address-card")
@@ -139,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
       updatePayButtonState();
     });
 
-    // Tombol Edit
+    // Edit
     const editBtn = card.querySelector(".edit-address-text");
     editBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -150,7 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
     addressContainer.insertBefore(card, addAddressCard);
   }
 
-  // 🔹 Tampilkan form tambah alamat
+  // Tambah alamat
   addAddressCard.addEventListener("click", () => {
     editIndex = null;
     addAddressCard.style.display = "none";
@@ -159,7 +194,6 @@ document.addEventListener("DOMContentLoaded", function () {
     resetForm();
   });
 
-  // 🔹 Simpan alamat baru atau hasil edit
   saveAddressBtn.addEventListener("click", () => {
     const nama = document.getElementById("namaInput").value.trim();
     const alamat = document.getElementById("alamatInput").value.trim();
@@ -184,7 +218,6 @@ document.addEventListener("DOMContentLoaded", function () {
     addAddressForm.style.display = "none";
   });
 
-  // 🔹 Batalkan tambah/edit alamat
   cancelAddBtn.addEventListener("click", () => {
     addAddressForm.style.display = "none";
     if (alamatList.length < 3) {
@@ -192,7 +225,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // 🔹 Hapus alamat
   deleteAddressBtn.addEventListener("click", () => {
     if (editIndex === null) return;
     if (confirm("Yakin ingin menghapus alamat ini?")) {
@@ -203,7 +235,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // 🔹 Tampilkan form edit alamat
   function tampilkanFormEdit(data) {
     addAddressForm.style.display = "flex";
     addAddressCard.style.display = "none";
@@ -219,7 +250,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("nomorInput").value = "";
   }
 
-  // 🔹 Pilih metode pembayaran
+  // Pilih metode pembayaran
   paymentCards.forEach((card) => {
     card.addEventListener("click", () => {
       paymentCards.forEach((c) => c.classList.remove("selected"));
@@ -229,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // 🔹 Update tombol Pay
+  // Update tombol Pay
   function updatePayButtonState() {
     if (selectedAddress && selectedPayment) {
       payButton.disabled = false;
@@ -240,7 +271,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 🔹 Klik Pay
   payButton.addEventListener("click", () => {
     if (!selectedAddress || !selectedPayment) {
       alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
@@ -253,3 +283,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updatePayButtonState();
 });
+
+// =====================================================
+// 🔹 Fungsi bantu format Rupiah
+// =====================================================
+function formatRupiah(angka) {
+  const num = typeof angka === "string" ? parseFloat(angka) : angka;
+  return num.toLocaleString("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  });
+}
