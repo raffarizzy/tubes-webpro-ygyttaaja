@@ -1,0 +1,216 @@
+/* ============== RESET & BASE ================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: #f4f6fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+/* ============== CONTAINER & CARD ================== */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.register-card {
+  background: white;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 420px;
+  max-width: 95%;
+}
+
+/* ============= LOGO & TITLE ========== */
+.logo {
+  width: 70px;
+  margin-bottom: 15px;
+}
+
+h1 {
+  color: #0d2857;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.subtitle {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+/* =============== INPUT GROUPS ============= */
+.input-group {
+  text-align: left;
+  margin-bottom: 18px;
+}
+
+.input-group label {
+  font-size: 13px;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background-color: #fff;
+  transition: border-color 0.3s;
+}
+
+.input-wrapper:focus-within {
+  border-color: #0d2857;
+}
+
+.input-wrapper i {
+  color: #0d2857;
+  font-size: 15px;
+}
+
+/* input */
+.input-wrapper input {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+/* ============== PASSWORD FIELD (GEMBOK + MATA) ======== */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #0d2857;
+  font-size: 16px;
+  outline: none;
+  z-index: 10;
+}
+
+.toggle-password:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.toggle-password:hover {
+  color: #153e8f;
+}
+
+/* =============== REGISTER BUTTON ================ */
+.btn-register {
+  width: 100%;
+  background-color: #0d2857;
+  color: white;
+  font-size: 15px;
+  border: none;
+  padding: 12px 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+.btn-register:hover {
+  background-color: #153e8f;
+}
+
+.btn-register:active {
+  transform: scale(0.98);
+}
+
+/* ========== LOGIN LINK ========= */
+.login-text {
+  margin-top: 20px;
+  color: #555;
+  font-size: 13px;
+}
+
+.login-text a {
+  color: #0d2857;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-text a:hover {
+  text-decoration: underline;
+}
+
+/* ========== PASSWORD MATCH INDICATOR ========= */
+.input-wrapper.password-match-success {
+  border-color: #28a745 !important;
+}
+
+.input-wrapper.password-match-error {
+  border-color: #dc3545 !important;
+}
+
+/* ========== RESPONSIVE ================ */
+@media (max-width: 480px) {
+  .register-card {
+    width: 100%;
+    padding: 30px 25px;
+  }
+
+  .input-wrapper input {
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .input-group label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .register-card {
+    padding: 25px 20px;
+  }
+
+  .logo {
+    width: 60px;
+  }
+
+  .btn-register {
+    font-size: 14px;
+    padding: 10px 0;
+  }
+}

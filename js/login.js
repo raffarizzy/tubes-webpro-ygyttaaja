@@ -1,5 +1,5 @@
 // =====================================================
-// ✅ Login Logic untuk SpareHub
+// Login Logic untuk SpareHub
 // =====================================================
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector(".login-form");
@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const togglePassword = document.querySelector(".toggle-password");
 
   // =====================================================
-  // 🔹 Event: Submit Login
+  // Event: Submit Login
   // =====================================================
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -41,13 +41,13 @@ document.addEventListener("DOMContentLoaded", () => {
         alert("Email atau password salah!");
       }
     } catch (error) {
-      console.error("❌ Gagal memuat data user:", error);
+      console.error("Gagal memuat data user:", error);
       alert("Terjadi kesalahan saat login. Silakan coba lagi.");
     }
   });
 
   // =====================================================
-  // 🔹 Toggle Password Visibility
+  // Toggle Password Visibility
   // =====================================================
   if (togglePassword) {
     togglePassword.addEventListener("click", (e) => {
