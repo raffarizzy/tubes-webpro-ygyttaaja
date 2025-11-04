@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Container untuk multiple items
   const itemContainer = document.querySelector(".item-container");
-  
+
   // Elemen detail harga di kanan
   const priceDetail = document.querySelector(".price-detail td.price");
   const deliveryCharges = document.querySelector(".delivery-charges");
@@ -38,46 +38,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
     items.forEach((product, index) => {
       // Hitung harga
-      const hargaAsli = parseFloat(product.hargaAsli) || parseFloat(product.harga);
+      const hargaAsli =
+        parseFloat(product.hargaAsli) || parseFloat(product.harga);
       const harga = parseFloat(product.harga);
       const diskon = parseFloat(product.diskon) || 0;
       const jumlah = parseInt(product.jumlah) || 1;
-      
+
       // Hitung harga setelah diskon jika ada
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon / 100);
+        hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon) / 100;
       }
-      
+
       const subtotal = hargaSetelahDiskon * jumlah;
 
       // Buat card untuk setiap item
-      const itemCard = document.createElement('div');
-      itemCard.className = 'item-detail-card';
-      itemCard.style.marginBottom = '15px';
-      
+      const itemCard = document.createElement("div");
+      itemCard.className = "item-detail-card";
+      itemCard.style.marginBottom = "15px";
+
       itemCard.innerHTML = `
         <div class="item-detail-image">
-          <img src="${product.imagePath || 'img/placeholder.png'}" 
+          <img src="${product.imagePath || "img/placeholder.png"}" 
                alt="${product.nama}"
                onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';" />
         </div>
         <div class="item-detail-desc">
           <h3>${product.nama}</h3>
-          <p>${product.deskripsi || 'Tidak ada deskripsi produk.'}</p>
+          <p>${product.deskripsi || "Tidak ada deskripsi produk."}</p>
           <div class="price-wrapper">
             <span class="price">${formatRupiah(hargaSetelahDiskon)}</span>
-            ${hargaAsli > hargaSetelahDiskon ? 
-              `<span class="from-price" style="text-decoration: line-through; color: red; margin-left: 8px;">${formatRupiah(hargaAsli)}</span>` : 
-              ''}
-            ${diskon > 0 ? 
-              `<span class="discount" style="color: green; margin-left: 8px;">(offer ${diskon}%)</span>` : 
-              ''}
+            ${
+              hargaAsli > hargaSetelahDiskon
+                ? `<span class="from-price" style="text-decoration: line-through; color: red; margin-left: 8px;">${formatRupiah(
+                    hargaAsli
+                  )}</span>`
+                : ""
+            }
+            ${
+              diskon > 0
+                ? `<span class="discount" style="color: green; margin-left: 8px;">(offer ${
+                    diskon < 1 ? diskon * 100 : diskon
+                  }%)</span>`
+                : ""
+            }
           </div>
-          <p>Quantity: ${jumlah} pcs</p>
-          <p style="font-weight: 600; color: #333; margin-top: 5px;">
-            Subtotal: ${formatRupiah(subtotal)}
-          </p>
+          <p>Total: ${jumlah} pcs</p>
         </div>
       `;
 
@@ -91,8 +97,9 @@ document.addEventListener("DOMContentLoaded", function () {
     let totalHargaSetelahDiskon = 0;
     let totalDiskon = 0;
 
-    items.forEach(product => {
-      const hargaAsli = parseFloat(product.hargaAsli) || parseFloat(product.harga);
+    items.forEach((product) => {
+      const hargaAsli =
+        parseFloat(product.hargaAsli) || parseFloat(product.harga);
       const harga = parseFloat(product.harga);
       const diskon = parseFloat(product.diskon) || 0;
       const jumlah = parseInt(product.jumlah) || 1;
@@ -100,7 +107,8 @@ document.addEventListener("DOMContentLoaded", function () {
       // Hitung harga setelah diskon
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
-        hargaSetelahDiskon = hargaAsli - (hargaAsli * diskon / 100);
+        const persenDiskon = diskon < 1 ? diskon * 100 : diskon; // kalau 0.1 jadi 10
+        hargaSetelahDiskon = hargaAsli - (hargaAsli * persenDiskon) / 100;
       }
 
       const subtotalAsli = hargaAsli * jumlah;
@@ -114,17 +122,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update UI
     priceDetail.textContent = formatRupiah(totalHargaAsli);
-    
+
     // Delivery charges (bisa disesuaikan logic nya)
     const biayaPengiriman = 0; // Free shipping
-    deliveryCharges.textContent = biayaPengiriman === 0 ? 'Free' : formatRupiah(biayaPengiriman);
-    
+    deliveryCharges.textContent =
+      biayaPengiriman === 0 ? "Free" : formatRupiah(biayaPengiriman);
+
     // Discount
     if (totalDiskon > 0) {
       discountDetail.textContent = `- ${formatRupiah(totalDiskon)}`;
-      discountDetail.parentElement.style.display = '';
+      discountDetail.parentElement.style.display = "";
     } else {
-      discountDetail.parentElement.style.display = 'none';
+      discountDetail.parentElement.style.display = "none";
     }
 
     // Total akhir
@@ -323,21 +332,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Simulasi pembayaran berhasil
     alert("Pembayaran berhasil! Terima kasih sudah berbelanja di SpareHub.");
-    
+
     // Hapus checkoutData dari localStorage
     localStorage.removeItem("checkoutData");
-    
+
     // Kosongkan keranjang user setelah checkout berhasil
     const userId = 1;
-    const savedCart = localStorage.getItem('keranjangData');
+    const savedCart = localStorage.getItem("keranjangData");
     if (savedCart) {
       let allCartData = JSON.parse(savedCart);
       // Hapus semua item user ini dari keranjang
-      allCartData = allCartData.filter(item => item.userId !== userId);
-      localStorage.setItem('keranjangData', JSON.stringify(allCartData));
-      console.log('Keranjang dikosongkan setelah checkout');
+      allCartData = allCartData.filter((item) => item.userId !== userId);
+      localStorage.setItem("keranjangData", JSON.stringify(allCartData));
+      console.log("Keranjang dikosongkan setelah checkout");
     }
-    
+
     // Redirect ke homepage atau halaman sukses
     setTimeout(() => {
       window.location.href = "homepage.html";
