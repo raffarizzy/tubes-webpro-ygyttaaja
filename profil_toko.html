@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,11 +16,7 @@
         <li><a href="profil_toko.html">Toko Saya</a></li>
         <li>
           <div id="profil">
-            <img
-              src="img/iconPengguna.png"
-              id="iconPengguna"
-              alt="Ikon Pengguna"
-            />
+            <img src="img/iconPengguna.png" id="iconPengguna" alt="Ikon Pengguna"/>
             <a href="pengguna.html">Pengguna</a>
           </div>
         </li>
@@ -28,52 +25,61 @@
 
     <!-- Header Toko -->
     <section class="toko-header">
-        <div class="toko-info">
+      <div class="toko-info">
         <img src="img/iconPengguna.png" alt="Profil Toko" class="profil">
         <div class="toko-detail">
-            <h2>Toko Sumber Motor</h2>
-            <p class="status">Aktif 5 menit lalu</p>
-            <button id="btnEdit" class="btn-Edit">✏️ Edit</button>
-            <button id="btnSave" class="btn-save">simpan</button>
+          <h2>Nama Toko</h2>
+          <p class="status">Aktif 5 menit lalu</p>
+          <button id="btnEdit" class="btn-Edit">Edit</button>
+          <button id="btnHapus" class="btn-hapus">Hapus Toko</button>
         </div>
-        </div>
+      </div>
 
-        <div class="toko-statistik">
-        <p><strong>Produk:</strong> 1</p>
+      <div class="toko-statistik">
+        <p><strong>Produk:</strong> <span id="jumlah-produk">0</span></p>
         <p><strong>Pengikut:</strong> 236</p>
-        <p><strong>Penilaian:</strong> ⭐ 4.8</p>
+        <p><strong>Penilaian:</strong> 4.8</p>
         <p><strong>Bergabung:</strong> 8 Bulan Lalu</p>
-        </div>
+      </div>
     </section>
+
+    <!-- Popup Edit Toko -->
+    <div id="editPopup" class="popup-edit">
+      <div class="popup-content">
+        <h3>Edit Toko</h3>
+        <label>Nama Toko:</label>
+        <input type="text" id="editNamaToko">
+
+        <label>Lokasi:</label>
+        <input type="text" id="editLokasi">
+
+        <label>Logo (URL gambar):</label>
+        <input type="text" id="editLogo">
+
+        <div class="popup-buttons">
+          <button id="saveEdit">Simpan</button>
+          <button id="cancelEdit">Batal</button>
+        </div>
+      </div>
+    </div>
+
 
     <!-- Navigasi Toko -->
     <nav class="toko-nav">
-        <a href="#" class="aktif">Halaman Utama</a>
-        <a href="#">Produk</a>
+      <a href="#" class="aktif">Produk</a>
     </nav>
 
     <!-- Daftar Produk -->
     <section class="produk-section">
-        <h3>Produk Unggulan</h3>
-        <div class="produk-list">
-        <div class="produk-card">
-            <img src="img/iconOli.png" alt="Oli Mobil Premium">
-            <h4>Oli Mobil Premium</h4>
-            <p class="harga">Rp125.000</p>
-            <p class="terjual">⭐ 4.9 • 120 terjual</p>
-        </div>
-        </div>
+      <h3>Produk</h3>
+      <div class="produk-list">
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-        <p>© 2025 SpareHub. Semua Hak Dilindungi.</p>
+      <p>© 2025 SpareHub. Semua Hak Dilindungi.</p>
     </footer>
-
-    <!-- Pop-up alert -->
-    <div id="popup" class="popup">
-        <p>✅ Berhasil disimpan</p>
-    </div>
 
     <script src="js/profil_toko.js"></script>
 </body>
