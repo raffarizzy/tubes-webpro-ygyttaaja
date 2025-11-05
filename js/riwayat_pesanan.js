@@ -1,17 +1,17 @@
 async function loadRiwayat() {
     try {
     // Ambil data produk dan pesanan
-    const [produkRes, pesananRes, ratingRes] = await Promise.all([
+    const [produkRes, pesananRes] = await Promise.all([
         fetch("JSON/productData.json"),
         fetch("JSON/pesananData.json"),
-        fetch("JSON/ratingData.json")
     ]);
 
-    const [produkList, pesananList, ratingList] = await Promise.all([
+    const [produkList, pesananList] = await Promise.all([
         produkRes.json(),
         pesananRes.json(),
-        ratingRes.json()
     ]);
+
+    const ratingList = JSON.parse(localStorage.getItem("ratingList")) || await fetch("JSON/ratingData.json").then(res => res.json());
 
     const container = document.getElementById("pesananContainer");
 

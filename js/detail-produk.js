@@ -16,8 +16,8 @@ async function loadData() {
     tokoData = await tokoResponse.json();
 
     // Load rating data
-    const ratingResponse = await fetch("JSON/ratingData.json");
-    ratingData = await ratingResponse.json();
+    // const ratingResponse = await fetch("JSON/ratingData.json");
+    ratingData = JSON.parse(localStorage.getItem("ratingList")) || await fetch("JSON/ratingData.json").then(res => res.json());
 
     // Load keranjang dari localStorage (PENTING: Key yang sama dengan keranjang.js)
     const savedCart = localStorage.getItem('keranjangData');
