@@ -102,7 +102,7 @@ main {
 .payment-card-add {
   display: flex;
   padding: 0;
-  width: 245px;
+  width: 240px;
   height: 130px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15);
   color: gray;
@@ -291,12 +291,13 @@ main {
   margin-top: 20px;
   display: flex;
   flex-direction: row;
-  gap: 40px;
+  gap: 25px;
   flex-wrap: wrap;
+  justify-content: flex-start; /* biar sejajar kiri */
 }
 
 .payment-card {
-  width: 249px;
+  width: 240px;
   height: 130px;
   display: flex;
   flex-direction: column;
@@ -329,11 +330,13 @@ main {
 /* ==================== price detail ================== */
 
 .price-detail {
-  padding: 0px 20px;
+  padding: 20px 25px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-  width: 320px;
+  width: 360px;
   max-width: 100%;
-  height: 240px;
+  height: auto;
+  background-color: #fff;
+  border-radius: 10px;
 }
 
 .price-detail h3 {
