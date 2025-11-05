@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Keranjang - SpareHub</title>
     <link rel="icon" href="img/iconSpareHub.png" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" href="css/navbar-unified.css" />
     <link rel="stylesheet" href="css/keranjang.css" />
   </head>
   <body>
@@ -17,12 +14,11 @@
       <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
       <ul>
         <li><a href="homepage.html">Beranda</a></li>
-        <li><a href="keranjang.html" class="active">Keranjang</a></li>
+        <li><a href="keranjang.html">Keranjang</a></li>
         <li><a href="profil_toko.html">Toko Saya</a></li>
         <li>
           <div id="profil">
-            <img src="img/iconPengguna.png" id="iconPengguna" alt="Ikon Pengguna" />
-            <a href="edit_profil.html">Pengguna</a>
+            <!-- User info will be loaded by navbar-manager.js -->
           </div>
         </li>
       </ul>
@@ -47,6 +43,7 @@
       <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
     </footer>
 
+    <script src="js/navbar-manager.js"></script>
     <script src="js/keranjang.js"></script>
   </body>
 </html>

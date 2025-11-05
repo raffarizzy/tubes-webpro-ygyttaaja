@@ -1,0 +1,235 @@
+/* =====================================================
+   UNIFIED NAVBAR - SpareHub
+   Navbar konsisten untuk semua halaman
+   ===================================================== */
+
+/* Reset dan Base Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
+/* --- NAVBAR UTAMA --- */
+nav {
+    background-color: #122c4f;
+    color: #ffffff;
+    height: 64px; 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* Logo */
+#logo {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+#logo:hover {
+    transform: scale(1.1);
+}
+
+/* Menu List */
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 32px;
+    margin: 0;
+    font-size: 0.95em;
+    align-items: center;
+}
+
+nav ul li {
+    position: relative;
+}
+
+nav ul li a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+nav ul li a:hover,
+nav ul li a.active {
+    color: #ffc107;
+}
+
+/* --- CART BADGE (untuk homepage & detail produk) --- */
+.cart-count {
+    background-color: #f44336;
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 7px;
+    border-radius: 50%;
+    margin-left: 5px;
+    min-width: 20px;
+    height: 20px;
+    display: none; /* Hidden by default, akan di-show via JS */
+    text-align: center;
+    line-height: 14px;
+    position: absolute;
+    top: -8px;
+    right: -12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Container untuk Keranjang agar badge positioning benar */
+.nav-keranjang-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* --- USER INFO SECTION --- */
+#profil {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+#iconPengguna {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1); /* Make icon white */
+}
+
+/* User Name Display */
+.user-name-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.user-name {
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 0.95em;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.3s ease;
+}
+
+.user-name-link:hover .user-name {
+    color: #ffc107;
+}
+
+/* Separator */
+.nav-separator {
+    color: #ffffff;
+    opacity: 0.5;
+    margin: 0 5px;
+}
+
+/* Logout Button */
+.btn-logout {
+    background: none;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #122c4f;
+}
+
+/* Login Link (jika belum login) */
+.login-link {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 6px 12px;
+    border: 1px solid #ffffff;
+    border-radius: 4px;
+    font-size: 0.85em;
+    transition: all 0.3s ease;
+}
+
+.login-link:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #122c4f;
+}
+
+/* --- RESPONSIVE DESIGN --- */
+@media (max-width: 968px) {
+    nav {
+        padding: 0 15px;
+    }
+    
+    nav ul {
+        gap: 20px;
+        font-size: 0.9em;
+    }
+    
+    .user-name {
+        max-width: 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px 15px;
+    }
+    
+    nav ul {
+        width: 100%;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+    
+    #profil {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+    
+    .user-name {
+        display: none; /* Hide name on mobile, only show icon */
+    }
+}
+
+/* --- LOADING STATE --- */
+.user-name.loading {
+    color: #aaa;
+    font-style: italic;
+}
+
+.user-name.loading::after {
+    content: '...';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
