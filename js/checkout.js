@@ -1,98 +1,106 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Ambil data checkout dari localStorage & tampilkan
-
   const checkoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
 
-  // Container untuk multiple items
-  const itemContainer = document.querySelector(".item-container");
-
-  // Elemen detail harga di kanan
-  const priceDetail = document.querySelector(".price-detail td.price");
-  const deliveryCharges = document.querySelector(".delivery-charges");
-  const discountDetail = document.querySelector(".discount-price");
-  const totalDetail = document.querySelector(".price-detail-total td.price");
+  const itemContainer = document.querySelector(".col-lg-8");
+  const orderPrice = document.getElementById("orderPrice");
+  const orderDelivery = document.getElementById("orderDelivery");
+  const orderDiscount = document.getElementById("orderDiscount");
+  const orderTotal = document.getElementById("orderTotal");
 
   if (checkoutData.length === 0) {
-    itemContainer.innerHTML = `
-      <p class="label">Item Detail</p>
-      <div style="text-align: center; padding: 40px; color: #999;">
-        <p style="font-size: 18px;">Tidak ada produk untuk checkout.</p>
-        <a href="keranjang.html" style="color: #007bff; text-decoration: none;">
-          ← Kembali ke Keranjang
-        </a>
+    const emptyCard = `
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-cart-x fs-1 text-muted mb-3"></i>
+          <h5 class="text-muted">Tidak ada produk untuk checkout</h5>
+          <p class="text-muted">Silakan tambahkan produk ke keranjang terlebih dahulu</p>
+          <a href="keranjang.html" class="btn btn-primary mt-3">
+            <i class="bi bi-arrow-left"></i> Kembali ke Keranjang
+          </a>
+        </div>
       </div>
     `;
+
+    itemContainer.innerHTML = emptyCard;
+
+    orderPrice.textContent = "Rp 0";
+    orderDelivery.textContent = "Gratis";
+    orderDiscount.textContent = "- Rp 0";
+    orderTotal.textContent = "Rp 0";
+
     return;
   }
 
-  // === RENDER SEMUA ITEM ===
   renderAllItems(checkoutData);
-
-  // === HITUNG & UPDATE TOTAL ===
   updateOrderDetails(checkoutData);
 
-  // === FUNCTION: RENDER ALL ITEMS ===
   function renderAllItems(items) {
-    // Clear existing content
-    itemContainer.innerHTML = '<p class="label">Item Detail</p>';
+    const itemCard = document.querySelector(".col-lg-8 .card:nth-child(2)");
+    const itemCardBody = itemCard.querySelector(".card-body");
 
-    items.forEach((product, index) => {
-      // Hitung harga
+    const label = itemCardBody.querySelector("h6");
+    itemCardBody.innerHTML = "";
+    itemCardBody.appendChild(label);
+
+    items.forEach((product) => {
       const hargaAsli =
         parseFloat(product.hargaAsli) || parseFloat(product.harga);
       const harga = parseFloat(product.harga);
       const diskon = parseFloat(product.diskon) || 0;
       const jumlah = parseInt(product.jumlah) || 1;
 
-      // Hitung harga setelah diskon jika ada
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
         const persenDiskon = diskon < 1 ? diskon : diskon / 100;
         hargaSetelahDiskon = Math.round(hargaAsli - hargaAsli * persenDiskon);
       }
 
-      const subtotal = hargaSetelahDiskon * jumlah;
-
-      // Buat card untuk setiap item
-      const itemCard = document.createElement("div");
-      itemCard.className = "item-detail-card";
-      itemCard.style.marginBottom = "10px";
-
-      itemCard.innerHTML = `
-        <div class="item-detail-image">
-          <img src="${product.imagePath || "img/placeholder.png"}" 
-               alt="${product.nama}"
-               onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';" />
-        </div>
-        <div class="item-detail-desc">
-          <h3>${product.nama}</h3>
-          <p>${product.deskripsi || "Tidak ada deskripsi produk."}</p>
-          <div class="price-wrapper">
-            <span class="price">${formatRupiah(hargaSetelahDiskon)}</span>
-            ${
-              hargaAsli > hargaSetelahDiskon
-                ? `<span class="from-price" style="text-decoration: line-through; color: red; font-size: 13px;">${formatRupiah(
-                    hargaAsli
-                  )}</span>`
-                : ""
-            }
-            ${
-              diskon > 0
-                ? `<span class="discount" style="color: green;">(Lebih hemat ${
-                    diskon < 1 ? diskon * 100 : diskon
-                  }%)</span>`
-                : ""
-            }
+      const itemDiv = document.createElement("div");
+      itemDiv.className = "card mb-3 item-detail-card overflow-hidden";
+      itemDiv.innerHTML = `
+        <div class="row g-0 align-items-center h-100">
+          <div class="col-md-3 bg-light h-100 d-flex align-items-center justify-content-center">
+            <img src="${product.imagePath || "img/placeholder.png"}" 
+                 alt="${product.nama}" 
+                 class="img-fluid" 
+                 style="max-height: 140px; width: 100%; object-fit: contain;"
+                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23ddd%22 width=%22100%22 height=%22100%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-size=%2214%22%3ENo Image%3C/text%3E%3C/svg%3E';" />
           </div>
-          <p style="margin-top: 10px;">Total: ${jumlah} pcs</p>
+          <div class="col-md-9 h-100">
+            <div class="card-body py-2 px-3 h-100 d-flex flex-column justify-content-center">
+              <h5 class="card-title mb-1">${product.nama}</h5>
+              <p class="card-text text-muted small mb-2">${
+                product.deskripsi || "Tidak ada deskripsi produk."
+              }</p>
+              <div class="mb-1">
+                <span class="fw-bold fs-6">${formatRupiah(
+                  hargaSetelahDiskon
+                )}</span>
+                ${
+                  hargaAsli > hargaSetelahDiskon
+                    ? `<span class="text-decoration-line-through text-danger ms-2 small">${formatRupiah(
+                        hargaAsli
+                      )}</span>`
+                    : ""
+                }
+                ${
+                  diskon > 0
+                    ? `<span class="badge bg-success ms-2 small">${
+                        diskon < 1 ? diskon * 100 : diskon
+                      }% Off</span>`
+                    : ""
+                }
+              </div>
+              <p class="mb-0 small text-muted">Jumlah: ${jumlah} pcs</p>
+            </div>
+          </div>
         </div>
       `;
 
-      itemContainer.appendChild(itemCard);
+      itemCardBody.appendChild(itemDiv);
     });
   }
 
-  // === FUNCTION: UPDATE ORDER DETAILS ===
   function updateOrderDetails(items) {
     let totalHargaAsli = 0;
     let totalHargaSetelahDiskon = 0;
@@ -105,7 +113,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const diskon = parseFloat(product.diskon) || 0;
       const jumlah = parseInt(product.jumlah) || 1;
 
-      // Hitung harga setelah diskon
       let hargaSetelahDiskon = harga;
       if (diskon > 0) {
         const persenDiskon = diskon < 1 ? diskon : diskon / 100;
@@ -121,26 +128,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     totalDiskon = totalHargaAsli - totalHargaSetelahDiskon;
 
-    priceDetail.textContent = formatRupiah(totalHargaAsli);
+    orderPrice.textContent = formatRupiah(totalHargaAsli);
 
     const biayaPengiriman = 0;
-    deliveryCharges.textContent =
+    orderDelivery.textContent =
       biayaPengiriman === 0 ? "Gratis" : formatRupiah(biayaPengiriman);
+    orderDelivery.className =
+      biayaPengiriman === 0
+        ? "text-end text-success fw-bold"
+        : "text-end fw-bold";
 
-    // Discount
-    if (totalDiskon > 0) {
-      discountDetail.textContent = `- ${formatRupiah(totalDiskon)}`;
-      discountDetail.parentElement.style.display = "";
-    } else {
-      discountDetail.textContent = "- Rp 0";
-      discountDetail.parentElement.style.display = "";
-    }
+    orderDiscount.textContent =
+      totalDiskon > 0 ? `- ${formatRupiah(totalDiskon)}` : "- Rp 0";
 
     const totalAkhir = totalHargaSetelahDiskon + biayaPengiriman;
-    totalDetail.textContent = formatRupiah(totalAkhir);
+    orderTotal.textContent = formatRupiah(totalAkhir);
   }
 
-  // Fungsi bantu format Rupiah
   function formatRupiah(angka) {
     const num = typeof angka === "string" ? parseFloat(angka) : angka;
     return num.toLocaleString("id-ID", {
@@ -151,8 +155,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// Logika alamat & metode pembayaran
-
 document.addEventListener("DOMContentLoaded", function () {
   const addressContainer = document.getElementById("addressContainer");
   const addAddressCard = document.getElementById("addAddressCard");
@@ -160,16 +162,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const saveAddressBtn = document.getElementById("saveAddress");
   const cancelAddBtn = document.getElementById("cancelAdd");
   const deleteAddressBtn = document.getElementById("deleteAddress");
-
-  const payButton = document.querySelector(".payment-button-container button");
-  const paymentCards = document.querySelectorAll(".payment-card");
+  const payButton = document.getElementById("payNowBtn");
+  const paymentCards = document.querySelectorAll(".card[role='button']");
 
   let selectedAddress = null;
   let selectedPayment = null;
   let alamatList = JSON.parse(localStorage.getItem("alamatList")) || [];
   let editIndex = null;
 
-  // Load alamat awal dari JSON jika localStorage kosong
   if (alamatList.length === 0) {
     fetch("JSON/alamatData.json")
       .then((res) => res.json())
@@ -186,59 +186,72 @@ document.addEventListener("DOMContentLoaded", function () {
     renderSemuaAlamat();
   }
 
-  // Render semua alamat ke container
   function renderSemuaAlamat() {
     document.querySelectorAll(".address-card").forEach((c) => c.remove());
+
     alamatList.forEach((alamat, index) => {
       buatAddressCard(alamat.nama, alamat.alamat, alamat.nomor, index);
     });
-    addAddressCard.style.display = alamatList.length >= 3 ? "none" : "flex";
+
+    const addCardCol = addAddressCard.closest(".col-md-6");
+    if (alamatList.length >= 3) {
+      addCardCol.style.display = "none";
+    } else {
+      addCardCol.style.display = "block";
+    }
   }
 
-  // Buat kartu alamat
   function buatAddressCard(nama, alamat, nomor, index) {
-    const card = document.createElement("div");
-    card.classList.add("address-card");
-    card.innerHTML = `
-      <div class="address-header">
-        <h3>${nama}</h3>
-        <span class="edit-address-text" style="cursor:pointer; color:#007BFF;">Edit</span>
+    const col = document.createElement("div");
+    col.className = "col-md-6 col-xl-4 address-card";
+
+    col.innerHTML = `
+      <div class="card border-2 h-100 card-selectable" data-index="${index}">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <h6 class="mb-0 fw-bold">${nama}</h6>
+            <span class="text-primary small edit-link" data-index="${index}">
+              <i class="bi bi-pencil"></i> Edit
+            </span>
+          </div>
+          <p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${alamat}</p>
+          <p class="text-muted small mb-0"><i class="bi bi-telephone"></i> ${nomor}</p>
+        </div>
       </div>
-      <p>${alamat}</p>
-      <p class="mobile-no">No. Telepon : ${nomor}</p>
     `;
 
-    // Klik kartu
-    card.addEventListener("click", () => {
+    const card = col.querySelector(".card");
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".edit-link")) return;
+
       document
-        .querySelectorAll(".address-card")
+        .querySelectorAll(".card-selectable")
         .forEach((c) => c.classList.remove("selected"));
       card.classList.add("selected");
       selectedAddress = card;
       updatePayButtonState();
     });
 
-    // Edit
-    const editBtn = card.querySelector(".edit-address-text");
+    const editBtn = col.querySelector(".edit-link");
     editBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       editIndex = index;
       tampilkanFormEdit(alamatList[index]);
     });
 
-    addressContainer.insertBefore(card, addAddressCard);
+    addressContainer.insertBefore(col, addAddressCard.closest(".col-md-6"));
   }
 
-  // Tampilkan form tambah alamat
   addAddressCard.addEventListener("click", () => {
     editIndex = null;
-    addAddressCard.style.display = "none";
-    addAddressForm.style.display = "flex";
-    deleteAddressBtn.style.display = "none";
+    addAddressForm.classList.remove("d-none");
+    document.getElementById("formTitle").textContent = "Tambah Alamat Baru";
+    deleteAddressBtn.classList.add("d-none");
     resetForm();
+
+    addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
   });
 
-  // Simpan alamat baru atau hasil edit
   saveAddressBtn.addEventListener("click", () => {
     const nama = document.getElementById("namaInput").value.trim();
     const alamat = document.getElementById("alamatInput").value.trim();
@@ -255,41 +268,47 @@ document.addEventListener("DOMContentLoaded", function () {
       alamatList[editIndex] = dataBaru;
       editIndex = null;
     } else {
+      if (alamatList.length >= 3) {
+        alert("Maksimal 3 alamat!");
+        return;
+      }
       alamatList.push(dataBaru);
     }
 
     localStorage.setItem("alamatList", JSON.stringify(alamatList));
     renderSemuaAlamat();
-    addAddressForm.style.display = "none";
+    addAddressForm.classList.add("d-none");
+
+    showNotification("Alamat berhasil disimpan!", "success");
   });
 
-  // Batalkan tambah/edit alamat
   cancelAddBtn.addEventListener("click", () => {
-    addAddressForm.style.display = "none";
-    if (alamatList.length < 3) {
-      addAddressCard.style.display = "flex";
-    }
+    addAddressForm.classList.add("d-none");
+    editIndex = null;
   });
 
-  // Hapus alamat
   deleteAddressBtn.addEventListener("click", () => {
     if (editIndex === null) return;
     if (confirm("Yakin ingin menghapus alamat ini?")) {
       alamatList.splice(editIndex, 1);
       localStorage.setItem("alamatList", JSON.stringify(alamatList));
       renderSemuaAlamat();
-      addAddressForm.style.display = "none";
+      addAddressForm.classList.add("d-none");
+      editIndex = null;
+
+      showNotification("Alamat berhasil dihapus!", "info");
     }
   });
 
-  // Tampilkan form edit alamat
   function tampilkanFormEdit(data) {
-    addAddressForm.style.display = "flex";
-    addAddressCard.style.display = "none";
-    deleteAddressBtn.style.display = "inline-block";
+    addAddressForm.classList.remove("d-none");
+    document.getElementById("formTitle").textContent = "Edit Alamat";
+    deleteAddressBtn.classList.remove("d-none");
     document.getElementById("namaInput").value = data.nama;
     document.getElementById("alamatInput").value = data.alamat;
     document.getElementById("nomorInput").value = data.nomor;
+
+    addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
   function resetForm() {
@@ -298,69 +317,77 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("nomorInput").value = "";
   }
 
-  // Pilih metode pembayaran
-  paymentCards.forEach((card) => {
+  paymentCards.forEach((card, index) => {
+    if (card.querySelector(".bi-plus-circle")) return;
+
     card.addEventListener("click", () => {
-      paymentCards.forEach((c) => c.classList.remove("selected"));
-      card.classList.add("selected");
+      paymentCards.forEach((c) => {
+        if (!c.querySelector(".bi-plus-circle")) {
+          c.classList.remove("selected", "border-success");
+        }
+      });
+      card.classList.add("selected", "border-success");
       selectedPayment = card;
       updatePayButtonState();
     });
   });
 
-  // Update tombol Pay
   function updatePayButtonState() {
     if (selectedAddress && selectedPayment) {
       payButton.disabled = false;
-      payButton.style.opacity = "1";
-      payButton.style.cursor = "pointer";
+      payButton.classList.remove("disabled");
     } else {
       payButton.disabled = true;
-      payButton.style.opacity = "0.6";
-      payButton.style.cursor = "not-allowed";
+      payButton.classList.add("disabled");
     }
   }
 
-  // Klik Pay
   payButton.addEventListener("click", () => {
     if (!selectedAddress || !selectedPayment) {
       alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
       return;
     }
 
-    // Simulasi pembayaran berhasil
-    alert("Pembayaran berhasil! Terima kasih sudah berbelanja di SpareHub.");
+    payButton.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+    payButton.disabled = true;
 
-    // Hapus checkoutData dari localStorage
-    localStorage.removeItem("checkoutData");
-
-    // Kosongkan keranjang user setelah checkout berhasil
-    const userId = 1;
-    const savedCart = localStorage.getItem("keranjangData");
-    if (savedCart) {
-      let allCartData = JSON.parse(savedCart);
-      // Hapus semua item user ini dari keranjang
-      allCartData = allCartData.filter((item) => item.userId !== userId);
-      localStorage.setItem("keranjangData", JSON.stringify(allCartData));
-      console.log("Keranjang dikosongkan setelah checkout");
-    }
-
-    // Redirect ke homepage atau halaman sukses
     setTimeout(() => {
+      alert("Pembayaran berhasil! Terima kasih sudah berbelanja di SpareHub.");
+
+      localStorage.removeItem("checkoutData");
+
+      const userId = 1;
+      const savedCart = localStorage.getItem("keranjangData");
+      if (savedCart) {
+        let allCartData = JSON.parse(savedCart);
+        allCartData = allCartData.filter((item) => item.userId !== userId);
+        localStorage.setItem("keranjangData", JSON.stringify(allCartData));
+        console.log("Keranjang dikosongkan setelah checkout");
+      }
+
       window.location.href = "homepage.html";
-    }, 500);
+    }, 1500);
   });
 
-  const currentPage = window.location.pathname.split("/").pop();
-  const navLinks = document.querySelectorAll("nav ul li a");
+  function showNotification(message, type = "success") {
+    const alertDiv = document.createElement("div");
+    alertDiv.className = `alert alert-${
+      type === "success" ? "success" : "info"
+    } alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText =
+      "top: 80px; right: 20px; z-index: 9999; min-width: 300px;";
+    alertDiv.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
 
-  navLinks.forEach((link) => {
-    const linkPage = link.getAttribute("href");
-    if (linkPage === currentPage) {
-      link.classList.add("active");
-    } else {
-      link.classList.remove("active");
-    }
-  });
+    document.body.appendChild(alertDiv);
+
+    setTimeout(() => {
+      alertDiv.remove();
+    }, 3000);
+  }
+
   updatePayButtonState();
 });
