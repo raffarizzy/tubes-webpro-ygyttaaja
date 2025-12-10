@@ -19,7 +19,7 @@ async function loadData() {
     // const ratingResponse = await fetch("JSON/ratingData.json");
     ratingData = JSON.parse(localStorage.getItem("ratingList")) || await fetch("JSON/ratingData.json").then(res => res.json());
 
-    // Load keranjang dari localStorage (PENTING: Key yang sama dengan keranjang.js)
+    // Load keranjang dari localStorage
     const savedCart = localStorage.getItem('keranjangData');
     if (savedCart) {
       keranjangData = JSON.parse(savedCart);
@@ -177,7 +177,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
   if (existingItemIndex !== -1) {
     // Produk sudah ada, cek total jumlah tidak melebihi stok
     const newTotal = keranjangData[existingItemIndex].jumlah + jumlahTambahan;
-    
+
     if (newTotal > produk.stok) {
       showNotification(
         `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
@@ -185,7 +185,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
       );
       return false;
     }
-    
+
     keranjangData[existingItemIndex].jumlah = newTotal;
   } else {
     // Produk belum ada, validasi jumlah tidak melebihi stok
@@ -196,7 +196,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
       );
       return false;
     }
-    
+
     // Tambah item baru
     keranjangData.push({
       userId: userId,
@@ -208,10 +208,10 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
   // Simpan ke localStorage (PENTING: Key yang sama dengan keranjang.js)
   localStorage.setItem('keranjangData', JSON.stringify(keranjangData));
   console.log('Keranjang disimpan ke localStorage');
-  
+
   // Update tampilan badge jumlah item di keranjang
   updateCartCount();
-  
+
   return true;
 }
 
@@ -245,12 +245,12 @@ function initializePage() {
   if (!currentProduct) {
     console.error('Product not found!');
     document.body.innerHTML = `
-      <div style="text-align: center; padding: 100px;">
-        <h1>Produk tidak ditemukan</h1>
-        <p>Produk yang Anda cari tidak tersedia.</p>
-        <a href="homepage.html" style="color: #007bff; text-decoration: none;">← Kembali ke Beranda</a>
-      </div>
-    `;
+        <div style="text-align: center; padding: 100px;">
+          <h1>Produk tidak ditemukan</h1>
+          <p>Produk yang Anda cari tidak tersedia.</p>
+          <a href="homepage.html" style="color: #007bff; text-decoration: none;">← Kembali ke Beranda</a>
+        </div>
+      `;
     return;
   }
 
@@ -285,20 +285,20 @@ function renderProductDetails(product) {
   const imgElement = document.getElementById('product-image');
   imgElement.src = product.imagePath;
   imgElement.alt = product.nama;
-  
+
   // Log path gambar untuk debugging
   console.log('Loading image from:', product.imagePath);
-  
+
   // Handler jika gambar gagal dimuat
-  imgElement.onerror = function() {
+  imgElement.onerror = function () {
     console.error('Failed to load image:', product.imagePath);
     // Tampilkan placeholder jika gambar tidak ditemukan
     this.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ddd" width="300" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="20"%3ENo Image%3C/text%3E%3C/svg%3E';
     this.style.backgroundColor = '#f0f0f0';
   };
-  
+
   // Handler jika gambar berhasil dimuat
-  imgElement.onload = function() {
+  imgElement.onload = function () {
     console.log('Image loaded successfully!');
   };
 
@@ -307,11 +307,11 @@ function renderProductDetails(product) {
 
   // Set harga produk
   document.getElementById('product-price').textContent = formatRupiah(product.harga);
-  
+
   // Handle harga asli dan diskon jika ada
   const originalPriceEl = document.getElementById('product-original-price');
   const discountEl = document.getElementById('product-discount');
-  
+
   if (product.hargaAsli && product.diskon) {
     originalPriceEl.textContent = formatRupiah(product.hargaAsli);
     originalPriceEl.style.display = "block";
@@ -355,7 +355,7 @@ function renderTokoInfo(toko) {
 function renderRatings(ratings) {
   // Hitung rata-rata rating
   const avgRating = calculateAvgRating(ratings);
-  
+
   // Update ringkasan rating
   document.getElementById('avg-rating').textContent = avgRating.toFixed(1);
   document.getElementById('rating-count').textContent = `(${ratings.length} ulasan)`;
@@ -374,20 +374,37 @@ function renderRatings(ratings) {
   ratings.forEach(rating => {
     const reviewItem = document.createElement('div');
     reviewItem.className = 'review-item';
-    
+
     // Generate bintang rating
     const stars = '★'.repeat(rating.rating) + '☆'.repeat(5 - rating.rating);
-    
+
     reviewItem.innerHTML = `
-      <div class="review-icon">
-        👤
+       <div class="col-12 col-md-6 col-lg-4">
+  <div class="card shadow-sm h-100">
+
+    <div class="card-body d-flex">
+
+      <!-- Icon -->
+      <div class="me-3 d-flex align-items-start">
+        <i class="bi bi-person-circle fs-3 text-primary"></i>
       </div>
-      <div class="review-content">
-        <div class="review-rating">${stars}</div>
-        <div class="review-text">${rating.komentar}</div>
-        <div class="review-date">${rating.tanggal}</div>
+
+      <!-- Content -->
+      <div>
+        <div class="text-warning fw-bold" style="font-size: 14px;">
+          ${"★".repeat(rating.rating)}${"☆".repeat(5 - rating.rating)}
+        </div>
+
+        <p class="mb-1">${rating.komentar}</p>
+
+        <small class="text-muted">${rating.tanggal}</small>
       </div>
-    `;
+
+    </div>
+
+  </div>
+</div>
+      `;
 
     reviewsList.appendChild(reviewItem);
   });
@@ -438,9 +455,9 @@ function initializeActionButtons() {
   // Tombol Tambah ke Keranjang
   btnKeranjang.addEventListener("click", () => {
     const userId = 1; // Hardcode, nanti pakai user login
-    
+
     const success = tambahKeKeranjang(userId, currentProduct.id, currentQuantity);
-    
+
     if (success) {
       // Show notification
       showNotification(
@@ -478,10 +495,10 @@ function initializeActionButtons() {
         deskripsi: currentProduct.deskripsi,
       },
     ];
-    
+
     // Simpan data checkout ke localStorage
     localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
-    
+
     // Redirect ke halaman checkout
     window.location.href = "checkout.html";
   });
@@ -500,27 +517,27 @@ function showNotification(message, type = 'success') {
   // Buat elemen notifikasi
   const notification = document.createElement('div');
   notification.className = 'notification-toast';
-  
-  const bgColor = type === 'success' ? '#28a745' : 
-                  type === 'warning' ? '#ffc107' : 
-                  type === 'error' ? '#dc3545' : '#17a2b8';
-  
+
+  const bgColor = type === 'success' ? '#28a745' :
+    type === 'warning' ? '#ffc107' :
+      type === 'error' ? '#dc3545' : '#17a2b8';
+
   const textColor = type === 'warning' ? '#000' : '#fff';
-  
+
   notification.style.cssText = `
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    background-color: ${bgColor};
-    color: ${textColor};
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 10000;
-    animation: slideIn 0.3s ease-out;
-    font-weight: 500;
-    max-width: 350px;
-  `;
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background-color: ${bgColor};
+      color: ${textColor};
+      padding: 15px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 10000;
+      animation: slideIn 0.3s ease-out;
+      font-weight: 500;
+      max-width: 350px;
+    `;
   notification.textContent = message;
 
   // Tambahkan CSS animation jika belum ada
@@ -528,27 +545,27 @@ function showNotification(message, type = 'success') {
     const style = document.createElement('style');
     style.id = 'notification-styles';
     style.textContent = `
-      @keyframes slideIn {
-        from {
-          transform: translateX(400px);
-          opacity: 0;
+        @keyframes slideIn {
+          from {
+            transform: translateX(400px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
         }
-        to {
-          transform: translateX(0);
-          opacity: 1;
+        @keyframes slideOut {
+          from {
+            transform: translateX(0);
+            opacity: 1;
+          }
+          to {
+            transform: translateX(400px);
+            opacity: 0;
+          }
         }
-      }
-      @keyframes slideOut {
-        from {
-          transform: translateX(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateX(400px);
-          opacity: 0;
-        }
-      }
-    `;
+      `;
     document.head.appendChild(style);
   }
 
