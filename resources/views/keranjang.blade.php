@@ -33,9 +33,7 @@
         <h3>Ringkasan Belanja</h3>
         <p>Total Item: <span id="total-item">0</span></p>
         <p>Total Harga: <span id="total-harga">Rp 0</span></p>
-        <a href="checkout.html">
-          <button class="btn-checkout">Lanjut ke Pembayaran</button>
-        </a>
+        <button class="btn-checkout">Lanjut ke Pembayaran</button>
       </div>
     </section>
 

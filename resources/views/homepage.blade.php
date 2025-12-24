@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Home Page - SpareHub</title>
     <link rel="icon" href="img/iconSpareHub.png" />
-    <link rel="stylesheet" href="css/navbar-unified.css" />
-    <link rel="stylesheet" href="css/homepage.css" />
+    <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
+
   </head>
   <body>
     <!-- Navbar -->
@@ -15,7 +16,7 @@
       <ul>
         <li><a href="homepage.html">Beranda</a></li>
         <li class="nav-keranjang-wrapper">
-          <a href="keranjang.html">
+          <a href="{{ route('keranjang') }}">
             Keranjang
             <span id="cart-count" class="cart-count">0</span>
           </a>
@@ -48,7 +49,8 @@
     </footer>
 
     <!-- JS -->
-    <script src="js/navbar-manager.js"></script>
-    <script src="js/homepage.js"></script>
+    <script src="{{ asset('js/navbar-manager.js') }}"></script>
+    <script src="{{ asset('js/homepage.js') }}"></script>
+
   </body>
 </html>

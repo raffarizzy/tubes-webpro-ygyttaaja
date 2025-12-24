@@ -3,6 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>Checkout - SpareHub</title>
     <link rel="icon" href="img/iconSpareHub.png" />
     <link
@@ -13,15 +15,15 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
     />
-    <link rel="stylesheet" href="css/navbar-unified.css" />
+    <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}">
   </head>
 
   <body class="bg-light">
     <nav>
       <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
       <ul>
-        <li><a href="homepage.html">Beranda</a></li>
-        <li><a href="keranjang.html">Keranjang</a></li>
+        <li><a href="{{ url('/') }}">Beranda</a></li>
+        <a href="{{ route('keranjang') }}">Keranjang</a>
         <li><a href="profil_toko.html">Toko Saya</a></li>
         <li>
           <div id="profil"></div>
@@ -29,16 +31,17 @@
       </ul>
     </nav>
 
-    <main class="container my-4">
-      <h1 class="mb-4 fw-bold">Checkout</h1>
+    <main class="container my-3">
+      <h2 class="mb-3 fw-bold">Checkout</h2>
 
-      <div class="row g-4">
-        <div class="col-lg-8">
-          <div class="card shadow-sm mb-4">
-            <div class="card-body">
+      <div class="row g-3">
+        <div class="col-lg-7">
+          <!-- Pilih Alamat -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-body p-3">
               <h6 class="text-secondary fw-bold mb-3">Pilih Alamat</h6>
 
-              <div class="row g-3" id="addressContainer">
+              <div class="row g-2" id="addressContainer">
                 <div class="col-md-6 col-xl-4">
                   <div
                     class="card border-2 border-dashed h-100"
@@ -46,53 +49,53 @@
                     role="button"
                   >
                     <div
-                      class="card-body d-flex align-items-center justify-content-center text-center text-secondary"
+                      class="card-body p-3 d-flex align-items-center justify-content-center text-center text-secondary"
                     >
                       <div>
-                        <i class="bi bi-plus-circle fs-3"></i>
-                        <h6 class="mt-2 mb-0">Tambah Alamat</h6>
+                        <i class="bi bi-plus-circle fs-4"></i>
+                        <p class="mt-2 mb-0 small">Tambah Alamat</p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div id="addAddressForm" class="d-none mt-4">
+              <div id="addAddressForm" class="d-none mt-3">
                 <div class="card border-success">
-                  <div class="card-body">
-                    <h5 class="card-title mb-3" id="formTitle">
+                  <div class="card-body p-3">
+                    <h6 class="card-title mb-3" id="formTitle">
                       Tambah Alamat Baru
-                    </h5>
+                    </h6>
                     <form>
-                      <div class="mb-3">
-                        <label for="namaInput" class="form-label">Nama</label>
+                      <div class="mb-2">
+                        <label for="namaInput" class="form-label small mb-1">Nama</label>
                         <input
                           type="text"
-                          class="form-control"
+                          class="form-control form-control-sm"
                           id="namaInput"
                           placeholder="Masukkan nama"
                           required
                         />
                       </div>
-                      <div class="mb-3">
-                        <label for="alamatInput" class="form-label"
+                      <div class="mb-2">
+                        <label for="alamatInput" class="form-label small mb-1"
                           >Alamat Lengkap</label
                         >
                         <textarea
-                          class="form-control"
+                          class="form-control form-control-sm"
                           id="alamatInput"
-                          rows="3"
+                          rows="2"
                           placeholder="Masukkan alamat lengkap"
                           required
                         ></textarea>
                       </div>
                       <div class="mb-3">
-                        <label for="nomorInput" class="form-label"
+                        <label for="nomorInput" class="form-label small mb-1"
                           >Nomor HP</label
                         >
                         <input
                           type="tel"
-                          class="form-control"
+                          class="form-control form-control-sm"
                           id="nomorInput"
                           placeholder="08xx xxxx xxxx"
                           required
@@ -102,21 +105,21 @@
                         <button
                           type="button"
                           id="deleteAddress"
-                          class="btn btn-danger d-none"
+                          class="btn btn-danger btn-sm d-none"
                         >
                           <i class="bi bi-trash"></i> Hapus
                         </button>
                         <button
                           type="button"
                           id="cancelAdd"
-                          class="btn btn-secondary"
+                          class="btn btn-secondary btn-sm"
                         >
                           Batal
                         </button>
                         <button
                           type="button"
                           id="saveAddress"
-                          class="btn btn-success"
+                          class="btn btn-success btn-sm"
                         >
                           <i class="bi bi-check-lg"></i> Simpan
                         </button>
@@ -128,81 +131,50 @@
             </div>
           </div>
 
-          <div class="card shadow-sm mb-4">
-            <div class="card-body">
+          <!-- Detail Item -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-body p-3">
               <h6 class="text-secondary fw-bold mb-3">Detail Item</h6>
 
-              <div class="card">
-                <div class="row g-0 align-items-center">
-                  <div class="col-md-4 p-3 text-center bg-light">
-                    <img
-                      src=""
-                      alt="Gambar Produk"
-                      class="img-fluid"
-                      id="itemImage"
-                      style="max-height: 150px; object-fit: contain"
-                    />
-                  </div>
-                  <div class="col-md-8">
-                    <div class="card-body">
-                      <h5 class="card-title" id="itemName">Tidak ada item</h5>
-                      <p class="card-text text-muted small" id="itemDesc">
-                        Tidak ada deskripsi produk.
-                      </p>
-                      <div class="mb-2">
-                        <span class="fw-bold fs-5" id="itemPrice">Rp 0</span>
-                        <span
-                          class="text-decoration-line-through text-danger ms-2 small"
-                          id="itemFromPrice"
-                          >Rp 0</span
-                        >
-                        <span class="badge bg-success ms-2" id="itemDiscount"
-                          >0% Offer</span
-                        >
-                      </div>
-                      <p class="mb-0 small text-muted" id="itemTotal">
-                        Total : 0 pcs
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <div id="checkoutItems"></div>
             </div>
           </div>
 
-          <div class="card shadow-sm mb-4">
-            <div class="card-body">
+
+          <!-- Metode Pembayaran -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-body p-3">
               <h6 class="text-secondary fw-bold mb-3">
                 Pilih Metode Pembayaran
               </h6>
 
-              <div class="row g-3">
+              <div class="row g-2">
                 <div class="col-md-6 col-xl-4">
                   <div class="card border-2 h-100" role="button">
-                    <div class="card-body">
+                    <div class="card-body p-3">
                       <img
                         src="img/visa.png"
                         alt="Visa"
-                        class="mb-3"
-                        height="30"
+                        class="mb-2"
+                        height="24"
                       />
-                      <h6 class="mb-1">**** **** **** 0817</h6>
-                      <p class="text-muted small mb-0">Expires 12-29</p>
+                      <p class="mb-1 fw-semibold small">**** **** **** 0817</p>
+                      <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 12-29</p>
                     </div>
                   </div>
                 </div>
 
                 <div class="col-md-6 col-xl-4">
                   <div class="card border-2 h-100" role="button">
-                    <div class="card-body">
+                    <div class="card-body p-3">
                       <img
                         src="img/mastercard.png"
                         alt="Mastercard"
-                        class="mb-3"
-                        height="30"
+                        class="mb-2"
+                        height="24"
                       />
-                      <h6 class="mb-1">**** **** **** 3830</h6>
-                      <p class="text-muted small mb-0">Expires 10-27</p>
+                      <p class="mb-1 fw-semibold small">**** **** **** 3830</p>
+                      <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 10-27</p>
                     </div>
                   </div>
                 </div>
@@ -210,13 +182,13 @@
                 <div class="col-md-6 col-xl-4">
                   <div class="card border-2 border-dashed h-100" role="button">
                     <div
-                      class="card-body d-flex align-items-center justify-content-center text-center text-secondary"
+                      class="card-body p-3 d-flex align-items-center justify-content-center text-center text-secondary"
                     >
                       <div>
-                        <i class="bi bi-plus-circle fs-3"></i>
-                        <h6 class="mt-2 mb-0 small">
+                        <i class="bi bi-plus-circle fs-4"></i>
+                        <p class="mt-2 mb-0 small">
                           Tambah Metode Pembayaran
-                        </h6>
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -226,48 +198,35 @@
           </div>
         </div>
 
-        <div class="col-lg-4">
+        <!-- Sidebar -->
+        <div class="col-lg-4 ms-lg-3">
           <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title border-bottom pb-3 mb-3">Detail Pesanan</h5>
+            <div class="card-body p-3">
+              <h6 class="card-title border-bottom pb-2 mb-3">Detail Pesanan</h6>
 
-              <table class="table table-borderless mb-0">
-                <tbody>
-                  <tr>
-                    <td class="text-muted">Harga</td>
-                    <td class="text-end fw-bold" id="orderPrice">Rp 0</td>
-                  </tr>
-                  <tr>
-                    <td class="text-muted">Biaya Antar</td>
-                    <td
-                      class="text-end text-success fw-bold"
-                      id="orderDelivery"
-                    >
-                      Gratis
-                    </td>
-                  </tr>
-                  <tr class="border-bottom">
-                    <td class="text-muted pb-3">Diskon</td>
-                    <td
-                      class="text-end text-danger fw-bold pb-3"
-                      id="orderDiscount"
-                    >
-                      - Rp 0
-                    </td>
-                  </tr>
-                  <tr class="border-top">
-                    <td class="fw-bold fs-5 pt-3">Total Harga</td>
-                    <td class="text-end fw-bold fs-5 pt-3" id="orderTotal">
-                      Rp 0
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="small">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Harga</span>
+                  <span class="fw-bold" id="orderPrice">Rp 0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Biaya Antar</span>
+                  <span class="text-success fw-bold" id="orderDelivery">Gratis</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
+                  <span class="text-muted">Diskon</span>
+                  <span class="text-danger fw-bold" id="orderDiscount">- Rp 0</span>
+                </div>
+                <div class="d-flex justify-content-between pt-2 fs-6">
+                  <span class="fw-bold">Total Harga</span>
+                  <span class="fw-bold" id="orderTotal">Rp 0</span>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="d-grid gap-2 mt-3">
-            <button class="btn btn-success btn-lg" id="payNowBtn">
+            <button class="btn btn-success" id="payNowBtn">
               <i class="bi bi-credit-card"></i> Bayar Sekarang
             </button>
           </div>
@@ -275,13 +234,13 @@
       </div>
     </main>
 
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-      <p class="mb-0">&copy; 2025 SpareHub</p>
+    <footer class="bg-dark text-white text-center py-2 mt-4">
+      <p class="mb-0 small">&copy; 2025 SpareHub</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/navbar-manager.js"></script>
-    <script src="js/checkout.js"></script>
+    <script src="{{ asset('js/navbar-manager.js') }}"></script>
+    <script src="{{ asset('js/checkout.js') }}"></script>
 
     <style>
       .card-selectable.selected {
@@ -298,40 +257,6 @@
       .card-selectable:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-
-      .item-detail-card {
-        max-height: 140px;
-      }
-
-      .item-detail-card img {
-        max-height: 120px !important;
-      }
-
-      .item-detail-card .card-body {
-        padding: 1rem;
-      }
-
-      .item-detail-card .card-title {
-        font-size: 1rem;
-        margin-bottom: 0.25rem;
-      }
-
-      .item-detail-card .card-text {
-        font-size: 0.85rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .item-detail-card .bg-light {
-        padding: 0 !important;
-        margin: 0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .item-detail-card .row {
-        margin: 0 !important;
       }
     </style>
   </body>

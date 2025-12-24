@@ -19,9 +19,9 @@
   <nav>
     <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
     <ul>
-      <li><a href="homepage.html">Beranda</a></li>
+      <li><a href="/">Beranda</a></li>
       <li class="nav-keranjang-wrapper">
-        <a href="keranjang.html">
+        <a href="/keranjang">
           Keranjang
           <span id="cart-count" class="cart-count">0</span>
         </a>
@@ -132,10 +132,14 @@
   </footer>
 
   <!-- JS -->
-  <script src="js/navbar-manager.js"></script>
-  <script src="js/rating.js"></script>
+  <script src="{{ asset('js/navbar-manager.js') }}"></script>
+  <script src="{{ asset('js/rating.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/detail-produk.js"></script>
+  <script>
+    window.PRODUK_ID = {{ $id }};
+</script>
+
+  <script src="{{ asset('js/detail-produk.js') }}"></script>
 </body>
 
 </html>
