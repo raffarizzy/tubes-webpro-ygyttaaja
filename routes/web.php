@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AlamatController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -40,5 +41,16 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// routes/web.php
+
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/alamat', [AlamatController::class, 'index']);
+    Route::post('/alamat', [AlamatController::class, 'store']);
+    Route::put('/alamat/{id}', [AlamatController::class, 'update']);
+    Route::delete('/alamat/{id}', [AlamatController::class, 'destroy']);
+});
+
 
 require __DIR__.'/auth.php';

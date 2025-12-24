@@ -135,28 +135,13 @@
                   <div class="card border-2 h-100" role="button">
                     <div class="card-body p-3">
                       <img
-                        src="img/visa.png"
+                        src="img/Qris.png"
                         alt="Visa"
                         class="mb-2"
                         height="24"
                       />
                       <p class="mb-1 fw-semibold small">**** **** **** 0817</p>
                       <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 12-29</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-2 h-100" role="button">
-                    <div class="card-body p-3">
-                      <img
-                        src="img/mastercard.png"
-                        alt="Mastercard"
-                        class="mb-2"
-                        height="24"
-                      />
-                      <p class="mb-1 fw-semibold small">**** **** **** 3830</p>
-                      <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 10-27</p>
                     </div>
                   </div>
                 </div>

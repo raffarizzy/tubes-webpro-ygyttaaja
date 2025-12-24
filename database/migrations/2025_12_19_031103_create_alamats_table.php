@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->string('alamat');
-            $table->boolean('isDefault');
+            $table->boolean('isDefault')->default(false);
             $table->string('nama_penerima');
             $table->string('nomor_penerima');
             $table->timestamps();
