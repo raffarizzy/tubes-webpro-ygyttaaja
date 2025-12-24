@@ -1,38 +1,18 @@
-<!DOCTYPE html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('layouts.main')
 
-    <title>Checkout - SpareHub</title>
-    <link rel="icon" href="{{ asset('img/iconSpareHub.png') }}" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css"
-    />
-    <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}">
-  </head>
+@section('title', 'Checkout - SpareHub')
 
-   <!-- Nav -->
-    <nav>
-      <img src="{{ asset('https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png') }}" id="logo" alt="Logo SpareHub" />
-      <ul>
-        <li><a href="/">Beranda</a></li>
-        <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
-        <li><a href="profil_toko.html">Toko Saya</a></li>
-        <li>
-          <div id="profil">
-            <!-- User info will be loaded by navbar-manager.js -->
-          </div>
-        </li>
-      </ul>
-    </nav>
+@section('body-class', 'class="bg-light"')
 
+@push('bootstrap')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+@endpush
+
+@section('footer-class', 'class="bg-dark text-white text-center py-2 mt-4"')
+@section('footer-text-class', 'class="mb-0 small"')
+
+@section('content')
     <main class="container my-3">
       <h2 class="mb-3 fw-bold">Checkout</h2>
 
@@ -235,30 +215,14 @@
         </div>
       </div>
     </main>
+@endsection
 
-    <footer class="bg-dark text-white text-center py-2 mt-4">
-      <p class="mb-0 small">&copy; 2025 SpareHub</p>
-    </footer>
-
+@push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-      // Inject Laravel auth user to JavaScript
-      @auth
-        window.laravelAuthUser = {
-          id: {{ auth()->user()->id }},
-          nama: "{{ auth()->user()->name }}",
-          email: "{{ auth()->user()->email }}"
-        };
-        // Sync with localStorage for navbar-manager
-        localStorage.setItem('loggedInUser', JSON.stringify(window.laravelAuthUser));
-      @else
-        window.laravelAuthUser = null;
-        localStorage.removeItem('loggedInUser');
-      @endauth
-    </script>
-    <script src="{{ asset('js/navbar-manager.js') }}"></script>
     <script src="{{ asset('js/checkout.js') }}"></script>
+@endpush
 
+@push('styles')
     <style>
       .card-selectable.selected {
         border-color: #198754 !important;
@@ -276,5 +240,4 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
     </style>
-  </body>
-</html>
+@endpush

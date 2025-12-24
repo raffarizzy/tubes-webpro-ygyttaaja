@@ -1,35 +1,18 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.main')
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Detail Produk - SpareHub</title>
-  <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
-  <!-- BOOTSTRAP -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+@section('title', 'Detail Produk - SpareHub')
 
+@section('body-class', 'class="bg-light"')
 
-  <link rel="icon" href="{{ asset('img/iconSpareHub.png') }}" />
-</head>
+@push('bootstrap')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+@endpush
 
-<body class="bg-light">
-   <!-- Nav -->
-    <nav>
-      <img src="{{ asset('https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png') }}" id="logo" alt="Logo SpareHub" />
-      <ul>
-        <li><a href="/">Beranda</a></li>
-        <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
-        <li><a href="profil_toko.html">Toko Saya</a></li>
-        <li>
-          <div id="profil">
-            <!-- User info will be loaded by navbar-manager.js -->
-          </div>
-        </li>
-      </ul>
-    </nav>
+@section('footer-class', 'class="text-center bg-primary text-white py-3"')
+@section('footer-text-class', 'class="m-0"')
 
+@section('content')
   <!-- KONTEN -->
   <div class="container py-5">
     <div class="row g-5 justify-content-center">
@@ -120,36 +103,13 @@
       <div id="reviews-list" class="row g-3"></div>
     </div>
   </div>
+@endsection
 
-  <!-- FOOTER -->
-  <footer class="text-center bg-primary text-white py-3">
-    <p class="m-0">&copy; 2025 SpareHub. Semua hak dilindungi.</p>
-  </footer>
-
-  <!-- JS -->
-  <script>
-    // Inject Laravel auth user to JavaScript
-    @auth
-      window.laravelAuthUser = {
-        id: {{ auth()->user()->id }},
-        nama: "{{ auth()->user()->name }}",
-        email: "{{ auth()->user()->email }}"
-      };
-      // Sync with localStorage for navbar-manager
-      localStorage.setItem('loggedInUser', JSON.stringify(window.laravelAuthUser));
-    @else
-      window.laravelAuthUser = null;
-      localStorage.removeItem('loggedInUser');
-    @endauth
-  </script>
-  <script src="{{ asset('js/navbar-manager.js') }}"></script>
+@push('scripts')
   <script src="{{ asset('js/rating.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     window.PRODUK_ID = {{ $id }};
-</script>
-
+  </script>
   <script src="{{ asset('js/detail-produk.js') }}"></script>
-</body>
-
-</html>
+@endpush
