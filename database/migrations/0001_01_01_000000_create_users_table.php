@@ -18,6 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone');
+            $table->date('birthDate')->nullable();
+            $table->enum('gender', ['male', 'female'])->nullable();
+            $table->string('pfpPath')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -8,68 +8,83 @@
     <title>@yield('title', 'SpareHub')</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('img/iconSpareHub.png') }}" />
+    <link rel="icon" href="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" />
 
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
 
-    <!-- Bootstrap CSS (if needed on page) -->
-    @stack('bootstrap')
-
-    <!-- Page-specific CSS -->
     @stack('styles')
 </head>
 
-<body @yield('body-class')>
+<body>
     <!-- NAVBAR -->
     <nav>
-        <img src="{{ asset('img/iconSpareHub.png') }}" id="logo" alt="Logo SpareHub" />
+        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png"
+             id="logo"
+             alt="Logo SpareHub"
+             style="cursor:pointer"
+             onclick="window.location.href='/'" />
+
         <ul>
             <li><a href="/">Beranda</a></li>
+
             <li class="nav-keranjang-wrapper">
                 <a href="{{ route('keranjang') }}">
                     Keranjang
-                    <span id="cart-count" class="cart-count">0</span>
                 </a>
             </li>
-            <li><a href="profil_toko.html">Toko Saya</a></li>
+
+            <li><a href="/toko">Toko Saya</a></li>
+
+            <!-- PROFIL -->
             <li>
                 <div id="profil">
-                    <!-- User info will be loaded by navbar-manager.js -->
+                    @auth
+                        <img src="{{ auth()->user()->pfpPath }}"
+                             id="iconPengguna"
+                             alt="User Icon" />
+
+                        <a href="{{ route('profile.edit') }}" class="user-name-link">
+                            <span class="user-name">
+                                {{ auth()->user()->name }}
+                            </span>
+                        </a>
+
+                        <span class="nav-separator">|</span>
+
+                        <form method="POST"
+                            action="{{ route('logout') }}"
+                            style="display:inline"
+                            onsubmit="return confirm('Apakah Anda yakin ingin logout?')">
+                            @csrf
+                            <button type="submit" class="btn-logout">
+                                Logout
+                            </button>
+                        </form>
+                    @else
+                        <img src="https://i.ibb.co.com/RkZ105G9/default-avatar.png"
+                             id="iconPengguna"
+                             alt="User Icon" />
+
+                        <a href="{{ route('login') }}" class="login-link">
+                            Login
+                        </a>
+                    @endauth
                 </div>
             </li>
         </ul>
     </nav>
 
     <!-- MAIN CONTENT -->
-    @yield('content')
+    <main>
+        @yield('content')
+    </main>
 
     <!-- FOOTER -->
-    <footer @yield('footer-class')>
-        <p @yield('footer-text-class')>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+    <footer>
+        <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
     </footer>
 
-    <!-- Laravel Auth Injection -->
-    <script>
-        // Inject Laravel auth user to JavaScript
-        @auth
-            window.laravelAuthUser = {
-                id: {{ auth()->user()->id }},
-                nama: "{{ auth()->user()->name }}",
-                email: "{{ auth()->user()->email }}"
-            };
-            // Sync with localStorage for navbar-manager
-            localStorage.setItem('loggedInUser', JSON.stringify(window.laravelAuthUser));
-        @else
-            window.laravelAuthUser = null;
-            localStorage.removeItem('loggedInUser');
-        @endauth
-    </script>
-
-    <!-- Common Scripts -->
-    <script src="{{ asset('js/navbar-manager.js') }}"></script>
-
-    <!-- Page-specific Scripts -->
     @stack('scripts')
 </body>
 </html>

@@ -4,13 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Register - SpareHub</title>
-    <link rel="icon" href="img/iconSpareHub.png" />
+    <link rel="icon" href="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" />
     <link rel="stylesheet" href="css/register.css" />
   </head>
   <body>
     <div class="register-container">
       <div class="register-card">
-        <img src="img/iconSpareHub.png" alt="Logo" class="logo" />
+        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" alt="Logo" class="logo" />
         <h1>SpareHub</h1>
         <p class="subtitle">Buat akun baru</p>
 
