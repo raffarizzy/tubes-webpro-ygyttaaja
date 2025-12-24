@@ -5,29 +5,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detail Produk - SpareHub</title>
-  <link rel="stylesheet" href="css/navbar-unified.css" />
+  <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
   <!-- BOOTSTRAP -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}">
 
 
-  <link rel="icon" href="img/iconSpareHub.png" />
+  <link rel="icon" href="{{ asset('img/iconSpareHub.png') }}" />
 </head>
 
 <body class="bg-light">
-  <!-- NAVBAR -->
-  <!-- Navbar -->
+   <!-- Nav -->
     <nav>
-      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <img src="{{ asset('https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png') }}" id="logo" alt="Logo SpareHub" />
       <ul>
-        <li><a href="{{ route('dashboard') }}">Beranda</a></li>
-        <li class="nav-keranjang-wrapper">
-          <a href="{{ route('keranjang') }}">
-            Keranjang
-            <span id="cart-count" class="cart-count">0</span>
-          </a>
-        </li>
+        <li><a href="/">Beranda</a></li>
+        <li><a href="{{ route('keranjang') }}">Keranjang</a></li>
         <li><a href="profil_toko.html">Toko Saya</a></li>
         <li>
           <div id="profil">
@@ -134,6 +127,21 @@
   </footer>
 
   <!-- JS -->
+  <script>
+    // Inject Laravel auth user to JavaScript
+    @auth
+      window.laravelAuthUser = {
+        id: {{ auth()->user()->id }},
+        nama: "{{ auth()->user()->name }}",
+        email: "{{ auth()->user()->email }}"
+      };
+      // Sync with localStorage for navbar-manager
+      localStorage.setItem('loggedInUser', JSON.stringify(window.laravelAuthUser));
+    @else
+      window.laravelAuthUser = null;
+      localStorage.removeItem('loggedInUser');
+    @endauth
+  </script>
   <script src="{{ asset('js/navbar-manager.js') }}"></script>
   <script src="{{ asset('js/rating.js') }}"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
