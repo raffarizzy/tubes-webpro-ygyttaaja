@@ -249,7 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 alamat.alamat,
                 alamat.nomor_penerima,
                 alamat.id,
-                alamat.isDefault
+                alamat.is_default
             );
         });
 
@@ -266,8 +266,19 @@ document.addEventListener("DOMContentLoaded", function () {
         const col = document.createElement("div");
         col.className = "col-md-6 col-xl-4 address-card";
 
-        const defaultBadge = isDefault
-            ? '<span class="badge bg-success ms-2">Default</span>'
+        // Konversi isDefault ke boolean yang benar
+        const isDefaultBool =
+            isDefault === 1 || isDefault === true || isDefault === "1";
+
+        console.log(
+            `Card ${id}: isDefault =`,
+            isDefault,
+            "converted to:",
+            isDefaultBool
+        );
+
+        const defaultBadge = isDefaultBool
+            ? '<span class="badge bg-success ms-2"><i class="bi bi-star-fill"></i> Default</span>'
             : "";
 
         col.innerHTML = `
@@ -286,6 +297,15 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
         const card = col.querySelector(".card");
+
+        // Auto-select alamat default
+        if (isDefaultBool) {
+            card.classList.add("selected");
+            selectedAddress = { id, nama, alamat, nomor };
+            updatePayButtonState();
+            console.log(`Auto-selected default address: ${id}`);
+        }
+
         card.addEventListener("click", (e) => {
             if (e.target.closest(".edit-link")) return;
 
@@ -317,9 +337,6 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("formTitle").textContent = "Tambah Alamat Baru";
         deleteAddressBtn.classList.add("d-none");
 
-        // Tambahkan checkbox jika belum ada
-        ensureDefaultCheckbox();
-
         resetForm();
 
         addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -333,6 +350,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const isDefaultCheckbox = document.getElementById("defaultCheckbox");
         const isDefault = isDefaultCheckbox ? isDefaultCheckbox.checked : false;
 
+        console.log("Form values:");
+        console.log("- Nama:", nama);
+        console.log("- Alamat:", alamat);
+        console.log("- Nomor:", nomor);
+        console.log("- Checkbox element:", isDefaultCheckbox);
+        console.log(
+            "- Checkbox checked:",
+            isDefaultCheckbox ? isDefaultCheckbox.checked : "CHECKBOX NOT FOUND"
+        );
+        console.log("- isDefault final:", isDefault);
+
         if (!nama || !alamat || !nomor) {
             alert("Lengkapi semua data alamat!");
             return;
@@ -342,10 +370,13 @@ document.addEventListener("DOMContentLoaded", function () {
             nama_penerima: nama,
             alamat: alamat,
             nomor_penerima: nomor,
-            isDefault: isDefault,
+            is_default: isDefault ? 1 : 0,
         };
 
-        console.log("Saving alamat:", dataBaru);
+        console.log(
+            "Data yang akan dikirim:",
+            JSON.stringify(dataBaru, null, 2)
+        );
 
         try {
             saveAddressBtn.disabled = true;
@@ -361,6 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Update alamat
                 url = `/alamat/${editIndex}`;
                 method = "PUT";
+                console.log(`Updating alamat ID: ${editIndex}`);
             } else {
                 // Create alamat baru
                 if (alamatList.length >= 3) {
@@ -372,6 +404,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 url = "/alamat";
                 method = "POST";
+                console.log("Creating new alamat");
             }
 
             console.log(`${method} request to:`, url);
@@ -399,6 +432,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await response.json();
             console.log("Save result:", result);
 
+            // Reset selected address agar re-render ulang
+            selectedAddress = null;
+
             await loadAlamatFromDB();
             addAddressForm.classList.add("d-none");
             editIndex = null;
@@ -412,8 +448,7 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         } finally {
             saveAddressBtn.disabled = false;
-            saveAddressBtn.innerHTML =
-                '<i class="bi bi-check-circle"></i> Simpan Alamat';
+            saveAddressBtn.innerHTML = '<i class="bi bi-check-lg"></i> Simpan';
         }
     });
 
@@ -471,6 +506,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Tampilkan form edit
     function tampilkanFormEdit(data) {
+        console.log("Editing alamat:", data);
+
         addAddressForm.classList.remove("d-none");
         document.getElementById("formTitle").textContent = "Edit Alamat";
         deleteAddressBtn.classList.remove("d-none");
@@ -480,7 +517,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
-            defaultCheckbox.checked = data.isDefault || false;
+            // Konversi dengan benar
+            const isDefaultBool =
+                data.is_default === 1 ||
+                data.is_default === true ||
+                data.is_default === "1";
+            defaultCheckbox.checked = isDefaultBool;
+            console.log(
+                `Setting checkbox for edit: is_default = ${data.is_default}, checked = ${isDefaultBool}`
+            );
+        } else {
+            console.error("Checkbox defaultCheckbox tidak ditemukan!");
         }
 
         addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -494,6 +541,10 @@ document.addEventListener("DOMContentLoaded", function () {
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
             defaultCheckbox.checked = false;
+        } else {
+            console.error(
+                "Checkbox defaultCheckbox tidak ditemukan saat reset!"
+            );
         }
     }
 
@@ -568,7 +619,8 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Payment error:", err);
             alert("Gagal memproses pembayaran: " + err.message);
             payButton.disabled = false;
-            payButton.innerHTML = "Bayar Sekarang";
+            payButton.innerHTML =
+                '<i class="bi bi-credit-card"></i> Bayar Sekarang';
         }
     });
 

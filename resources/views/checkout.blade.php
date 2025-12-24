@@ -71,7 +71,7 @@
                           required
                         ></textarea>
                       </div>
-                      <div class="mb-3">
+                      <div class="mb-2">
                         <label for="nomorInput" class="form-label small mb-1"
                           >Nomor HP</label
                         >
@@ -83,6 +83,24 @@
                           required
                         />
                       </div>
+                      
+                      <!-- CHECKBOX ALAMAT UTAMA -->
+                      <div class="mb-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="defaultCheckbox"
+                          />
+                          <label class="form-check-label small" for="defaultCheckbox">
+                            <i class="bi bi-star-fill text-warning"></i> Jadikan sebagai alamat utama
+                          </label>
+                        </div>
+                        <small class="text-muted d-block mt-1">
+                          Alamat utama akan otomatis terpilih saat checkout
+                        </small>
+                      </div>
+
                       <div class="d-flex gap-2 justify-content-end">
                         <button
                           type="button"

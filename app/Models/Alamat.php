@@ -9,8 +9,13 @@ class Alamat extends Model
     protected $fillable = [
         'user_id',
         'alamat',
-        'isDefault',
+        'is_default', // UBAH DARI isDefault
         'nama_penerima',
         'nomor_penerima'
+    ];
+    
+    // Tambahkan cast untuk memastikan is_default selalu boolean
+    protected $casts = [
+        'is_default' => 'boolean',
     ];
 }
