@@ -8,7 +8,7 @@
     <title>@yield('title', 'SpareHub')</title>
 
     <!-- Favicon -->
-    <link rel="icon" href="{{ asset('img/iconSpareHub.png') }}" />
+    <link rel="icon" href="{{ asset('https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png') }}" />
 
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
@@ -23,7 +23,7 @@
 <body @yield('body-class')>
     <!-- NAVBAR -->
     <nav>
-        <img src="{{ asset('img/iconSpareHub.png') }}" id="logo" alt="Logo SpareHub" />
+        <img src="{{ asset('https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png') }}" id="logo" alt="Logo SpareHub" />
         <ul>
             <li><a href="/">Beranda</a></li>
             <li class="nav-keranjang-wrapper">
