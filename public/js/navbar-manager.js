@@ -125,7 +125,7 @@ class NavbarManager {
         // User not logged in - show login link
         profilSection.innerHTML = `
           <img src="img/iconPengguna.png" id="iconPengguna" alt="User Icon" />
-          <a href="login.html" class="login-link">Login</a>
+          <a href="/login" class="login-link">Login</a>
         `;
       }
       
@@ -167,7 +167,7 @@ class NavbarManager {
         
         this.log('Redirecting to login page...');
         // Redirect to login page
-        window.location.href = 'login.html';
+        window.location.href = '/login';
       } else {
         this.log('Logout cancelled');
       }
@@ -255,18 +255,19 @@ class NavbarManager {
         link.classList.remove('active');
       });
 
-      // Map pages to menu items
+      // Map pages to menu items (Laravel routes)
       const pageMenuMap = {
-        'homepage.html': 'homepage.html',
-        'keranjang.html': 'keranjang.html',
-        'checkout.html': 'keranjang.html', // Checkout counts as Keranjang
+        '': '/',
+        '/': '/',
+        'keranjang': '/keranjang',
+        'checkout': '/keranjang', // Checkout counts as Keranjang
+        'produk': '/', // Product detail pages count as Beranda
         'profil_toko.html': 'profil_toko.html',
         'mengelolaProdukCRUD.html': 'profil_toko.html',
         'edit_profil.html': 'edit_profil.html',
         'profil.html': 'edit_profil.html',
         'pengguna.html': 'edit_profil.html',
-        'riwayat_pesanan.html': 'edit_profil.html',
-        'detail-produk.html': 'homepage.html' // Detail produk counts as Beranda
+        'riwayat_pesanan.html': 'edit_profil.html'
       };
 
       const targetPage = pageMenuMap[currentPage] || currentPage;
@@ -305,7 +306,7 @@ class NavbarManager {
       if (logo) {
         logo.addEventListener('click', () => {
           this.log('Logo clicked, going to homepage');
-          window.location.href = 'homepage.html';
+          window.location.href = '/';
         });
         logo.style.cursor = 'pointer';
         this.log('Logo click listener attached');

@@ -9,31 +9,33 @@
   <!-- BOOTSTRAP -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}">
 
 
   <link rel="icon" href="img/iconSpareHub.png" />
 </head>
 
 <body class="bg-light">
-  <!-- NAVBAR (TIDAK DIUBAH) -->
-  <nav>
-    <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
-    <ul>
-      <li><a href="/">Beranda</a></li>
-      <li class="nav-keranjang-wrapper">
-        <a href="/keranjang">
-          Keranjang
-          <span id="cart-count" class="cart-count">0</span>
-        </a>
-      </li>
-      <li><a href="profil_toko.html">Toko Saya</a></li>
-      <li>
-        <div id="profil">
-          <!-- User info will be loaded by navbar-manager.js -->
-        </div>
-      </li>
-    </ul>
-  </nav>
+  <!-- NAVBAR -->
+  <!-- Navbar -->
+    <nav>
+      <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
+      <ul>
+        <li><a href="{{ route('dashboard') }}">Beranda</a></li>
+        <li class="nav-keranjang-wrapper">
+          <a href="{{ route('keranjang') }}">
+            Keranjang
+            <span id="cart-count" class="cart-count">0</span>
+          </a>
+        </li>
+        <li><a href="profil_toko.html">Toko Saya</a></li>
+        <li>
+          <div id="profil">
+            <!-- User info will be loaded by navbar-manager.js -->
+          </div>
+        </li>
+      </ul>
+    </nav>
 
   <!-- KONTEN -->
   <div class="container py-5">

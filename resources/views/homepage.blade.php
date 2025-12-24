@@ -14,7 +14,7 @@
     <nav>
       <img src="img/iconSpareHub.png" id="logo" alt="Logo SpareHub" />
       <ul>
-        <li><a href="homepage.html">Beranda</a></li>
+        <li><a href="/">Beranda</a></li>
         <li class="nav-keranjang-wrapper">
           <a href="{{ route('keranjang') }}">
             Keranjang

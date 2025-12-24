@@ -1,52 +1,196 @@
-<x-guest-layout>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - SpareHub</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    >
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100">
+
+<div class="card shadow-sm p-4" style="width: 380px;">
+    <div class="text-center mb-4">
+        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png"
+             alt="Logo"
+             width="70"
+             class="mb-2">
+        <h4 class="fw-bold text-primary">SpareHub</h4>
+        <p class="text-muted small">Daftar akun baru</p>
+    </div>
+
+    <!-- FORM REGISTER -->
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
-        <!-- Name -->
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+        <!-- NAME -->
+        <div class="mb-3">
+            <label class="form-label">Nama</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-user"></i>
+                </span>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ old('name') }}"
+                    class="form-control @error('name') is-invalid @enderror"
+                    placeholder="Nama lengkap"
+                    required
+                    autofocus
+                >
+            </div>
+            @error('name')
+                <div class="invalid-feedback d-block">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        <!-- EMAIL -->
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-envelope"></i>
+                </span>
+                <input
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    class="form-control @error('email') is-invalid @enderror"
+                    placeholder="Email"
+                    required
+                >
+            </div>
+            @error('email')
+                <div class="invalid-feedback d-block">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
+        <!-- PHONE -->
+        <div class="mb-3">
+            <label class="form-label">Nomor HP</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-phone"></i>
+                </span>
+                <input
+                    type="tel"
+                    name="phone"
+                    value="{{ old('phone') }}"
+                    class="form-control @error('phone') is-invalid @enderror"
+                    placeholder="08xxxxxxxxxx"
+                    required
+                >
+            </div>
+            @error('phone')
+                <div class="invalid-feedback d-block">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                            type="password"
-                            name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+        <!-- PASSWORD -->
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    class="form-control @error('password') is-invalid @enderror"
+                    placeholder="Password"
+                    required
+                >
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="togglePassword('password')">
+                    <i class="fa-solid fa-eye" id="password-icon"></i>
+                </button>
+            </div>
+            @error('password')
+                <div class="invalid-feedback d-block">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Already registered?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('Register') }}
-            </x-primary-button>
+        <!-- CONFIRM PASSWORD -->
+        <div class="mb-3">
+            <label class="form-label">Konfirmasi Password</label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-lock"></i>
+                </span>
+                <input
+                    type="password"
+                    name="password_confirmation"
+                    id="password_confirmation"
+                    class="form-control @error('password_confirmation') is-invalid @enderror"
+                    placeholder="Konfirmasi password"
+                    required
+                >
+                <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    onclick="togglePassword('password_confirmation')">
+                    <i class="fa-solid fa-eye" id="password_confirmation-icon"></i>
+                </button>
+            </div>
+            @error('password_confirmation')
+                <div class="invalid-feedback d-block">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
+
+        <button class="btn btn-primary w-100 mb-3">
+            Daftar
+        </button>
     </form>
-</x-guest-layout>
+
+    <!-- LINKS -->
+    <div class="text-center small">
+        <p>
+            Sudah punya akun?
+            <a href="{{ route('login') }}">Login</a>
+        </p>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+    const input = document.getElementById(fieldId);
+    const icon = document.getElementById(fieldId + '-icon');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+
+</body>
+</html>
