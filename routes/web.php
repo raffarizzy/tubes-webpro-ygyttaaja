@@ -43,10 +43,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/pay', [CheckoutController::class, 'pay'])
         ->name('checkout.pay');
     
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    // Profile Routes
+    Route::get('/profile', function () {
+        return view('profil'); // Menampilkan profil.blade.php
+    })->name('profile.show');
+    
+    Route::get('/edit_profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Riwayat Pesanan
+    Route::get('/riwayat_pesanan', function () {
+        return view('riwayat_pesanan');
+    })->name('orders.history');
     
     // Alamat Management
     Route::get('/alamat', [AlamatController::class, 'index'])->name('alamat.index');
@@ -54,9 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/alamat/{id}', [AlamatController::class, 'update'])->name('alamat.update');
     Route::delete('/alamat/{id}', [AlamatController::class, 'destroy'])->name('alamat.destroy');
     
-    // Orders (dari web, bukan API)
+    // Orders API
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/history', [OrderController::class, 'history'])->name('orders.history');
 });
 
 // ============================================

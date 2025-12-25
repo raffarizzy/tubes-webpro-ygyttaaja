@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItems;
-use App\Models\Product; // ← TAMBAHKAN INI!
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -46,12 +46,12 @@ class OrderController extends Controller
 
             \Log::info('Stock validation passed, creating order...');
 
-            // 2️⃣ Buat order
+            // 2️⃣ Buat order dengan status pending dulu
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'alamat_id' => $request->alamat_id,
-                'total_harga' => 0, // ← GANTI JADI total_harga
-                'status' => 'pending',
+                'total_harga' => 0,
+                'status' => 'pending', // Nanti diubah setelah payment
             ]);
 
             \Log::info('Order created', ['order_id' => $order->id]);
@@ -80,7 +80,7 @@ class OrderController extends Controller
             \Log::info('All items processed, updating total...', ['total' => $total]);
 
             // 4️⃣ Update total
-            $order->update(['total_harga' => $total]); // ← GANTI JADI total_harga
+            $order->update(['total_harga' => $total]);
 
             \Log::info('Order total updated, committing transaction...');
 

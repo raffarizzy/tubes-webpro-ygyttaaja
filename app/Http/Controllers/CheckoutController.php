@@ -11,6 +11,9 @@ class CheckoutController extends Controller
     /**
      * Proses pembayaran dengan Xendit
      * Menerima order_id yang sudah dibuat dari OrderController
+     * 
+     * ⚠️ PERHATIAN: Status langsung jadi "paid" tanpa webhook
+     * Ini untuk development/testing - production seharusnya pakai webhook
      */
     public function pay(Request $request)
     {
@@ -38,22 +41,32 @@ class CheckoutController extends Controller
                 'failure_redirect_url' => route('checkout'),
             ]);
 
-            // Update order dengan invoice info
+            // 🔥 LANGSUNG UPDATE STATUS JADI PAID
+            // (Gunakan status 'paid' sesuai ENUM database)
             $order->update([
                 'invoice_id' => $invoice['id'],
                 'invoice_url' => $invoice['invoice_url'],
+                'status' => 'paid', // ← Status langsung 'paid'
+            ]);
+
+            \Log::info('Order auto-completed', [
+                'order_id' => $order->id,
+                'invoice_id' => $invoice['id'],
+                'status' => 'paid'
             ]);
 
             return response()->json([
                 'message' => 'Invoice berhasil dibuat',
                 'invoice_url' => $invoice['invoice_url'],
                 'order_id' => $order->id,
+                'status' => 'paid',
             ]);
 
         } catch (\Exception $e) {
             \Log::error('Payment error:', [
                 'message' => $e->getMessage(),
                 'order_id' => $request->order_id ?? null,
+                'trace' => $e->getTraceAsString()
             ]);
 
             return response()->json([
