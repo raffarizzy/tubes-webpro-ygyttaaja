@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\KeranjangController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,11 +39,29 @@ Route::get('/payment/success', function () {
 })->name('payment.success');
 
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //keranjang
+    // Tampilkan halaman keranjang
+    Route::get('/keranjang', [KeranjangController::class, 'index'])->name('keranjang');
+    
+    // Tambah item ke keranjang
+    Route::post('/keranjang/add', [KeranjangController::class, 'store'])->name('keranjang.add');
+    
+    // Update jumlah item
+    Route::put('/keranjang/item/{itemId}', [KeranjangController::class, 'update'])->name('keranjang.update');
+    
+    // Hapus item dari keranjang
+    Route::delete('/keranjang/item/{itemId}', [KeranjangController::class, 'destroy'])->name('keranjang.delete');
+    
+    // Kosongkan keranjang
+    Route::delete('/keranjang/clear', [KeranjangController::class, 'clear'])->name('keranjang.clear');
+    
+    // Get total items (untuk badge)
+    Route::get('/keranjang/count', [KeranjangController::class, 'getCartCount'])->name('keranjang.count');
 });
 
 require __DIR__.'/auth.php';
