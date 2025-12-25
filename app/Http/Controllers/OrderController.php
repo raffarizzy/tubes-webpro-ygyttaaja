@@ -113,11 +113,103 @@ class OrderController extends Controller
      */
     public function history()
     {
-        $orders = Order::with('items.product')
+        $orders = Order::with(['items.product', 'alamat'])
             ->where('user_id', Auth::id())
-            ->latest()
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json($orders);
+    }
+
+    /**
+     * CANCEL ORDER
+     */
+    public function cancel($id)
+    {
+        try {
+            $order = Order::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            // Hanya bisa cancel jika status pending
+            if ($order->status !== 'pending') {
+                return response()->json([
+                    'message' => 'Hanya pesanan dengan status pending yang bisa dibatalkan'
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            // Kembalikan stok produk
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->increment('stok', $item->qty);
+                }
+            }
+
+            // Update status order menjadi cancelled
+            $order->update(['status' => 'cancelled']);
+
+            DB::commit();
+
+            \Log::info('Order cancelled successfully', [
+                'order_id' => $order->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return response()->json([
+                'message' => 'Pesanan berhasil dibatalkan',
+                'order' => $order->load(['items.product', 'alamat'])
+            ], 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Order cancellation failed', [
+                'order_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Gagal membatalkan pesanan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * DETAIL ORDER
+     */
+    public function show($id)
+    {
+        try {
+            $order = Order::with(['items.product', 'alamat', 'user'])
+                ->where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            return response()->json($order, 200);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Pesanan tidak ditemukan'
+            ], 404);
+        } catch (\Exception $e) {
+            \Log::error('Failed to fetch order detail', [
+                'order_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'message' => 'Gagal mengambil detail pesanan',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

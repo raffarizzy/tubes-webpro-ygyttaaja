@@ -45,26 +45,42 @@ Route::middleware('auth')->group(function () {
     
     // Profile Routes
     Route::get('/profile', function () {
-        return view('profil'); // Menampilkan profil.blade.php
+        return view('profil');
     })->name('profile.show');
     
     Route::get('/edit_profil', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    // Riwayat Pesanan
-    Route::get('/riwayat_pesanan', function () {
+    // ============================================
+    // RIWAYAT PESANAN - HALAMAN VIEW
+    // ============================================
+    Route::get('/riwayat-pesanan', function () {
         return view('riwayat_pesanan');
-    })->name('orders.history');
+    })->name('riwayat.pesanan');
     
-    // Alamat Management
+    // ============================================
+    // ORDERS API - Dengan prefix /api
+    // ============================================
+    // Get history orders (API endpoint untuk JavaScript)
+    Route::get('/api/orders/history', [OrderController::class, 'history'])->name('orders.history');
+    
+    // Create order (checkout)
+    Route::post('/api/orders', [OrderController::class, 'store'])->name('orders.store');
+    
+    // Cancel order
+    Route::post('/api/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    
+    // Detail order
+    Route::get('/api/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    
+    // ============================================
+    // ALAMAT MANAGEMENT
+    // ============================================
     Route::get('/alamat', [AlamatController::class, 'index'])->name('alamat.index');
     Route::post('/alamat', [AlamatController::class, 'store'])->name('alamat.store');
     Route::put('/alamat/{id}', [AlamatController::class, 'update'])->name('alamat.update');
     Route::delete('/alamat/{id}', [AlamatController::class, 'destroy'])->name('alamat.destroy');
-    
-    // Orders API
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
 });
 
 // ============================================

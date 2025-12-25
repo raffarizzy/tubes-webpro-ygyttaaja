@@ -610,7 +610,7 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("📤 Items to send:", items);
 
             // 3️⃣ Kirim ke web route create order (BUKAN /api/orders)
-            const orderResponse = await fetch("/orders", {
+            const orderResponse = await fetch("/api/orders", {
                 // ← Tanpa /api/
                 method: "POST",
                 headers: {

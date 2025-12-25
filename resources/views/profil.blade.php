@@ -30,7 +30,7 @@
                             <a href="{{ route('profile.edit') }}" class="btn btn-primary btn-sm">
                                 <i class="bi bi-pencil"></i> Edit Profil
                             </a>
-                            <a href="{{ route('orders.history') }}" class="btn btn-success btn-sm">
+                            <a href="{{ route('riwayat.pesanan') }}" class="btn btn-success btn-sm">
                                 <i class="bi bi-clock-history"></i> Riwayat Pesanan
                             </a>
                         </div>
