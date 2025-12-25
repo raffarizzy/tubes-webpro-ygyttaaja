@@ -46,6 +46,9 @@ pool.getConnection()
 // API ROUTES
 // =====================================================
 
+// Import Route Modules
+const cartRoutes = require('./routes/cart');
+
 // Health Check
 app.get('/', (req, res) => {
   res.json({
@@ -58,7 +61,15 @@ app.get('/', (req, res) => {
         ratings: 'GET /api/products/:id/ratings'
       },
       tokos: {
+        all: 'GET /api/tokos',
         detail: 'GET /api/tokos/:id'
+      },
+      cart: {
+        get: 'GET /api/cart/:userId',
+        addItem: 'POST /api/cart/:userId/items',
+        updateItem: 'PUT /api/cart/items/:itemId',
+        removeItem: 'DELETE /api/cart/items/:itemId',
+        clearCart: 'DELETE /api/cart/:userId/clear'
       }
     }
   });
@@ -197,6 +208,11 @@ app.get('/api/tokos/:id', async (req, res) => {
     });
   }
 });
+
+// =====================================================
+// CART ENDPOINTS
+// =====================================================
+app.use('/api/cart', cartRoutes(pool));
 
 // =====================================================
 // 404 Handler

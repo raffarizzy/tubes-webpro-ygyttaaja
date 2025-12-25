@@ -28,6 +28,6 @@
         // Data keranjang dari backend
         window.keranjangItems = @json($keranjangItems);
     </script>
-    
-    <script src="{{ asset('js/keranjang-laravel.js') }}"></script>
+
+    <script src="{{ asset('js/keranjang.js') }}"></script>
 @endpush

@@ -191,11 +191,8 @@ function formatRupiah(amount) {
 
 // Cart Management Functions
 
-// Menambahkan produk ke keranjang belanja
-function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
-    //WAJIB: sync dari localStorage
-    let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
-
+// Menambahkan produk ke keranjang belanja - UPDATED: Sync ke Laravel API
+async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
     // Validasi produk
     const produk = getProdukById(produkId);
     if (!produk) {
@@ -203,53 +200,69 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
         return false;
     }
 
-    // Cari produk di keranjang
-    const existingItemIndex = keranjangData.findIndex(
-        (item) => item.userId === userId && item.produkId === produkId
-    );
-
-    if (existingItemIndex !== -1) {
-        const newTotal =
-            keranjangData[existingItemIndex].jumlah + jumlahTambahan;
-
-        if (newTotal > produk.stok) {
-            showNotification(
-                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
-                "warning"
-            );
-            return false;
-        }
-
-        keranjangData[existingItemIndex].jumlah = newTotal;
-    } else {
-        if (jumlahTambahan > produk.stok) {
-            showNotification(
-                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
-                "warning"
-            );
-            return false;
-        }
-
-        keranjangData.push({
-            userId: userId,
-            produkId: produk.id,
-            nama: produk.nama,
-            harga: produk.harga,
-            hargaAsli: produk.hargaAsli || produk.harga,
-            diskon: produk.diskon || 0,
-            jumlah: jumlahTambahan,
-            imagePath: produk.imagePath,
-            deskripsi: produk.deskripsi,
-        });
+    // Validasi stok
+    if (jumlahTambahan > produk.stok) {
+        showNotification(
+            `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+            "warning"
+        );
+        return false;
     }
 
-    //Simpan kembali (merge, bukan replace)
-    localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
+    try {
+        // Kirim request ke Laravel API
+        const response = await fetch('/keranjang/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: produkId,
+                jumlah: jumlahTambahan
+            })
+        });
 
-    console.log("Keranjang sekarang:", keranjangData);
+        const result = await response.json();
 
-    updateCartCount();
-    return true;
+        if (result.success) {
+            console.log('✅ Item berhasil ditambahkan ke keranjang database');
+
+            // Update localStorage sebagai cache (optional)
+            let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
+            const existingItemIndex = keranjangData.findIndex(
+                (item) => item.userId === userId && item.produkId === produkId
+            );
+
+            if (existingItemIndex !== -1) {
+                keranjangData[existingItemIndex].jumlah += jumlahTambahan;
+            } else {
+                keranjangData.push({
+                    userId: userId,
+                    produkId: produk.id,
+                    nama: produk.nama,
+                    harga: produk.harga,
+                    hargaAsli: produk.hargaAsli || produk.harga,
+                    diskon: produk.diskon || 0,
+                    jumlah: jumlahTambahan,
+                    imagePath: produk.imagePath,
+                    deskripsi: produk.deskripsi,
+                });
+            }
+
+            localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
+            updateCartCount();
+            return true;
+        } else {
+            showNotification(result.message || 'Gagal menambahkan ke keranjang', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error adding to cart:', error);
+        showNotification('Terjadi kesalahan, silakan coba lagi', 'error');
+        return false;
+    }
 }
 
 // Update badge jumlah item di keranjang pada navbar
@@ -498,15 +511,23 @@ function initializeActionButtons() {
     const btnKeranjang = document.getElementById("btn-Keranjang");
     const btnBeli = document.getElementById("btn-Beli");
 
-    // Tombol Tambah ke Keranjang
-    btnKeranjang.addEventListener("click", () => {
+    // Tombol Tambah ke Keranjang - UPDATED: async handler
+    btnKeranjang.addEventListener("click", async () => {
         const userId = 1; // Hardcode, nanti pakai user login
 
-        const success = tambahKeKeranjang(
+        // Disable button sementara
+        btnKeranjang.disabled = true;
+        btnKeranjang.textContent = 'Menambahkan...';
+
+        const success = await tambahKeKeranjang(
             userId,
             currentProduct.id,
             currentQuantity
         );
+
+        // Enable button kembali
+        btnKeranjang.disabled = false;
+        btnKeranjang.textContent = 'Tambah ke Keranjang';
 
         if (success) {
             // Show notification

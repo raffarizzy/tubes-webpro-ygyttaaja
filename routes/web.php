@@ -14,10 +14,6 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/keranjang', function () {
-    return view('keranjang');
-})->name('keranjang');
-
 Route::get('/checkout', function () {
     return view('checkout');
 })->name('checkout');
