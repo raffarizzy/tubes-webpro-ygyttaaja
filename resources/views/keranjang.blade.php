@@ -9,8 +9,7 @@
 @section('content')
     <section class="keranjang">
         <h2>Keranjang Belanja Anda</h2>
-        
-        <!-- Container akan di-render oleh JavaScript -->
+        <!-- Keranjang akan di-render otomatis -->
         <div class="container-keranjang" id="keranjang-container"></div>
 
         <div class="ringkasan">
@@ -23,11 +22,5 @@
 @endsection
 
 @push('scripts')
-    {{-- Pass data keranjang dari backend ke JavaScript --}}
-    <script>
-        // Data keranjang dari backend
-        window.keranjangItems = @json($keranjangItems);
-    </script>
-
     <script src="{{ asset('js/keranjang.js') }}"></script>
 @endpush

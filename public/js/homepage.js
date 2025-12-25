@@ -15,16 +15,11 @@ let filterState = {
     priceMax: null,
 };
 
-// Load data dari Node.js API
+// Load data dari JSON
 async function loadData() {
     try {
-        // Fetch dari Node.js API
-        const API_BASE_URL = 'http://localhost:3000/api';
-        const response = await fetch(`${API_BASE_URL}/products`);
-        const result = await response.json();
-
-        // Handle API response
-        produkData = result.success ? result.data : [];
+        const response = await fetch("JSON/productData.json");
+        produkData = await response.json();
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -36,11 +31,8 @@ async function loadData() {
         filteredProdukData = [...produkData];
         renderProduk();
         updateCartCount();
-
-        console.log(`✅ Loaded ${produkData.length} products from API`);
     } catch (error) {
         console.error("Error loading data:", error);
-        console.warn("⚠️ Falling back to hardcoded data");
         // Fallback ke data hardcoded
         useFallbackData();
         filteredProdukData = [...produkData];
@@ -123,8 +115,9 @@ function updateResultsInfo() {
     }
 }
 
-
+// ============================================
 // RENDER PRODUK WITH PAGINATION
+// ============================================
 
 function renderProduk() {
     const container = document.getElementById("produk-container");
@@ -172,14 +165,11 @@ function createProductCard(produk) {
     const card = document.createElement("div");
     card.className = "card-produk";
 
-    // Handle image fallback
-    const imageSrc = produk.imagePath || produk.image_path || 'img/iconOli.png';
-
     card.innerHTML = `
-        <img src="${imageSrc}" alt="${produk.nama}" onerror="this.src='img/iconOli.png'" />
+        <img src="${produk.imagePath}" alt="${produk.nama}" />
         <h3>${produk.nama}</h3>
         <p class="harga">${formatRupiah(produk.harga)}</p>
-        <p class="deskripsi">${produk.deskripsi || 'Produk berkualitas'}</p>
+        <p class="deskripsi">${produk.deskripsi}</p>
         <a href="/produk/${produk.id}">
             <button class="btn-beli">Lihat Detail</button>
         </a>

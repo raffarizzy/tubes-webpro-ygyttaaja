@@ -4,24 +4,22 @@ let tokoData = [];
 let ratingData = [];
 let keranjangData = [];
 
-// Load semua data dari Node.js API
+// Load semua data dari JSON atau localStorage
 async function loadData() {
     try {
-        // API Base URL - Node.js API
-        const API_BASE_URL = 'http://localhost:3000/api';
+        // Load produk data
+        const produkResponse = await fetch("JSON/productData.json");
+        produkData = await produkResponse.json();
 
-        // Load produk data dari API
-        const produkResponse = await fetch(`${API_BASE_URL}/products`);
-        const produkResult = await produkResponse.json();
-        produkData = produkResult.success ? produkResult.data : [];
+        // Load toko data
+        const tokoResponse = await fetch("JSON/tokoData.json");
+        tokoData = await tokoResponse.json();
 
-        // Load toko data dari API
-        const tokoResponse = await fetch(`${API_BASE_URL}/tokos`);
-        const tokoResult = await tokoResponse.json();
-        tokoData = tokoResult.success ? tokoResult.data : [];
-
-        // Load rating data - cek localStorage dulu, fallback ke data hardcoded
-        ratingData = JSON.parse(localStorage.getItem("ratingList")) || [];
+        // Load rating data
+        // const ratingResponse = await fetch("JSON/ratingData.json");
+        ratingData =
+            JSON.parse(localStorage.getItem("ratingList")) ||
+            (await fetch("JSON/ratingData.json").then((res) => res.json()));
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -55,31 +53,7 @@ async function loadData() {
     }
 }
 
-// Helper function untuk load toko data (fallback)
-async function loadTokoDataFallback() {
-    // Untuk sekarang pakai data hardcoded
-    // Nanti bisa diganti dengan fetch ke API: GET /api/tokos
-    return [
-        {
-            id: 1,
-            namaToko: "Bengkel Jaya Motor",
-            pemilikId: 1,
-            deskripsi: "Spesialis oli dan sparepart kendaraan.",
-            logoPath: "img/logoToko1.png",
-            lokasi: "Jakarta Barat",
-        },
-        {
-            id: 2,
-            namaToko: "Otomax Shop",
-            pemilikId: 2,
-            deskripsi: "Toko perlengkapan otomotif lengkap dan terpercaya.",
-            logoPath: "img/logoToko2.png",
-            lokasi: "Bandung",
-        },
-    ];
-}
-
-// Data backup jika API tidak bisa dimuat
+// Data backup jika file JSON tidak bisa dimuat
 function useFallbackData() {
     // Data produk default
     produkData = [
@@ -191,8 +165,11 @@ function formatRupiah(amount) {
 
 // Cart Management Functions
 
-// Menambahkan produk ke keranjang belanja - UPDATED: Sync ke Laravel API
-async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
+// Menambahkan produk ke keranjang belanja
+function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
+    // 🔥 WAJIB: sync dari localStorage
+    let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
+
     // Validasi produk
     const produk = getProdukById(produkId);
     if (!produk) {
@@ -200,69 +177,53 @@ async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
         return false;
     }
 
-    // Validasi stok
-    if (jumlahTambahan > produk.stok) {
-        showNotification(
-            `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
-            "warning"
-        );
-        return false;
-    }
+    // Cari produk di keranjang
+    const existingItemIndex = keranjangData.findIndex(
+        (item) => item.userId === userId && item.produkId === produkId
+    );
 
-    try {
-        // Kirim request ke Laravel API
-        const response = await fetch('/keranjang/add', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                product_id: produkId,
-                jumlah: jumlahTambahan
-            })
-        });
+    if (existingItemIndex !== -1) {
+        const newTotal =
+            keranjangData[existingItemIndex].jumlah + jumlahTambahan;
 
-        const result = await response.json();
-
-        if (result.success) {
-            console.log('✅ Item berhasil ditambahkan ke keranjang database');
-
-            // Update localStorage sebagai cache (optional)
-            let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
-            const existingItemIndex = keranjangData.findIndex(
-                (item) => item.userId === userId && item.produkId === produkId
+        if (newTotal > produk.stok) {
+            showNotification(
+                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+                "warning"
             );
-
-            if (existingItemIndex !== -1) {
-                keranjangData[existingItemIndex].jumlah += jumlahTambahan;
-            } else {
-                keranjangData.push({
-                    userId: userId,
-                    produkId: produk.id,
-                    nama: produk.nama,
-                    harga: produk.harga,
-                    hargaAsli: produk.hargaAsli || produk.harga,
-                    diskon: produk.diskon || 0,
-                    jumlah: jumlahTambahan,
-                    imagePath: produk.imagePath,
-                    deskripsi: produk.deskripsi,
-                });
-            }
-
-            localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
-            updateCartCount();
-            return true;
-        } else {
-            showNotification(result.message || 'Gagal menambahkan ke keranjang', 'error');
             return false;
         }
-    } catch (error) {
-        console.error('Error adding to cart:', error);
-        showNotification('Terjadi kesalahan, silakan coba lagi', 'error');
-        return false;
+
+        keranjangData[existingItemIndex].jumlah = newTotal;
+    } else {
+        if (jumlahTambahan > produk.stok) {
+            showNotification(
+                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+                "warning"
+            );
+            return false;
+        }
+
+        keranjangData.push({
+            userId: userId,
+            produkId: produk.id,
+            nama: produk.nama,
+            harga: produk.harga,
+            hargaAsli: produk.hargaAsli || produk.harga,
+            diskon: produk.diskon || 0,
+            jumlah: jumlahTambahan,
+            imagePath: produk.imagePath,
+            deskripsi: produk.deskripsi,
+        });
     }
+
+    // 💾 Simpan kembali (merge, bukan replace)
+    localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
+
+    console.log("Keranjang sekarang:", keranjangData);
+
+    updateCartCount();
+    return true;
 }
 
 // Update badge jumlah item di keranjang pada navbar
@@ -400,8 +361,8 @@ function renderProductDetails(product) {
 
 // Render informasi toko
 function renderTokoInfo(toko) {
-    document.getElementById("toko-nama").textContent = toko.nama_toko || toko.namaToko || '-';
-    document.getElementById("toko-lokasi").textContent = toko.lokasi || '-';
+    document.getElementById("toko-nama").textContent = toko.namaToko;
+    document.getElementById("toko-lokasi").textContent = toko.lokasi;
 }
 
 // Render rating dan ulasan produk
@@ -511,23 +472,15 @@ function initializeActionButtons() {
     const btnKeranjang = document.getElementById("btn-Keranjang");
     const btnBeli = document.getElementById("btn-Beli");
 
-    // Tombol Tambah ke Keranjang - UPDATED: async handler
-    btnKeranjang.addEventListener("click", async () => {
+    // Tombol Tambah ke Keranjang
+    btnKeranjang.addEventListener("click", () => {
         const userId = 1; // Hardcode, nanti pakai user login
 
-        // Disable button sementara
-        btnKeranjang.disabled = true;
-        btnKeranjang.textContent = 'Menambahkan...';
-
-        const success = await tambahKeKeranjang(
+        const success = tambahKeKeranjang(
             userId,
             currentProduct.id,
             currentQuantity
         );
-
-        // Enable button kembali
-        btnKeranjang.disabled = false;
-        btnKeranjang.textContent = 'Tambah ke Keranjang';
 
         if (success) {
             // Show notification

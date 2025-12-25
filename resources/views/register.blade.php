@@ -1,13 +1,13 @@
-@extends('layouts.main')
-
-@section('title', 'Register - SpareHub')
-
-@push('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/register.css') }}" />
-@endpush
-
-@section('content')
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - SpareHub</title>
+    <link rel="icon" href="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" />
+    <link rel="stylesheet" href="css/register.css" />
+  </head>
+  <body>
     <div class="register-container">
       <div class="register-card">
         <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" alt="Logo" class="logo" />
@@ -75,12 +75,11 @@
         </form>
 
         <p class="login-text">
-          Sudah punya akun? <a href="{{ route('login') }}">Login</a>
+          Sudah punya akun? <a href="login.html">Login</a>
         </p>
       </div>
     </div>
-@endsection
 
-@push('scripts')
-    <script src="{{ asset('js/register.js') }}"></script>
-@endpush
+    <script src="js/register.js"></script>
+  </body>
+</html>
