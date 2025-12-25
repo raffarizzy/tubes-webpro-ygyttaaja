@@ -40,7 +40,7 @@
 
                 <div class="col-md-2 text-end">
                     <button class="btn btn-outline-primary" onclick="openEditTokoModal()">
-                        ✏️ Edit Toko
+                      Edit Toko
                     </button>
                 </div>
 
@@ -100,7 +100,6 @@
 </div>
 
 {{-- ================= MODAL EDIT TOKO ================= --}}
-{{-- ================= MODAL EDIT TOKO ================= --}}
 <div class="modal fade" id="modalEditToko" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -148,7 +147,7 @@
                             >
                         </div>
 
-                        {{-- ✅ INI DIA INPUT FILE-NYA --}}
+                        {{-- INI DIA INPUT FILE-NYA --}}
                         <div class="mb-3">
                             <label class="form-label">Logo Toko</label>
                             <input
@@ -197,7 +196,7 @@
             </div>
 
             <div class="modal-body">
-                {{-- 🔥 FORM TAMBAH PRODUK --}}
+                {{-- FORM TAMBAH PRODUK --}}
                 <form id="formTambah" enctype="multipart/form-data">
                     @csrf
 
@@ -231,7 +230,7 @@
 
                     <div class="mb-2">
                         <label>Gambar Produk</label>
-                        <input type="file" name="gambar" class="form-control" accept="image/*" required>
+                        <input type="file" name="image" class="form-control" accept="image/*" required>
                     </div>
 
                 </form>
@@ -258,12 +257,47 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="editId">
-                <input id="editNama" class="form-control mb-2">
-                <input id="editHarga" class="form-control mb-2">
-                <input id="editStok" class="form-control mb-2">
-                <input type="file" id="editGambar" class="form-control">
+                
+                <div class="mb-2">
+                    <label>Nama Produk</label>
+                    <input type="text" id="editNama" class="form-control" required>
+                </div>
+
+                <div class="mb-2">
+                    <label>Kategori</label>
+                    <select id="editKategori" class="form-control" required>
+                        <option value="1">Sparepart Mesin</option>
+                        <option value="2">Sparepart Body</option>
+                    </select>
+                </div>
+
+                <div class="mb-2">
+                    <label>Harga</label>
+                    <input type="number" id="editHarga" class="form-control" required>
+                </div>
+
+                <div class="mb-2">
+                    <label>Stok</label>
+                    <input type="number" id="editStok" class="form-control" required>
+                </div>
+
+                <div class="mb-2">
+                    <label>Deskripsi</label>
+                    <textarea id="editDeskripsi" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="mb-2">
+                    <label>Gambar Produk (kosongkan jika tidak ingin mengubah)</label>
+                    <input type="file" id="editGambar" class="form-control" accept="image/*">
+                </div>
+
+                <div class="mb-2">
+                    <label>Preview Gambar Saat Ini:</label>
+                    <img id="previewEditGambar" class="preview-image" style="display:none;">
+                </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button class="btn btn-primary" onclick="updateProduk()">Update</button>
             </div>
         </div>
@@ -285,6 +319,7 @@
     </div>
 </div>
 @endsection
+
 
 @push('scripts')
 <meta name="csrf-token" content="{{ csrf_token() }}">

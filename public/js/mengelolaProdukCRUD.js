@@ -21,25 +21,41 @@ function openTambahModal() {
     ).show();
 }
 
-function openEditModal(id, nama, harga, stok, deskripsi, imagePath) {
+function openEditModal(id, nama, harga, stok, imagePath) {
+    // Deklarasi variabel dengan getElementById
+    const editId = document.getElementById('editId');
+    const editNama = document.getElementById('editNama');
+    const editHarga = document.getElementById('editHarga');
+    const editStok = document.getElementById('editStok');
+    const previewEditGambar = document.getElementById('previewEditGambar');
+    const modalEdit = document.getElementById('modalEdit');
+    
+    // Set nilai
     editId.value = id;
     editNama.value = nama;
     editHarga.value = harga;
     editStok.value = stok;
-    editDeskripsi.value = deskripsi;
 
-    previewEditGambar.src = '/storage/' + imagePath;
-    previewEditGambar.style.display = 'block';
+    // Set preview gambar
+    if (imagePath) {
+        previewEditGambar.src = '/storage/' + imagePath;
+        previewEditGambar.style.display = 'block';
+    }
 
+    // Show modal
     new bootstrap.Modal(modalEdit).show();
 }
 
 function openHapusModal(id) {
+    const hapusId = document.getElementById('hapusId');
+    const modalHapus = document.getElementById('modalHapus');
+    
     hapusId.value = id;
     new bootstrap.Modal(modalHapus).show();
 }
 
 function openEditTokoModal() {
+    const modalEditToko = document.getElementById('modalEditToko');
     new bootstrap.Modal(modalEditToko).show();
 }
 
@@ -74,23 +90,66 @@ function simpanProduk() {
 
 // UPDATE
 function updateProduk() {
-    const fd = new FormData(formEdit);
+    const editId = document.getElementById('editId');
+    const editNama = document.getElementById('editNama');
+    const editKategori = document.getElementById('editKategori');
+    const editHarga = document.getElementById('editHarga');
+    const editStok = document.getElementById('editStok');
+    const editDeskripsi = document.getElementById('editDeskripsi');
+    const editGambar = document.getElementById('editGambar');
+    
+    const fd = new FormData();
     fd.append('_token', csrf);
     fd.append('_method', 'PUT');
+    fd.append('nama', editNama.value);
+    fd.append('category_id', editKategori.value);
+    fd.append('harga', editHarga.value);
+    fd.append('stok', editStok.value);
+    fd.append('deskripsi', editDeskripsi.value);
+    
+    // Tambahkan gambar jika ada file baru yang dipilih
+    if (editGambar.files.length > 0) {
+        fd.append('image', editGambar.files[0]);
+    }
 
-    fetch(`/product/${editId.value}`, { method:'POST', body:fd })
-        .then(res => res.json())
-        .then(() => location.reload());
+    fetch(`/product/${editId.value}`, { 
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrf
+        },
+        body: fd 
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            alert('Produk berhasil diupdate');
+            location.reload();
+        } else {
+            alert('Gagal update produk');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Gagal update produk');
+    });
 }
 
 // DELETE
 function hapusProduk() {
+    const hapusId = document.getElementById('hapusId');
+    const modalHapus = document.getElementById('modalHapus');
+    
     fetch(`/product/${hapusId.value}`, {
         method:'DELETE',
         headers:{ 'X-CSRF-TOKEN': csrf }
     }).then(() => {
         document.getElementById(`produk-${hapusId.value}`).remove();
-        modalHapus.classList.remove('show');
+        bootstrap.Modal.getInstance(modalHapus).hide();
+        alert('Produk berhasil dihapus');
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Gagal hapus produk');
     });
 }
 
@@ -117,6 +176,7 @@ function updateToko() {
     })
     .then(data => {
         if (data.success) {
+            alert('Toko berhasil diupdate');
             location.reload();
         }
     })
@@ -126,4 +186,14 @@ function updateToko() {
     });
 }
 
-
+// Event listener untuk preview gambar saat edit
+document.addEventListener('DOMContentLoaded', function() {
+    const editGambar = document.getElementById('editGambar');
+    if (editGambar) {
+        editGambar.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                previewImage(this, 'previewEditGambar');
+            }
+        });
+    }
+});

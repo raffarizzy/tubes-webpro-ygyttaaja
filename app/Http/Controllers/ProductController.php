@@ -17,10 +17,10 @@ class ProductController extends Controller
                 'harga' => 'required|numeric',
                 'stok' => 'required|integer',
                 'deskripsi' => 'required|string',
-                'gambar' => 'required|image|mimes:jpg,jpeg,png'
+                'image' => 'required|image|mimes:jpg,jpeg,png'
             ]);
 
-            $path = $request->file('gambar')->store('produk', 'public');
+            $path = $request->file('image')->store('produk', 'public');
 
             $produk = Product::create([
                 'toko_id' => auth()->user()->toko->id,
