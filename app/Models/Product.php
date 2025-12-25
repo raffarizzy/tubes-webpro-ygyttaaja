@@ -6,5 +6,31 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    //
+    protected $fillable = [
+        'toko_id',
+        'category_id',
+        'nama',
+        'deskripsi',
+        'harga',
+        'diskon',
+        'stok',
+        'imagePath',
+    ];
+
+    /* ================= RELATION ================= */
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function toko()
+    {
+        return $this->belongsTo(Toko::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

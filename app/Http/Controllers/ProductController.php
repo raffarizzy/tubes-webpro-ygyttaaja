@@ -8,58 +8,81 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * GET semua produk
      */
     public function index()
     {
-        //
+        return response()->json(
+            Product::with(['toko', 'category'])->get()
+        );
     }
 
     /**
-     * Show the form for creating a new resource.
+     * GET detail produk
      */
-    public function create()
+    public function show($id)
     {
-        //
+        $product = Product::with(['toko', 'category'])->findOrFail($id);
+        return response()->json($product);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * SIMPAN produk baru
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'toko_id' => 'required|integer',
+            'category_id' => 'required|integer',
+            'nama' => 'required|string',
+            'deskripsi' => 'required|string',
+            'harga' => 'required|integer',
+            'diskon' => 'nullable|integer',
+            'stok' => 'required|integer',
+            'imagePath' => 'required|string',
+        ]);
+
+        $product = Product::create($data);
+
+        return response()->json([
+            'message' => 'Produk berhasil ditambahkan',
+            'data' => $product
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * UPDATE produk
      */
-    public function show(Product $product)
+    public function update(Request $request, $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $data = $request->validate([
+            'nama' => 'string',
+            'deskripsi' => 'string',
+            'harga' => 'integer',
+            'diskon' => 'nullable|integer',
+            'stok' => 'integer',
+            'imagePath' => 'string',
+        ]);
+
+        $product->update($data);
+
+        return response()->json([
+            'message' => 'Produk berhasil diupdate',
+            'data' => $product
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * DELETE produk
      */
-    public function edit(Product $product)
+    public function destroy($id)
     {
-        //
-    }
+        Product::findOrFail($id)->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
+        return response()->json([
+            'message' => 'Produk berhasil dihapus'
+        ]);
     }
 }

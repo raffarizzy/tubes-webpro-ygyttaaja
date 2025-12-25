@@ -1,4 +1,10 @@
 // ============================================
+// CONFIGURATION
+// ============================================
+
+const API_BASE_URL = "http://localhost:8000/api"; // Sesuaikan dengan URL Laravel Anda
+
+// ============================================
 // DATA MANAGEMENT
 // ============================================
 
@@ -15,11 +21,32 @@ let filterState = {
     priceMax: null,
 };
 
-// Load data dari JSON
+// Load data dari Laravel API
 async function loadData() {
     try {
-        const response = await fetch("JSON/productData.json");
+        // Tambahkan timestamp untuk bypass cache
+        const timestamp = new Date().getTime();
+        const url = `${API_BASE_URL}/products?_=${timestamp}`;
+
+        console.log("🔄 Fetching products from:", url);
+
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Cache-Control": "no-cache",
+                Pragma: "no-cache",
+            },
+        });
+
+        console.log("📡 Response status:", response.status);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         produkData = await response.json();
+
+        console.log("✅ Products loaded:", produkData.length, "items");
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -32,43 +59,9 @@ async function loadData() {
         renderProduk();
         updateCartCount();
     } catch (error) {
-        console.error("Error loading data:", error);
-        // Fallback ke data hardcoded
-        useFallbackData();
-        filteredProdukData = [...produkData];
-        renderProduk();
-        updateCartCount();
+        console.error("❌ Error loading data:", error);
+        alert("Gagal memuat data produk dari server!");
     }
-}
-
-// Fallback data jika JSON ga bisa dimuat
-function useFallbackData() {
-    produkData = [
-        {
-            id: 1,
-            nama: "Oli Mobil",
-            harga: 125000,
-            deskripsi: "Oli mobil berkualitas tinggi, dijamin original.",
-            imagePath: "img/iconOli.png",
-            kategori: "Otomotif",
-        },
-        {
-            id: 2,
-            nama: "Oli Motor",
-            harga: 100700,
-            deskripsi: "Oli motor original dengan performa tinggi.",
-            imagePath: "img/iconOli.png",
-            kategori: "Otomotif",
-        },
-        {
-            id: 3,
-            nama: "Filter Udara Mobil",
-            harga: 75000,
-            deskripsi: "Filter udara mobil kualitas OEM.",
-            imagePath: "img/iconOli.png",
-            kategori: "Suku Cadang",
-        },
-    ];
 }
 
 // ============================================
@@ -80,13 +73,17 @@ function applyFilters() {
         // Search filter
         const matchSearch =
             filterState.search === "" ||
-            produk.nama.toLowerCase().includes(filterState.search.toLowerCase());
+            produk.nama
+                .toLowerCase()
+                .includes(filterState.search.toLowerCase());
 
         // Price filter
         const matchPriceMin =
-            filterState.priceMin === null || produk.harga >= filterState.priceMin;
+            filterState.priceMin === null ||
+            produk.harga >= filterState.priceMin;
         const matchPriceMax =
-            filterState.priceMax === null || produk.harga <= filterState.priceMax;
+            filterState.priceMax === null ||
+            produk.harga <= filterState.priceMax;
 
         return matchSearch && matchPriceMin && matchPriceMax;
     });
@@ -165,8 +162,27 @@ function createProductCard(produk) {
     const card = document.createElement("div");
     card.className = "card-produk";
 
+    // Fix path gambar
+    let imagePath;
+    if (produk.imagePath.startsWith("http")) {
+        // Kalau sudah full URL
+        imagePath = produk.imagePath;
+    } else if (produk.imagePath.startsWith("products/")) {
+        // Kalau dari Laravel storage
+        imagePath = `http://localhost:8000/storage/${produk.imagePath}`;
+    } else {
+        // Kalau path relatif (img/iconOli.png)
+        imagePath = produk.imagePath;
+    }
+
     card.innerHTML = `
-        <img src="${produk.imagePath}" alt="${produk.nama}" />
+        <img src="${imagePath}" 
+             alt="${produk.nama}" 
+             onerror="if(this.src!=='${
+                 window.location.origin
+             }/img/iconOli.png'){this.src='${
+        window.location.origin
+    }/img/iconOli.png'}" />
         <h3>${produk.nama}</h3>
         <p class="harga">${formatRupiah(produk.harga)}</p>
         <p class="deskripsi">${produk.deskripsi}</p>
@@ -236,7 +252,9 @@ function renderPagination(totalPages) {
             dots.style.cssText = "padding: 8px 12px; color: #666;";
             paginationEl.appendChild(dots);
         }
-        paginationEl.appendChild(createPaginationButton(totalPages, totalPages));
+        paginationEl.appendChild(
+            createPaginationButton(totalPages, totalPages)
+        );
     }
 
     // Next button
@@ -265,7 +283,9 @@ function createPaginationButton(label, page) {
         currentPage = page;
         renderProduk();
         // Scroll to top of products
-        document.querySelector(".produk").scrollIntoView({ behavior: "smooth" });
+        document
+            .querySelector(".produk")
+            .scrollIntoView({ behavior: "smooth" });
     });
 
     btn.addEventListener("mouseenter", () => {
@@ -341,7 +361,9 @@ function initEventListeners() {
     const priceMinInput = document.getElementById("price-min");
     if (priceMinInput) {
         priceMinInput.addEventListener("input", (e) => {
-            filterState.priceMin = e.target.value ? parseInt(e.target.value) : null;
+            filterState.priceMin = e.target.value
+                ? parseInt(e.target.value)
+                : null;
             applyFilters();
         });
     }
@@ -350,7 +372,9 @@ function initEventListeners() {
     const priceMaxInput = document.getElementById("price-max");
     if (priceMaxInput) {
         priceMaxInput.addEventListener("input", (e) => {
-            filterState.priceMax = e.target.value ? parseInt(e.target.value) : null;
+            filterState.priceMax = e.target.value
+                ? parseInt(e.target.value)
+                : null;
             applyFilters();
         });
     }

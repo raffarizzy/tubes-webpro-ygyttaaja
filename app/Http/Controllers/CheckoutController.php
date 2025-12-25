@@ -2,32 +2,63 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
-use Xendit\Xendit;
-use Xendit\Invoice;
+use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
+    /**
+     * Proses pembayaran dengan Xendit
+     * Menerima order_id yang sudah dibuat dari OrderController
+     */
     public function pay(Request $request)
     {
+        $request->validate([
+            'order_id' => 'required|integer|exists:orders,id',
+            'total' => 'required|integer|min:1',
+        ]);
+
         try {
-            Xendit::setApiKey(config('services.xendit.secret'));
+            // Pastikan order milik user yang login
+            $order = Order::where('id', $request->order_id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
 
-            $invoice = Invoice::create([
-                'external_id' => 'order-' . time(),
+            // Set Xendit API key
+            \Xendit\Xendit::setApiKey(config('services.xendit.secret'));
+
+            // Create Xendit invoice
+            $invoice = \Xendit\Invoice::create([
+                'external_id' => 'ORDER-' . $order->id . '-' . time(),
+                'payer_email' => Auth::user()->email,
+                'description' => 'Pembayaran Order #' . $order->id,
                 'amount' => $request->total,
-                'payer_email' => 'customer@example.com',
-                'description' => 'Pembayaran SpareHub',
-                'success_redirect_url' => url('/'),
-                'failure_redirect_url' => url('/checkout'),
+                'success_redirect_url' => route('payment.success'),
+                'failure_redirect_url' => route('checkout'),
+            ]);
+
+            // Update order dengan invoice info
+            $order->update([
+                'invoice_id' => $invoice['id'],
+                'invoice_url' => $invoice['invoice_url'],
             ]);
 
             return response()->json([
-                'invoice_url' => $invoice['invoice_url']
+                'message' => 'Invoice berhasil dibuat',
+                'invoice_url' => $invoice['invoice_url'],
+                'order_id' => $order->id,
             ]);
-        } catch (\Throwable $e) {
+
+        } catch (\Exception $e) {
+            \Log::error('Payment error:', [
+                'message' => $e->getMessage(),
+                'order_id' => $request->order_id ?? null,
+            ]);
+
             return response()->json([
-                'error' => $e->getMessage()
+                'message' => 'Gagal membuat invoice',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

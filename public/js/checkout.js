@@ -56,9 +56,11 @@ document.addEventListener("DOMContentLoaded", function () {
             div.innerHTML = `
           <div class="row g-0">
             <div class="col-md-3 bg-light p-1 text-center">
-              <img src="${
-                  product.imagePath
-              }" class="img-fluid" style="max-height:45px">
+              <img src="${product.imagePath}" 
+                   alt="${product.nama}"
+                   class="img-fluid" 
+                   style="max-height:100px"
+                   onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22110%22 height=%22110%22 viewBox=%220 0 110 110%22%3E%3Crect width=%22110%22 height=%22110%22 fill=%22%23f1f3f4%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 font-family=%22Arial, sans-serif%22 font-size=%2214%22 fill=%22%235f6368%22%3ENo Image%3C/text%3E%3Cpath d=%22M35 40h40v5H35z M40 50h30v5H40z M45 60h20v5H45z%22 fill=%22%23dadce0%22/%3E%3C/svg%3E';" />
             </div>
             <div class="col-md-9">
               <div class="card-body p-2">
@@ -576,6 +578,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Pay button handler
+    // Pay button handler
+    // Pay button handler
     payButton.addEventListener("click", async () => {
         if (!selectedAddress || !selectedPayment) {
             alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
@@ -586,11 +590,28 @@ document.addEventListener("DOMContentLoaded", function () {
         payButton.innerHTML =
             '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
 
-        const totalText = document.getElementById("orderTotal").textContent;
-        const total = parseInt(totalText.replace(/[^0-9]/g, ""));
-
         try {
-            const response = await fetch("/checkout/pay", {
+            // 1️⃣ Ambil data checkout dari localStorage
+            const checkoutData =
+                JSON.parse(localStorage.getItem("checkoutData")) || [];
+
+            if (checkoutData.length === 0) {
+                throw new Error("Tidak ada produk untuk checkout");
+            }
+
+            console.log("📦 Checkout data:", checkoutData);
+
+            // 2️⃣ Format data items untuk API
+            const items = checkoutData.map((item) => ({
+                product_id: item.productId || item.id,
+                jumlah: item.jumlah,
+            }));
+
+            console.log("📤 Items to send:", items);
+
+            // 3️⃣ Kirim ke web route create order (BUKAN /api/orders)
+            const orderResponse = await fetch("/orders", {
+                // ← Tanpa /api/
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -599,31 +620,80 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    total: total,
                     alamat_id: selectedAddress.id,
+                    items: items,
                 }),
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
+            console.log("📡 Order response status:", orderResponse.status);
+
+            if (!orderResponse.ok) {
+                const errorData = await orderResponse.json();
+                throw new Error(
+                    errorData.message || `HTTP ${orderResponse.status}`
+                );
             }
 
-            const data = await response.json();
+            const orderResult = await orderResponse.json();
+            console.log("✅ Order created:", orderResult);
 
-            if (data.invoice_url) {
-                window.location.href = data.invoice_url;
+            // 4️⃣ Proses pembayaran dengan Xendit
+            const totalText = document.getElementById("orderTotal").textContent;
+            const total = parseInt(totalText.replace(/[^0-9]/g, ""));
+
+            const paymentResponse = await fetch("/checkout/pay", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": getCsrfToken(),
+                    "X-Requested-With": "XMLHttpRequest",
+                },
+                credentials: "same-origin",
+                body: JSON.stringify({
+                    order_id: orderResult.order.id,
+                    total: total,
+                }),
+            });
+
+            if (!paymentResponse.ok) {
+                const errorText = await paymentResponse.text();
+                console.error("Payment error response:", errorText);
+                throw new Error(
+                    `Payment failed: HTTP ${paymentResponse.status}`
+                );
+            }
+
+            const paymentData = await paymentResponse.json();
+            console.log("💳 Payment data:", paymentData);
+
+            if (paymentData.invoice_url) {
+                // 5️⃣ Clear checkout data dari localStorage
+                localStorage.removeItem("checkoutData");
+
+                // 6️⃣ Redirect ke payment gateway
+                showNotification(
+                    "Order berhasil dibuat! Mengarahkan ke pembayaran...",
+                    "success"
+                );
+
+                setTimeout(() => {
+                    window.location.href = paymentData.invoice_url;
+                }, 1500);
             } else {
                 throw new Error("Invoice URL tidak ditemukan");
             }
         } catch (err) {
-            console.error("Payment error:", err);
-            alert("Gagal memproses pembayaran: " + err.message);
+            console.error("❌ Payment error:", err);
+            showNotification(
+                `Gagal memproses pembayaran: ${err.message}`,
+                "danger"
+            );
+
             payButton.disabled = false;
             payButton.innerHTML =
                 '<i class="bi bi-credit-card"></i> Bayar Sekarang';
         }
     });
-
     // Show notification
     function showNotification(message, type = "success") {
         const alertDiv = document.createElement("div");

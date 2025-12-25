@@ -229,8 +229,7 @@
     <style>
       .card-selectable.selected {
         border-color: #198754 !important;
-        border-width: 3px !important;
-        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+        border-width: 2px !important;
       }
 
       .card-selectable {

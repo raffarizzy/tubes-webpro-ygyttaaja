@@ -3,63 +3,121 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\OrderItems;
+use App\Models\Product; // ← TAMBAHKAN INI!
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * SIMPAN ORDER (CHECKOUT)
      */
     public function store(Request $request)
     {
-        //
+        \Log::info('Order store called', [
+            'user_id' => Auth::id(),
+            'request_data' => $request->all()
+        ]);
+
+        $request->validate([
+            'alamat_id' => 'required|integer|exists:alamats,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|integer|exists:products,id',
+            'items.*.jumlah' => 'required|integer|min:1',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            \Log::info('Validation passed, checking stock...');
+            
+            // 1️⃣ Validasi stok
+            foreach ($request->items as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                
+                if ($product->stok < $item['jumlah']) {
+                    return response()->json([
+                        'message' => "Stok {$product->nama} tidak mencukupi"
+                    ], 400);
+                }
+            }
+
+            \Log::info('Stock validation passed, creating order...');
+
+            // 2️⃣ Buat order
+            $order = Order::create([
+                'user_id' => Auth::id(),
+                'alamat_id' => $request->alamat_id,
+                'total_harga' => 0, // ← GANTI JADI total_harga
+                'status' => 'pending',
+            ]);
+
+            \Log::info('Order created', ['order_id' => $order->id]);
+
+            $total = 0;
+
+            // 3️⃣ Simpan order items & kurangi stok
+            foreach ($request->items as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                $subtotal = $product->harga * $item['jumlah'];
+                $total += $subtotal;
+
+                OrderItems::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'nama_produk' => $product->nama,
+                    'harga' => $product->harga,
+                    'qty' => $item['jumlah'],
+                    'subtotal' => $subtotal,
+                ]);
+
+                // Kurangi stok
+                $product->decrement('stok', $item['jumlah']);
+            }
+
+            \Log::info('All items processed, updating total...', ['total' => $total]);
+
+            // 4️⃣ Update total
+            $order->update(['total_harga' => $total]); // ← GANTI JADI total_harga
+
+            \Log::info('Order total updated, committing transaction...');
+
+            DB::commit();
+
+            \Log::info('Order completed successfully', ['order_id' => $order->id]);
+
+            return response()->json([
+                'message' => 'Order berhasil dibuat',
+                'order' => $order->load('items.product'),
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Order creation failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Gagal membuat order',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
-     * Display the specified resource.
+     * RIWAYAT PESANAN USER
      */
-    public function show(Order $order)
+    public function history()
     {
-        //
-    }
+        $orders = Order::with('items.product')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Order $order)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        return response()->json($orders);
     }
 }

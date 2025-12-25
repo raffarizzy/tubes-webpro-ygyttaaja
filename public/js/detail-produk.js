@@ -1,25 +1,47 @@
+const API_BASE_URL = "http://localhost:8000/api";
+
 // Data Management - Variabel untuk menyimpan data aplikasi
 let produkData = [];
 let tokoData = [];
 let ratingData = [];
 let keranjangData = [];
 
-// Load semua data dari JSON atau localStorage
+// Load semua data dari API Laravel
 async function loadData() {
     try {
-        // Load produk data
-        const produkResponse = await fetch("JSON/productData.json");
+        // 🔥 Load produk dari Laravel API
+        const timestamp = new Date().getTime();
+        const produkResponse = await fetch(
+            `${API_BASE_URL}/products?_=${timestamp}`,
+            {
+                method: "GET",
+                headers: {
+                    "Cache-Control": "no-cache",
+                    Pragma: "no-cache",
+                },
+            }
+        );
         produkData = await produkResponse.json();
 
-        // Load toko data
-        const tokoResponse = await fetch("JSON/tokoData.json");
-        tokoData = await tokoResponse.json();
+        console.log("✅ Products loaded:", produkData.length, "items");
+
+        // Load toko data (sementara masih dari JSON)
+        try {
+            const tokoResponse = await fetch("JSON/tokoData.json");
+            tokoData = await tokoResponse.json();
+        } catch (e) {
+            console.log("⚠️ Toko data not found, using fallback");
+            tokoData = [
+                {
+                    id: 1,
+                    namaToko: "Toko Default",
+                    lokasi: "Jakarta",
+                },
+            ];
+        }
 
         // Load rating data
-        // const ratingResponse = await fetch("JSON/ratingData.json");
-        ratingData =
-            JSON.parse(localStorage.getItem("ratingList")) ||
-            (await fetch("JSON/ratingData.json").then((res) => res.json()));
+        ratingData = JSON.parse(localStorage.getItem("ratingList")) || [];
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -27,29 +49,14 @@ async function loadData() {
             keranjangData = JSON.parse(savedCart);
             console.log("Keranjang dimuat dari localStorage");
         } else {
-            // Jika tidak ada, coba load dari JSON sebagai fallback
-            try {
-                const cartResponse = await fetch("JSON/keranjangData.json");
-                keranjangData = await cartResponse.json();
-                // Simpan ke localStorage
-                localStorage.setItem(
-                    "keranjangData",
-                    JSON.stringify(keranjangData)
-                );
-                console.log("Keranjang dimuat dari JSON (fallback)");
-            } catch (err) {
-                keranjangData = [];
-                console.log("Keranjang kosong");
-            }
+            keranjangData = [];
         }
 
         // Inisialisasi halaman setelah semua data berhasil dimuat
         initializePage();
     } catch (error) {
-        console.error("Error loading data:", error);
-        // Fallback ke data hardcoded jika file tidak ada
-        useFallbackData();
-        initializePage();
+        console.error("❌ Error loading data:", error);
+        alert("Gagal memuat data produk!");
     }
 }
 
@@ -134,8 +141,16 @@ function useFallbackData() {
 
 // Mendapatkan data produk berdasarkan ID
 function getProdukById(id) {
-    return produkData.find((produk) => produk.id === id);
-}
+    // Konversi id ke number kalau string
+    const numericId = typeof id === "string" ? parseInt(id) : id;
+
+    const product = produkData.find((produk) => produk.id === numericId);
+
+    console.log("🔍 Looking for product ID:", numericId);
+    console.log("📦 Found product:", product);
+
+    return product;
+} // Di detail-produk.js, bagian btnBeli
 
 // Mendapatkan data toko berdasarkan ID
 function getTokoById(id) {
@@ -249,16 +264,23 @@ let currentQuantity = 1;
 function initializePage() {
     const productId = window.PRODUK_ID;
 
+    console.log("🔍 Product ID from URL:", productId);
+    console.log("📦 All products:", produkData);
+
     // Ambil data produk berdasarkan ID
     currentProduct = getProdukById(productId);
 
+    console.log("✅ Current product found:", currentProduct);
+
     if (!currentProduct) {
-        console.error("Product not found!");
+        console.error("❌ Product not found!");
         document.body.innerHTML = `
         <div style="text-align: center; padding: 100px;">
           <h1>Produk tidak ditemukan</h1>
           <p>Produk yang Anda cari tidak tersedia.</p>
-          <a href="homepage.html" style="color: #007bff; text-decoration: none;">← Kembali ke Beranda</a>
+          <p>Product ID: ${productId}</p>
+          <p>Available products: ${produkData.map((p) => p.id).join(", ")}</p>
+          <a href="/" style="color: #007bff; text-decoration: none;">← Kembali ke Beranda</a>
         </div>
       `;
         return;
@@ -267,10 +289,20 @@ function initializePage() {
     // Render detail produk ke halaman
     renderProductDetails(currentProduct);
 
-    // Render informasi toko
-    const toko = getTokoById(currentProduct.tokoId);
-    if (toko) {
-        renderTokoInfo(toko);
+    // 🔥 FIX: Render informasi toko - pakai toko_id atau ambil dari relasi
+    if (currentProduct.toko) {
+        // Kalau API return relasi toko (sudah di-include)
+        renderTokoInfo({
+            id: currentProduct.toko.id,
+            namaToko: currentProduct.toko.nama_toko,
+            lokasi: currentProduct.toko.lokasi,
+        });
+    } else if (currentProduct.toko_id) {
+        // Fallback: cari manual by toko_id
+        const toko = getTokoById(currentProduct.toko_id);
+        if (toko) {
+            renderTokoInfo(toko);
+        }
     }
 
     // Render rating dan ulasan
@@ -291,78 +323,105 @@ function initializePage() {
 
 // Render detail produk ke elemen HTML
 function renderProductDetails(product) {
-    // Set gambar produk dengan error handling
+    console.log("🎨 Rendering product:", product);
+
+    // Set gambar produk
     const imgElement = document.getElementById("product-image");
-    imgElement.src = product.imagePath;
-    imgElement.alt = product.nama;
+    if (imgElement) {
+        let imagePath = product.imagePath || "img/iconOli.png";
 
-    // Log path gambar untuk debugging
-    console.log("Loading image from:", product.imagePath);
+        if (imagePath.startsWith("images/")) {
+            imagePath = `http://localhost:8000/storage/${imagePath}`;
+        }
 
-    // Handler jika gambar gagal dimuat
-    imgElement.onerror = function () {
-        console.error("Failed to load image:", product.imagePath);
-        // Tampilkan placeholder jika gambar tidak ditemukan
-        this.src =
-            'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Crect fill="%23ddd" width="300" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-size="20"%3ENo Image%3C/text%3E%3C/svg%3E';
-        this.style.backgroundColor = "#f0f0f0";
-    };
+        imgElement.src = imagePath;
+        imgElement.alt = product.nama;
 
-    // Handler jika gambar berhasil dimuat
-    imgElement.onload = function () {
-        console.log("Image loaded successfully!");
-    };
+        imgElement.onerror = function () {
+            console.error("Failed to load image:", imagePath);
+            this.src = "img/iconOli.png";
+        };
+
+        imgElement.onload = function () {
+            console.log("✅ Image loaded successfully!");
+        };
+    }
 
     // Set nama produk
-    document.getElementById("product-name").textContent = product.nama;
+    const nameEl = document.getElementById("product-name");
+    if (nameEl) {
+        nameEl.textContent = product.nama;
+        console.log("✅ Name set:", product.nama);
+    }
 
     // Set harga produk
-    document.getElementById("product-price").textContent = formatRupiah(
-        product.harga
-    );
+    const priceEl = document.getElementById("product-price");
+    if (priceEl) {
+        priceEl.textContent = formatRupiah(product.harga);
+        console.log("✅ Price set:", product.harga);
+    }
 
-    // Handle harga asli dan diskon jika ada
+    // Handle harga asli dan diskon
     const originalPriceEl = document.getElementById("product-original-price");
     const discountEl = document.getElementById("product-discount");
 
-    if (product.hargaAsli && product.diskon) {
-        originalPriceEl.textContent = formatRupiah(product.hargaAsli);
-        originalPriceEl.style.display = "block";
+    if (product.diskon && product.diskon > 0) {
+        // Hitung harga asli dari harga dan diskon
+        const hargaAsli = Math.round(
+            product.harga / (1 - product.diskon / 100)
+        );
 
-        discountEl.textContent = `-${product.diskon}%`;
-        discountEl.style.display = "inline-block";
-    } else {
-        originalPriceEl.style.display = "none";
-        discountEl.style.display = "none";
-    }
-
-    // Kondisi (jika ada)
-    const kondisiEl = document.getElementById("product-kondisi");
-    const kondisiRow = document.querySelector(".kondisi-row");
-    if (kondisiRow) {
-        if (product.kondisi) {
-            kondisiEl.textContent = product.kondisi;
-            kondisiRow.style.display = "block";
-        } else {
-            kondisiRow.style.display = "none";
+        if (originalPriceEl) {
+            originalPriceEl.textContent = formatRupiah(hargaAsli);
+            originalPriceEl.style.display = "block";
         }
+
+        if (discountEl) {
+            discountEl.textContent = `-${product.diskon}%`;
+            discountEl.style.display = "inline-block";
+        }
+
+        console.log("✅ Discount displayed:", product.diskon + "%");
+    } else {
+        if (originalPriceEl) originalPriceEl.style.display = "none";
+        if (discountEl) discountEl.style.display = "none";
     }
 
-    // Set stok produk
-    document.getElementById("product-stok").textContent = product.stok;
+    // Set stok
+    const stokEl = document.getElementById("product-stok");
+    if (stokEl) {
+        stokEl.textContent = product.stok;
+        console.log("✅ Stock set:", product.stok);
+    }
 
-    // Set deskripsi produk
-    document.getElementById("product-description").textContent =
-        product.deskripsi;
+    // Set deskripsi
+    const descEl = document.getElementById("product-description");
+    if (descEl) {
+        descEl.textContent = product.deskripsi;
+        console.log("✅ Description set");
+    }
 
-    // Update total harga berdasarkan quantity
+    // Update total harga
     updateTotalPrice();
+
+    console.log("✅ Product render completed");
 }
 
 // Render informasi toko
 function renderTokoInfo(toko) {
-    document.getElementById("toko-nama").textContent = toko.namaToko;
-    document.getElementById("toko-lokasi").textContent = toko.lokasi;
+    console.log("🏪 Rendering toko:", toko);
+
+    const namaEl = document.getElementById("toko-nama");
+    if (namaEl) {
+        namaEl.textContent = toko.namaToko || toko.nama_toko || "Toko Default";
+        console.log("✅ Toko name set:", namaEl.textContent);
+    }
+
+    const lokasiEl = document.getElementById("toko-lokasi");
+    if (lokasiEl) {
+        lokasiEl.textContent = toko.lokasi || "Indonesia";
+        console.log("✅ Toko location set:", lokasiEl.textContent);
+    }
 }
 
 // Render rating dan ulasan produk
@@ -468,13 +527,14 @@ function updateTotalPrice() {
 // Action Button Functions
 
 // Setup event listener untuk tombol aksi
+// Action Button Functions
 function initializeActionButtons() {
     const btnKeranjang = document.getElementById("btn-Keranjang");
     const btnBeli = document.getElementById("btn-Beli");
 
     // Tombol Tambah ke Keranjang
     btnKeranjang.addEventListener("click", () => {
-        const userId = 1; // Hardcode, nanti pakai user login
+        const userId = 1;
 
         const success = tambahKeKeranjang(
             userId,
@@ -483,13 +543,11 @@ function initializeActionButtons() {
         );
 
         if (success) {
-            // Show notification
             showNotification(
                 `${currentQuantity} ${currentProduct.nama} berhasil ditambahkan ke keranjang!`,
                 "success"
             );
 
-            // Reset quantity
             currentQuantity = 1;
             document.getElementById("quantity-display").textContent =
                 currentQuantity;
@@ -497,9 +555,8 @@ function initializeActionButtons() {
         }
     });
 
-    // Event handler tombol beli sekarang
+    // Event handler tombol beli sekarang ✅ INI YANG BENAR
     btnBeli.addEventListener("click", () => {
-        // Validasi stok
         if (currentQuantity > currentProduct.stok) {
             showNotification(
                 `Stok ${currentProduct.nama} hanya tersedia ${currentProduct.stok} item`,
@@ -508,9 +565,10 @@ function initializeActionButtons() {
             return;
         }
 
-        // Simpan data checkout ke localStorage
         const checkoutData = [
             {
+                productId: currentProduct.id,
+                id: currentProduct.id,
                 nama: currentProduct.nama,
                 harga: currentProduct.harga,
                 hargaAsli: currentProduct.hargaAsli || currentProduct.harga,
@@ -521,10 +579,7 @@ function initializeActionButtons() {
             },
         ];
 
-        // Simpan data checkout ke localStorage
         localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
-
-        // Redirect ke halaman checkout
         window.location.href = "/checkout";
     });
 }
