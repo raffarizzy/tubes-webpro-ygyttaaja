@@ -50,7 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/toko/{id}', [TokoController::class, 'update'])->name('toko.update');
     });
 
-    Route::post('/product', [ProductController::class, 'store']);
+    Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
     Route::put('/product/{id}', [ProductController::class, 'update']);
     Route::delete('/product/{id}', [ProductController::class, 'destroy']);
 });
