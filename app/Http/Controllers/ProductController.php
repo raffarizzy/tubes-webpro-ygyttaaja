@@ -3,63 +3,69 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        try {
+            $request->validate([
+                'nama' => 'required|string',
+                'category_id' => 'required|integer',
+                'harga' => 'required|numeric',
+                'stok' => 'required|integer',
+                'deskripsi' => 'required|string',
+                'gambar' => 'required|image|mimes:jpg,jpeg,png'
+            ]);
+
+            $path = $request->file('gambar')->store('produk', 'public');
+
+            $produk = Product::create([
+                'toko_id' => auth()->user()->toko->id,
+                'category_id' => $request->category_id,
+                'nama' => $request->nama,
+                'harga' => $request->harga,
+                'stok' => $request->stok,
+                'deskripsi' => $request->deskripsi,
+                'imagePath' => $path,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'produk' => $produk
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
+
+
+    public function update(Request $request, $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        if ($request->hasFile('image')) {
+            $product->imagePath =
+                $request->file('image')->store('products','public');
+        }
+
+        $product->update(
+            $request->only('nama','harga','stok','deskripsi')
+        );
+
+        return response()->json(['success'=>true]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
+        Product::destroy($id);
+        return response()->json(['success'=>true]);
     }
 }

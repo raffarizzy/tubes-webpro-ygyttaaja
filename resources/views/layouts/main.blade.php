@@ -20,7 +20,7 @@
     @stack('styles')
 </head>
 
-<body @yield('body-class')>
+<body class="@yield('body-class')">
     <!-- NAVBAR -->
     <nav>
         <img src="{{ asset('img/iconSpareHub.png') }}" id="logo" alt="Logo SpareHub" />
@@ -32,7 +32,7 @@
                     <span id="cart-count" class="cart-count">0</span>
                 </a>
             </li>
-            <li><a href="profil_toko.html">Toko Saya</a></li>
+            <li><a href="{{ route('profil_toko') }}">Toko Saya</a></li>
             <li>
                 <div id="profil">
                     <!-- User info will be loaded by navbar-manager.js -->
