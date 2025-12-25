@@ -1,52 +1,27 @@
+// =====================================================
 // Tokos API Routes
+// =====================================================
 const express = require('express');
 const router = express.Router();
+const TokoController = require('../controllers/tokoController');
 
 module.exports = (pool) => {
+  const controller = new TokoController(pool);
+
   // GET all tokos
-  router.get('/', async (req, res) => {
-    try {
-      const [tokos] = await pool.query('SELECT * FROM tokos');
-      res.json({
-        success: true,
-        data: tokos
-      });
-    } catch (error) {
-      console.error('Error fetching tokos:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch tokos',
-        error: error.message
-      });
-    }
-  });
+  router.get('/', (req, res) => controller.index(req, res));
 
   // GET toko by ID
-  router.get('/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const [tokos] = await pool.query('SELECT * FROM tokos WHERE id = ?', [id]);
+  router.get('/:id', (req, res) => controller.show(req, res));
 
-      if (tokos.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Toko not found'
-        });
-      }
+  // POST create new toko
+  router.post('/', (req, res) => controller.store(req, res));
 
-      res.json({
-        success: true,
-        data: tokos[0]
-      });
-    } catch (error) {
-      console.error('Error fetching toko:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch toko',
-        error: error.message
-      });
-    }
-  });
+  // PUT update toko
+  router.put('/:id', (req, res) => controller.update(req, res));
+
+  // DELETE toko
+  router.delete('/:id', (req, res) => controller.destroy(req, res));
 
   return router;
 };

@@ -193,7 +193,7 @@ function formatRupiah(amount) {
 
 // Menambahkan produk ke keranjang belanja
 function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
-    // 🔥 WAJIB: sync dari localStorage
+    //WAJIB: sync dari localStorage
     let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
 
     // Validasi produk
@@ -243,7 +243,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
         });
     }
 
-    // 💾 Simpan kembali (merge, bukan replace)
+    //Simpan kembali (merge, bukan replace)
     localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
 
     console.log("Keranjang sekarang:", keranjangData);
