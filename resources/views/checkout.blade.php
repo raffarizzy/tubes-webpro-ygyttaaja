@@ -71,7 +71,7 @@
                           required
                         ></textarea>
                       </div>
-                      <div class="mb-3">
+                      <div class="mb-2">
                         <label for="nomorInput" class="form-label small mb-1"
                           >Nomor HP</label
                         >
@@ -83,6 +83,24 @@
                           required
                         />
                       </div>
+                      
+                      <!-- CHECKBOX ALAMAT UTAMA -->
+                      <div class="mb-3">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="defaultCheckbox"
+                          />
+                          <label class="form-check-label small" for="defaultCheckbox">
+                            <i class="bi bi-star-fill text-warning"></i> Jadikan sebagai alamat utama
+                          </label>
+                        </div>
+                        <small class="text-muted d-block mt-1">
+                          Alamat utama akan otomatis terpilih saat checkout
+                        </small>
+                      </div>
+
                       <div class="d-flex gap-2 justify-content-end">
                         <button
                           type="button"
@@ -135,28 +153,13 @@
                   <div class="card border-2 h-100" role="button">
                     <div class="card-body p-3">
                       <img
-                        src="img/visa.png"
+                        src="img/Qris.png"
                         alt="Visa"
                         class="mb-2"
                         height="24"
                       />
                       <p class="mb-1 fw-semibold small">**** **** **** 0817</p>
                       <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 12-29</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-2 h-100" role="button">
-                    <div class="card-body p-3">
-                      <img
-                        src="img/mastercard.png"
-                        alt="Mastercard"
-                        class="mb-2"
-                        height="24"
-                      />
-                      <p class="mb-1 fw-semibold small">**** **** **** 3830</p>
-                      <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 10-27</p>
                     </div>
                   </div>
                 </div>
@@ -226,8 +229,7 @@
     <style>
       .card-selectable.selected {
         border-color: #198754 !important;
-        border-width: 3px !important;
-        box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25) !important;
+        border-width: 2px !important;
       }
 
       .card-selectable {

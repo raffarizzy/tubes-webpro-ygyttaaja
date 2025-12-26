@@ -16,8 +16,15 @@ class Product extends Model
         'harga',
         'diskon',
         'stok',
-        'imagePath'
+        'imagePath',
     ];
+
+    /* ================= RELATION ================= */
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
     public function toko()
     {
@@ -28,6 +35,5 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
-
 }
 

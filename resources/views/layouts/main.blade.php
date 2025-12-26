@@ -30,8 +30,7 @@
             onclick="window.location.href='/'" />
 
         <ul>
-            <li><a href="/">Beranda</a></li>
-
+            <li><a href="{{ url('/') }}">Beranda</a></li>
             <li class="nav-keranjang-wrapper">
                 <a href="{{ route('keranjang') }}">
                     Keranjang
