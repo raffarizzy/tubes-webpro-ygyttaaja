@@ -10,6 +10,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderProxyController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TokoController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -85,7 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/riwayat-pesanan', [OrderController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
-    Route::get('/orders/{id}/rating', function () {return view('rating');})->name('orders.rating.form');
+    Route::resource('ratings', RatingController::class)->only(['index', 'store', 'destroy']);
 
 
     // ============================================

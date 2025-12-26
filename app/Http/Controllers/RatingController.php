@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rating;
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class RatingController extends Controller
@@ -24,59 +25,42 @@ class RatingController extends Controller
         return view('ratings.index', compact('ratings', 'products'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // Validasi input
+        $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'rating' => 'required|integer|min:1|max:5',
-            'review' => 'required|string'
+            'rating'     => 'required|integer|min:1|max:5',
+            'review'     => 'required|string|max:1000',
         ]);
 
+        // Cegah user rating produk yang sama 2x
+        $alreadyRated = Rating::where('user_id', auth()->id())
+            ->where('product_id', $validated['product_id'])
+            ->exists();
+
+        if ($alreadyRated) {
+            return back()
+                ->withErrors([
+                    'product_id' => 'Produk ini sudah kamu beri rating.'
+                ])
+                ->withInput();
+        }
+
+        // Simpan rating
         Rating::create([
-            'user_id' => auth()->id(),
-            'product_id' => $request->product_id,
-            'rating' => $request->rating,
-            'review' => $request->review
+            'user_id'    => auth()->id(),
+            'product_id' => $validated['product_id'],
+            'rating'     => $validated['rating'],
+            'review'     => $validated['review'],
         ]);
 
-        return back()->with('success', 'Rating berhasil ditambahkan');
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Rating $rating)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Rating $rating)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Rating $rating)
-    {
-        //
+        return redirect()
+            ->route('ratings.index')
+            ->with('success', 'Rating berhasil ditambahkan.');
     }
 
     /**
@@ -84,6 +68,12 @@ class RatingController extends Controller
      */
     public function destroy(Rating $rating)
     {
-        //
+        if ($rating->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $rating->delete();
+
+        return back()->with('success', 'Rating berhasil dihapus');
     }
 }
