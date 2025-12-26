@@ -131,24 +131,14 @@ class TokoController extends Controller
                 'logo_path' => $logoPath
             ]);
 
-            if (!$response->successful()) {
-                // Jika API gagal, hapus logo yang sudah diupload
+            if ($response->status() < 200 || $response->status() >= 300) {
                 Storage::disk('public')->delete($logoPath);
 
                 $errorMsg = $response->json()['message'] ?? 'Gagal menyimpan toko ke API';
                 throw new \Exception($errorMsg);
             }
 
-            // 4. Baru simpan ke database Laravel (sebagai backup)
-            $tokoLocal = Toko::create([
-                'user_id' => auth()->id(),
-                'nama_toko' => $request->nama_toko,
-                'deskripsi_toko' => $request->deskripsi_toko,
-                'lokasi' => $request->lokasi,
-                'logo_path' => $logoPath
-            ]);
-
-            return redirect()->route('toko.index')
+            return redirect()->route('profil_toko')
                 ->with('success', 'Toko berhasil dibuat!');
 
         } catch (\Exception $e) {
