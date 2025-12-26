@@ -46,6 +46,8 @@ exports.getAll = async (limit = 20, offset = 0) => {
         p.imagePath,
         p.toko_id,
         t.nama_toko,
+        t.lokasi AS toko_lokasi,
+        t.logo_path AS toko_logo,
         p.category_id,
         c.judulKategori AS category_nama
      FROM products p

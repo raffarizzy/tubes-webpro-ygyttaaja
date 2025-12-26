@@ -293,10 +293,13 @@ function initializePage() {
     // Render detail produk ke halaman
     renderProductDetails(currentProduct);
 
-    // Render informasi toko
-    const toko = getTokoById(currentProduct.tokoId);
-    if (toko) {
-        renderTokoInfo(toko);
+    // Render informasi toko - ambil langsung dari currentProduct
+    // (data toko sudah di-join di API response)
+    if (currentProduct.nama_toko || currentProduct.toko_id) {
+        renderTokoInfo({
+            nama_toko: currentProduct.nama_toko,
+            lokasi: currentProduct.toko_lokasi
+        });
     }
 
     // Render rating dan ulasan
@@ -362,6 +365,17 @@ function renderProductDetails(product) {
         discountEl.style.display = "none";
     }
 
+    // Kondisi (jika ada)
+    const kondisiEl = document.getElementById("product-kondisi");
+    const kondisiRow = document.querySelector(".kondisi-row");
+    if (kondisiRow) {
+        if (product.kondisi) {
+            kondisiEl.textContent = product.kondisi;
+            kondisiRow.style.display = "block";
+        } else {
+            kondisiRow.style.display = "none";
+        }
+    }
 
     // Set stok produk
     document.getElementById("product-stok").textContent = product.stok;
