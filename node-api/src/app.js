@@ -5,6 +5,7 @@ const db = require('./config/db');
 // Import Routes
 const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
+const cartRoutes = require('./routes/cart.routes');
 
 const app = express();
 
@@ -38,7 +39,8 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     endpoints: {
       products: '/api/products',
-      profile: '/api/profile'
+      profile: '/api/profile',
+      cart: '/api/cart'
     }
   });
 });
@@ -51,6 +53,7 @@ app.get('/api/test', (req, res) => {
 // Mount Routes
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 // =====================================================
 // 404 Handler

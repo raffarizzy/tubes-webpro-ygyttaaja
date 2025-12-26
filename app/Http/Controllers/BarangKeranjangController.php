@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class BarangKeranjangController extends Controller
 {
@@ -22,49 +23,29 @@ class BarangKeranjangController extends Controller
                 'jumlah' => 'required|integer|min:1',
             ]);
 
-            $product = Product::findOrFail($validated['product_id']);
-
-            if ($validated['jumlah'] > $product->stok) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Stok tidak mencukupi'
-                ], 400);
-            }
-
             /** @var User $user */
             $user = Auth::user();
-            $keranjang = $user->getOrCreateCart();
 
-            $existingItem = BarangKeranjang::where('keranjang_id', $keranjang->id)
-                ->where('product_id', $validated['product_id'])
-                ->first();
+            // Call Node.js API to add item
+            $response = Http::post('http://localhost:3001/api/cart/item', [
+                'user_id' => $user->id,
+                'product_id' => $validated['product_id'],
+                'jumlah' => $validated['jumlah']
+            ]);
 
-            if ($existingItem) {
-                $newJumlah = $existingItem->jumlah + $validated['jumlah'];
-
-                if ($newJumlah > $product->stok) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Total jumlah melebihi stok tersedia'
-                    ], 400);
-                }
-
-                $existingItem->update(['jumlah' => $newJumlah]);
-                $item = $existingItem;
-            } else {
-                $item = BarangKeranjang::create([
-                    'keranjang_id' => $keranjang->id,
-                    'product_id' => $validated['product_id'],
-                    'jumlah' => $validated['jumlah'],
-                    'harga' => $product->harga,
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produk berhasil ditambahkan ke keranjang',
+                    'data' => $response->json('data')
                 ]);
             }
 
+            $error = $response->json('message') ?? 'Gagal menambahkan ke keranjang';
             return response()->json([
-                'success' => true,
-                'message' => 'Produk berhasil ditambahkan ke keranjang',
-                'data' => $item->load('product')
-            ]);
+                'success' => false,
+                'message' => $error
+            ], $response->status());
 
         } catch (\Exception $e) {
             return response()->json([
@@ -84,29 +65,24 @@ class BarangKeranjangController extends Controller
                 'jumlah' => 'required|integer|min:1',
             ]);
 
-            $item = BarangKeranjang::findOrFail($id);
-
-            if ($item->keranjang->user_id !== Auth::id()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
-            }
-
-            if ($validated['jumlah'] > $item->product->stok) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Jumlah melebihi stok tersedia'
-                ], 400);
-            }
-
-            $item->update(['jumlah' => $validated['jumlah']]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Jumlah berhasil diperbarui',
-                'data' => $item->load('product')
+            // Call Node.js API to update item
+            $response = Http::put("http://localhost:3001/api/cart/item/{$id}", [
+                'jumlah' => $validated['jumlah']
             ]);
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Jumlah berhasil diperbarui',
+                    'data' => $response->json('data')
+                ]);
+            }
+
+            $error = $response->json('message') ?? 'Gagal memperbarui jumlah';
+            return response()->json([
+                'success' => false,
+                'message' => $error
+            ], $response->status());
 
         } catch (\Exception $e) {
             return response()->json([
@@ -122,22 +98,21 @@ class BarangKeranjangController extends Controller
     public function destroy($id)
     {
         try {
-            $item = BarangKeranjang::findOrFail($id);
+            // Call Node.js API to remove item
+            $response = Http::delete("http://localhost:3001/api/cart/item/{$id}");
 
-            if ($item->keranjang->user_id !== Auth::id()) {
+            if ($response->successful()) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized'
-                ], 403);
+                    'success' => true,
+                    'message' => $response->json('message') ?? 'Item berhasil dihapus dari keranjang'
+                ]);
             }
 
-            $productName = $item->product->nama;
-            $item->delete();
-
+            $error = $response->json('message') ?? 'Gagal menghapus item';
             return response()->json([
-                'success' => true,
-                'message' => $productName . ' berhasil dihapus dari keranjang'
-            ]);
+                'success' => false,
+                'message' => $error
+            ], $response->status());
 
         } catch (\Exception $e) {
             return response()->json([

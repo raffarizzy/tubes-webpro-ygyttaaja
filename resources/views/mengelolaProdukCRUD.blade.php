@@ -48,14 +48,16 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label>Path Gambar</label>
+            <label>Upload Gambar *</label>
             <input
-              type="text"
-              id="imagePathProduk"
-              placeholder="Contoh: img/produk.jpg"
+              type="file"
+              id="imageProduk"
+              accept="image/jpeg,image/jpg,image/png"
+              required
             />
+            <small style="color: #666;">Format: JPG, JPEG, PNG</small>
           </div>
-          <div class="form-group">
+          <div class="form-group" style="display: none;">
             <label>Toko ID</label>
             <input type="number" id="tokoIdProduk" value="1" min="1" />
           </div>

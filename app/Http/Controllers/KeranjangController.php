@@ -6,6 +6,7 @@ use App\Models\Keranjang;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class KeranjangController extends Controller
 {
@@ -20,25 +21,13 @@ class KeranjangController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $keranjang = $user->keranjang()->with(['items.product'])->first();
 
-        $cartItems = [];
-        if ($keranjang) {
-            $cartItems = $keranjang->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product_id' => $item->product_id,
-                    'jumlah' => $item->jumlah,
-                    'harga' => $item->harga,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'nama' => $item->product->nama,
-                        'deskripsi' => $item->product->deskripsi,
-                        'imagePath' => $item->product->imagePath,
-                        'stok' => $item->product->stok,
-                    ]
-                ];
-            });
+        // Fetch cart data from Node.js API
+        try {
+            $response = Http::get("http://localhost:3001/api/cart/{$user->id}");
+            $cartItems = $response->successful() ? $response->json('data') : [];
+        } catch (\Exception $e) {
+            $cartItems = [];
         }
 
         return view('keranjang', [
@@ -60,42 +49,37 @@ class KeranjangController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $keranjang = $user->keranjang()->with(['items.product'])->first();
 
-        $cartItems = [];
-        $totalItems = 0;
-        $totalPrice = 0;
+        try {
+            // Fetch from Node.js API
+            $response = Http::get("http://localhost:3001/api/cart/{$user->id}");
 
-        if ($keranjang) {
-            $cartItems = $keranjang->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product_id' => $item->product_id,
-                    'jumlah' => $item->jumlah,
-                    'harga' => $item->harga,
-                    'subtotal' => $item->subtotal,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'nama' => $item->product->nama,
-                        'deskripsi' => $item->product->deskripsi,
-                        'imagePath' => $item->product->imagePath,
-                        'stok' => $item->product->stok,
+            if ($response->successful()) {
+                $cartItems = $response->json('data');
+
+                $totalItems = array_sum(array_column($cartItems, 'jumlah'));
+                $totalPrice = array_sum(array_map(function($item) {
+                    return $item['harga'] * $item['jumlah'];
+                }, $cartItems));
+
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'items' => $cartItems,
+                        'total_items' => $totalItems,
+                        'total_price' => $totalPrice,
                     ]
-                ];
-            });
+                ]);
+            }
 
-            $totalItems = $keranjang->total_items;
-            $totalPrice = $keranjang->total_price;
+            throw new \Exception('Failed to fetch cart data');
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data keranjang: ' . $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'items' => $cartItems,
-                'total_items' => $totalItems,
-                'total_price' => $totalPrice,
-            ]
-        ]);
     }
 
     /**
@@ -113,16 +97,18 @@ class KeranjangController extends Controller
 
             /** @var User $user */
             $user = Auth::user();
-            $keranjang = $user->keranjang;
 
-            if ($keranjang) {
-                $keranjang->items()->delete();
+            // Call Node.js API to clear cart
+            $response = Http::delete("http://localhost:3001/api/cart/{$user->id}/clear");
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Keranjang berhasil dikosongkan'
+                ]);
             }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Keranjang berhasil dikosongkan'
-            ]);
+            throw new \Exception('Failed to clear cart');
 
         } catch (\Exception $e) {
             return response()->json([

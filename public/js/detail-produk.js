@@ -187,78 +187,84 @@ function formatRupiah(amount) {
 // Cart Management Functions
 
 // Menambahkan produk ke keranjang belanja
-function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
-    //WAJIB: sync dari localStorage
-    let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
+async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
+    console.log("🛒 Adding to cart:", { userId, produkId, jumlahTambahan });
 
     // Validasi produk
     const produk = getProdukById(produkId);
     if (!produk) {
-        console.error("Produk tidak ditemukan");
+        console.error("❌ Produk tidak ditemukan");
+        showNotification('Produk tidak ditemukan', 'error');
         return false;
     }
 
-    // Cari produk di keranjang
-    const existingItemIndex = keranjangData.findIndex(
-        (item) => item.userId === userId && item.produkId === produkId
-    );
-
-    if (existingItemIndex !== -1) {
-        const newTotal =
-            keranjangData[existingItemIndex].jumlah + jumlahTambahan;
-
-        if (newTotal > produk.stok) {
-            showNotification(
-                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
-                "warning"
-            );
-            return false;
-        }
-
-        keranjangData[existingItemIndex].jumlah = newTotal;
-    } else {
-        if (jumlahTambahan > produk.stok) {
-            showNotification(
-                `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
-                "warning"
-            );
-            return false;
-        }
-
-        keranjangData.push({
-            userId: userId,
-            produkId: produk.id,
-            nama: produk.nama,
-            harga: produk.harga,
-            hargaAsli: produk.hargaAsli || produk.harga,
-            diskon: produk.diskon || 0,
-            jumlah: jumlahTambahan,
-            imagePath: produk.imagePath,
-            deskripsi: produk.deskripsi,
-        });
+    // Validasi stok
+    if (jumlahTambahan > produk.stok) {
+        showNotification(
+            `Stok ${produk.nama} hanya tersedia ${produk.stok} item`,
+            "warning"
+        );
+        return false;
     }
 
-    //Simpan kembali (merge, bukan replace)
-    localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
+    try {
+        // Get CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        console.log("🔑 CSRF Token:", csrfToken ? "Found" : "NOT FOUND!");
 
-    console.log("Keranjang sekarang:", keranjangData);
+        if (!csrfToken) {
+            showNotification('Session expired. Silakan refresh halaman', 'error');
+            return false;
+        }
 
-    updateCartCount();
-    return true;
+        // Call backend API to add to cart
+        console.log("📡 Sending request to /keranjang/item...");
+        const response = await fetch('/keranjang/item', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                product_id: produkId,
+                jumlah: jumlahTambahan
+            })
+        });
+
+        console.log("📥 Response status:", response.status);
+        const result = await response.json();
+        console.log("📥 Response data:", result);
+
+        if (response.status === 401) {
+            showNotification('Silakan login terlebih dahulu', 'warning');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+            return false;
+        }
+
+        if (result.success) {
+            console.log("✅ Added to cart successfully!");
+            updateCartCount();
+            return true;
+        } else {
+            console.error("❌ Failed to add to cart:", result.message);
+            showNotification(result.message || 'Gagal menambahkan ke keranjang', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Error adding to cart:', error);
+        showNotification('Terjadi kesalahan. Pastikan Anda sudah login.', 'error');
+        return false;
+    }
 }
 
 // Update badge jumlah item di keranjang pada navbar
 function updateCartCount() {
-    const userId = 1; // Hardcode untuk sekarang, nanti bisa pakai user login
-    const userCart = keranjangData.filter((item) => item.userId === userId);
-    const totalItems = userCart.reduce((sum, item) => sum + item.jumlah, 0);
-
-    const cartCountElement = document.getElementById("cart-count");
-    if (cartCountElement) {
-        cartCountElement.textContent = totalItems;
-        cartCountElement.style.display =
-            totalItems > 0 ? "inline-block" : "none";
-    }
+    // Tidak perlu update cart count karena sudah dihandle oleh server
+    // Cart count akan di-update saat page reload
+    console.log("✅ Cart updated - reload page to see changes");
 }
 
 // Page Initialization
@@ -327,22 +333,46 @@ function renderProductDetails(product) {
     // Set gambar produk
     const imgElement = document.getElementById("product-image");
     if (imgElement) {
-        let imagePath = product.imagePath || "img/iconOli.png";
+        let imagePath = product.imagePath || "/img/iconOli.png";
 
-        if (imagePath.startsWith("images/")) {
-            imagePath = `http://localhost:8000/storage/${imagePath}`;
+        console.log("🖼️ Original imagePath:", imagePath);
+
+        // Handle different image path formats
+        if (!imagePath) {
+            imagePath = "/img/iconOli.png";
+        } else if (imagePath.startsWith("http")) {
+            // Full URL, use as is
+        } else if (imagePath.startsWith("/storage/")) {
+            // Already has /storage/ prefix, use as is
+        } else if (imagePath.startsWith("storage/")) {
+            // Missing leading slash
+            imagePath = `/${imagePath}`;
+        } else if (imagePath.startsWith("produk/") || imagePath.startsWith("images/")) {
+            // Laravel storage path without storage prefix
+            imagePath = `/storage/${imagePath}`;
+        } else if (imagePath.startsWith("/img/") || imagePath.startsWith("img/")) {
+            // Public img folder
+            if (!imagePath.startsWith("/")) {
+                imagePath = `/${imagePath}`;
+            }
+        } else {
+            // Default: assume it's in storage
+            imagePath = `/storage/${imagePath}`;
         }
+
+        console.log("🖼️ Final imagePath:", imagePath);
 
         imgElement.src = imagePath;
         imgElement.alt = product.nama;
 
         imgElement.onerror = function () {
-            console.error("Failed to load image:", imagePath);
-            this.src = "img/iconOli.png";
+            console.error("❌ Failed to load image:", imagePath);
+            console.log("🔄 Trying fallback image...");
+            this.src = "/img/iconOli.png";
         };
 
         imgElement.onload = function () {
-            console.log("✅ Image loaded successfully!");
+            console.log("✅ Image loaded successfully:", imagePath);
         };
     }
 
@@ -522,10 +552,20 @@ function initializeActionButtons() {
     const btnBeli = document.getElementById("btn-Beli");
 
     // Tombol Tambah ke Keranjang
-    btnKeranjang.addEventListener("click", () => {
-        const userId = 1;
+    btnKeranjang.addEventListener("click", async () => {
+        // Get user ID from window variable (set by Laravel)
+        const userId = window.USER_ID;
 
-        const success = tambahKeKeranjang(
+        // Check if user is logged in
+        if (!userId || userId === null) {
+            showNotification('Silakan login terlebih dahulu', 'warning');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+            return;
+        }
+
+        const success = await tambahKeKeranjang(
             userId,
             currentProduct.id,
             currentQuantity

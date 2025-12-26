@@ -293,6 +293,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
+        // Prepare checkout data from cart items
+        const checkoutData = cartItems.map(item => ({
+            id: item.product_id,
+            productId: item.product_id,
+            nama: item.product.nama,
+            harga: item.harga,
+            hargaAsli: item.harga,
+            diskon: 0,
+            jumlah: item.jumlah,
+            imagePath: item.product.imagePath,
+            deskripsi: item.product.deskripsi
+        }));
+
+        // Save to localStorage for checkout page
+        localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+
         // Redirect to checkout page
         window.location.href = '/checkout';
     });
