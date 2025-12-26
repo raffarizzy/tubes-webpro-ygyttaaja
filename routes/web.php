@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,9 +21,12 @@ Route::get('/checkout', function () {
     return view('checkout');
 })->name('checkout');
 
+// OPTION 1: API-first approach (current - tanpa controller, JS fetch dari Node.js API)
 Route::get('/produk/{id}', function ($id) {
     return view('detail-produk', ['id' => $id]);
 })->name('produk.detail');
+
+
 
 
 // routes/web.php

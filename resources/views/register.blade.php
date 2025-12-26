@@ -1,16 +1,16 @@
-<!DOCTYPE html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register - SpareHub</title>
-    <link rel="icon" href="img/iconSpareHub.png" />
-    <link rel="stylesheet" href="css/register.css" />
-  </head>
-  <body>
+@extends('layouts.main')
+
+@section('title', 'Register - SpareHub')
+
+@push('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="{{ asset('css/register.css') }}" />
+@endpush
+
+@section('content')
     <div class="register-container">
       <div class="register-card">
-        <img src="img/iconSpareHub.png" alt="Logo" class="logo" />
+        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" alt="Logo" class="logo" />
         <h1>SpareHub</h1>
         <p class="subtitle">Buat akun baru</p>
 
@@ -75,11 +75,12 @@
         </form>
 
         <p class="login-text">
-          Sudah punya akun? <a href="login.html">Login</a>
+          Sudah punya akun? <a href="{{ route('login') }}">Login</a>
         </p>
       </div>
     </div>
+@endsection
 
-    <script src="js/register.js"></script>
-  </body>
-</html>
+@push('scripts')
+    <script src="{{ asset('js/register.js') }}"></script>
+@endpush

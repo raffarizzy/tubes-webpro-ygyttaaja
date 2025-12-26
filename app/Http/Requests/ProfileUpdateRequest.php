@@ -17,14 +17,13 @@ class ProfileUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => [
-                'required',
-                'string',
-                'lowercase',
-                'email',
-                'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
+            'email' => ['required', 'email'],
+            'password' => ['nullable', 'confirmed', 'min:8'],
+
+            // data untuk Node.js
+            'phone' => ['nullable', 'string'],
+            'birthDate' => ['nullable', 'date'],
+            'gender' => ['nullable', 'in:male,female'],
         ];
     }
 }

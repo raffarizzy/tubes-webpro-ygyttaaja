@@ -4,22 +4,24 @@ let tokoData = [];
 let ratingData = [];
 let keranjangData = [];
 
-// Load semua data dari JSON atau localStorage
+// Load semua data dari Node.js API
 async function loadData() {
     try {
-        // Load produk data
-        const produkResponse = await fetch("JSON/productData.json");
-        produkData = await produkResponse.json();
+        // API Base URL - Node.js API
+        const API_BASE_URL = 'http://localhost:3000/api';
 
-        // Load toko data
-        const tokoResponse = await fetch("JSON/tokoData.json");
-        tokoData = await tokoResponse.json();
+        // Load produk data dari API
+        const produkResponse = await fetch(`${API_BASE_URL}/products`);
+        const produkResult = await produkResponse.json();
+        produkData = produkResult.success ? produkResult.data : [];
 
-        // Load rating data
-        // const ratingResponse = await fetch("JSON/ratingData.json");
-        ratingData =
-            JSON.parse(localStorage.getItem("ratingList")) ||
-            (await fetch("JSON/ratingData.json").then((res) => res.json()));
+        // Load toko data dari API
+        const tokoResponse = await fetch(`${API_BASE_URL}/tokos`);
+        const tokoResult = await tokoResponse.json();
+        tokoData = tokoResult.success ? tokoResult.data : [];
+
+        // Load rating data - cek localStorage dulu, fallback ke data hardcoded
+        ratingData = JSON.parse(localStorage.getItem("ratingList")) || [];
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -53,7 +55,31 @@ async function loadData() {
     }
 }
 
-// Data backup jika file JSON tidak bisa dimuat
+// Helper function untuk load toko data (fallback)
+async function loadTokoDataFallback() {
+    // Untuk sekarang pakai data hardcoded
+    // Nanti bisa diganti dengan fetch ke API: GET /api/tokos
+    return [
+        {
+            id: 1,
+            namaToko: "Bengkel Jaya Motor",
+            pemilikId: 1,
+            deskripsi: "Spesialis oli dan sparepart kendaraan.",
+            logoPath: "img/logoToko1.png",
+            lokasi: "Jakarta Barat",
+        },
+        {
+            id: 2,
+            namaToko: "Otomax Shop",
+            pemilikId: 2,
+            deskripsi: "Toko perlengkapan otomotif lengkap dan terpercaya.",
+            logoPath: "img/logoToko2.png",
+            lokasi: "Bandung",
+        },
+    ];
+}
+
+// Data backup jika API tidak bisa dimuat
 function useFallbackData() {
     // Data produk default
     produkData = [
@@ -167,7 +193,7 @@ function formatRupiah(amount) {
 
 // Menambahkan produk ke keranjang belanja
 function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
-    // 🔥 WAJIB: sync dari localStorage
+    //WAJIB: sync dari localStorage
     let keranjangData = JSON.parse(localStorage.getItem("keranjangData")) || [];
 
     // Validasi produk
@@ -217,7 +243,7 @@ function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
         });
     }
 
-    // 💾 Simpan kembali (merge, bukan replace)
+    //Simpan kembali (merge, bukan replace)
     localStorage.setItem("keranjangData", JSON.stringify(keranjangData));
 
     console.log("Keranjang sekarang:", keranjangData);
@@ -361,8 +387,8 @@ function renderProductDetails(product) {
 
 // Render informasi toko
 function renderTokoInfo(toko) {
-    document.getElementById("toko-nama").textContent = toko.namaToko;
-    document.getElementById("toko-lokasi").textContent = toko.lokasi;
+    document.getElementById("toko-nama").textContent = toko.nama_toko || toko.namaToko || '-';
+    document.getElementById("toko-lokasi").textContent = toko.lokasi || '-';
 }
 
 // Render rating dan ulasan produk
