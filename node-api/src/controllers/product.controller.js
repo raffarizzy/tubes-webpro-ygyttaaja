@@ -1,5 +1,5 @@
 const service = require('../services/product.service');
-const response = require('../../utils/response');
+const response = require('../utils/response');
 
 /**
  * GET /api/products/:id

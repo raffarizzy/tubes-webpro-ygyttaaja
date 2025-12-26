@@ -3,63 +3,132 @@
 namespace App\Http\Controllers;
 
 use App\Models\Keranjang;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class KeranjangController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the shopping cart page
      */
     public function index()
     {
-        //
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+        $keranjang = $user->keranjang()->with(['items.product'])->first();
+
+        $cartItems = [];
+        if ($keranjang) {
+            $cartItems = $keranjang->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'jumlah' => $item->jumlah,
+                    'harga' => $item->harga,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'nama' => $item->product->nama,
+                        'deskripsi' => $item->product->deskripsi,
+                        'imagePath' => $item->product->imagePath,
+                        'stok' => $item->product->stok,
+                    ]
+                ];
+            });
+        }
+
+        return view('keranjang', [
+            'keranjangItems' => $cartItems
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Get cart data as JSON
      */
-    public function create()
+    public function getCartData()
     {
-        //
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        /** @var User $user */
+        $user = Auth::user();
+        $keranjang = $user->keranjang()->with(['items.product'])->first();
+
+        $cartItems = [];
+        $totalItems = 0;
+        $totalPrice = 0;
+
+        if ($keranjang) {
+            $cartItems = $keranjang->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'jumlah' => $item->jumlah,
+                    'harga' => $item->harga,
+                    'subtotal' => $item->subtotal,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'nama' => $item->product->nama,
+                        'deskripsi' => $item->product->deskripsi,
+                        'imagePath' => $item->product->imagePath,
+                        'stok' => $item->product->stok,
+                    ]
+                ];
+            });
+
+            $totalItems = $keranjang->total_items;
+            $totalPrice = $keranjang->total_price;
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'items' => $cartItems,
+                'total_items' => $totalItems,
+                'total_price' => $totalPrice,
+            ]
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Clear all items from cart
      */
-    public function store(Request $request)
+    public function clear()
     {
-        //
-    }
+        try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Keranjang $keranjang)
-    {
-        //
-    }
+            /** @var User $user */
+            $user = Auth::user();
+            $keranjang = $user->keranjang;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Keranjang $keranjang)
-    {
-        //
-    }
+            if ($keranjang) {
+                $keranjang->items()->delete();
+            }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Keranjang $keranjang)
-    {
-        //
-    }
+            return response()->json([
+                'success' => true,
+                'message' => 'Keranjang berhasil dikosongkan'
+            ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Keranjang $keranjang)
-    {
-        //
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengosongkan keranjang: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

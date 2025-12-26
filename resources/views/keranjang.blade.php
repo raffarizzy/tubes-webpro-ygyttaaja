@@ -22,5 +22,9 @@
 @endsection
 
 @push('scripts')
+    <script>
+        // Pass cart data from Laravel to JavaScript
+        window.keranjangItems = @json($keranjangItems ?? []);
+    </script>
     <script src="{{ asset('js/keranjang.js') }}"></script>
 @endpush
