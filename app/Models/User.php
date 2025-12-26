@@ -56,4 +56,27 @@ class User extends Authenticatable
         return $this->hasOne(Toko::class);
     }
 
+    /**
+     * Get the user's shopping cart
+     *
+     * @return HasOne
+     */
+    public function keranjang(): HasOne
+    {
+        return $this->hasOne(Keranjang::class);
+    }
+
+    /**
+     * Get the user's active cart or create one
+     *
+     * @return Keranjang
+     */
+    public function getOrCreateCart(): Keranjang
+    {
+        return $this->keranjang()->firstOrCreate(
+            ['user_id' => $this->id],
+            ['status' => 'active']
+        );
+    }
+
 }
