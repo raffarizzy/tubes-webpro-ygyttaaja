@@ -195,7 +195,7 @@
                         <!-- Action Buttons -->
                         <div class="mt-3 d-flex justify-content-end gap-2">
                             @if($pesanan->status === 'paid')
-                                <a href="{{ url('rating.html') }}" class="btn btn-success btn-sm">
+                                <a href="{{ route('ratings.index') }}" class="btn btn-success btn-sm">
                                     <i class="bi bi-star"></i> Review
                                 </a>
                             @endif
