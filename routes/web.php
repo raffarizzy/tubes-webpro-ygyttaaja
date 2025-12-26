@@ -23,9 +23,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/produk/{id}', function ($id) {
-    return view('detail-produk', ['id' => $id]);
-})->name('produk.detail');
+Route::get('/produk/{id}', [ProductController::class, 'show'])
+    ->name('produk.detail');
 
 // API Products (Public)
 Route::get('/api/products', [ProductController::class, 'index'])->name('api.products.index');

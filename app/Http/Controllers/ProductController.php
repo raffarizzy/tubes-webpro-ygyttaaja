@@ -22,14 +22,23 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $response = Http::get("http://localhost:3001/api/products/{$id}");
-        $product = $response->json('data');
+        // Load produk dari database dengan relasi toko
+        $product = \App\Models\Product::with(['toko', 'category'])->find($id);
 
         if (!$product) {
             abort(404, 'Product not found');
         }
 
-        return view('detail-produk', compact('product'));
+        // Load ratings untuk produk ini
+        $ratings = \App\Models\Rating::where('product_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Hitung rata-rata rating
+        $avgRating = $ratings->avg('rating') ?? 0;
+        $ratingCount = $ratings->count();
+
+        return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
     }
 
     /**

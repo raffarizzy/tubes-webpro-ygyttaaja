@@ -12,23 +12,50 @@
   <div class="container py-5">
     <div class="row g-5 justify-content-center">
       <!-- GAMBAR PRODUK -->
-      <div class="col-md-4 text-center">
-        <img id="product-image" src="img/iconOli.png" alt="Produk" class="img-fluid rounded shadow"
-          style="max-width: 360px" />
-      </div>
+      <div class="col-md-6 d-flex justify-content-center align-items-center">
+          @php
+            $imagePath = $product->imagePath ?? '/img/iconOli.png';
+            if (!str_starts_with($imagePath, 'http')) {
+              if (str_starts_with($imagePath, '/storage/')) {
+              } elseif (str_starts_with($imagePath, 'storage/')) {
+                $imagePath = '/' . $imagePath;
+              } elseif (str_starts_with($imagePath, 'produk/') || str_starts_with($imagePath, 'images/')) {
+                $imagePath = '/storage/' . $imagePath;
+              } elseif (str_starts_with($imagePath, '/img/') || str_starts_with($imagePath, 'img/')) {
+                if (!str_starts_with($imagePath, '/')) {
+                  $imagePath = '/' . $imagePath;
+                }
+              } else {
+                $imagePath = '/storage/' . $imagePath;
+              }
+            }
+          @endphp
+
+          <img
+            id="product-image"
+            src="{{ $imagePath }}"
+            alt="{{ $product->nama }}"
+            class="img-fluid rounded shadow mx-auto d-block"
+          />
+        </div>
 
       <!-- DETAIL PRODUK -->
       <div class="col-md-6">
-        <h3 id="product-name" class="fw-bold text-primary">Loading...</h3>
+        <h3 id="product-name" class="fw-bold text-primary">{{ $product->nama }}</h3>
 
         <!-- Harga -->
         <div class="d-flex align-items-center gap-2 my-3">
-          <span id="product-price" class="fw-bold fs-4 text-primary">Rp0</span>
-          <span id="product-original-price" class="text-muted text-decoration-line-through"></span>
-          <span id="product-discount" class="badge bg-danger"></span>
+          <span id="product-price" class="fw-bold fs-4 text-primary">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+          @if($product->diskon && $product->diskon > 0)
+            @php
+              $hargaAsli = round($product->harga / (1 - $product->diskon / 100));
+            @endphp
+            <span id="product-original-price" class="text-muted text-decoration-line-through">Rp {{ number_format($hargaAsli, 0, ',', '.') }}</span>
+            <span id="product-discount" class="badge bg-danger">-{{ $product->diskon }}%</span>
+          @endif
         </div>
 
-        <p><strong>Stok:</strong> <span id="product-stok">-</span> Tersedia</p>
+        <p><strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> Tersedia</p>
 
         <!-- Quantity -->
         <div class="p-3 bg-body-secondary rounded">
@@ -50,7 +77,7 @@
 
           <p class="mt-3">
             <strong>Total:</strong>
-            <span id="total-price" class="fw-bold text-primary">Rp0</span>
+            <span id="total-price" class="fw-bold text-primary" data-price="{{ $product->harga }}">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
           </p>
         </div>
 
@@ -61,22 +88,22 @@
           </div>
 
           <div>
-            <p id="toko-nama" class="fw-bold text-primary m-0">-</p>
-            <p id="toko-lokasi" class="text-muted small m-0">-</p>
+            <p id="toko-nama" class="fw-bold text-primary m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
+            <p id="toko-lokasi" class="text-muted small m-0">{{ $product->toko->lokasi ?? '-' }}</p>
           </div>
         </div>
 
         <!-- Deskripsi -->
         <div class="mt-4">
           <h5 class="text-primary fw-semibold">Deskripsi</h5>
-          <p id="product-description" class="text-muted">-</p>
+          <p id="product-description" class="text-muted">{{ $product->deskripsi }}</p>
         </div>
 
         <!-- Rating -->
         <div class="d-flex align-items-center gap-2 mt-3">
           <span class="text-warning fs-3">★</span>
-          <span id="avg-rating" class="fw-bold text-warning">0.0</span>
-          <span id="rating-count" class="text-muted">(0 ulasan)</span>
+          <span id="avg-rating" class="fw-bold text-warning">{{ number_format($avgRating, 1) }}</span>
+          <span id="rating-count" class="text-muted">({{ $ratingCount }} ulasan)</span>
         </div>
 
         <!-- Aksi -->
@@ -94,16 +121,55 @@
     <!-- Ulasan -->
     <div class="mt-5">
       <h4 class="text-primary fw-bold mb-3">Ulasan Pengguna</h4>
-      <div id="reviews-list" class="row g-3"></div>
+      <div id="reviews-list" class="row g-3">
+        @forelse($ratings as $rating)
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card shadow-sm h-100">
+              <div class="card-body d-flex">
+                <!-- Icon -->
+                <div class="me-3 d-flex align-items-start">
+                  <i class="bi bi-person-circle fs-3 text-primary"></i>
+                </div>
+
+                <!-- Content -->
+                <div>
+                  <div class="text-warning fw-bold" style="font-size: 14px;">
+                    @for($i = 1; $i <= 5; $i++)
+                      @if($i <= $rating->rating)
+                        ★
+                      @else
+                        ☆
+                      @endif
+                    @endfor
+                  </div>
+
+                  <p class="mb-1">{{ $rating->review ?? '-' }}</p>
+
+                  <small class="text-muted">{{ $rating->created_at->format('Y-m-d') }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        @empty
+          <p style="color: #999; text-align: center;">Belum ada ulasan</p>
+        @endforelse
+      </div>
     </div>
   </div>
 @endsection
 
 @push('scripts')
-  <!-- <script src="{{ asset('js/rating.js') }}"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    window.PRODUK_ID = {{ $id }};
+    // Data produk untuk JavaScript
+    window.PRODUCT_DATA = {
+      id: {{ $product->id }},
+      nama: "{{ $product->nama }}",
+      harga: {{ $product->harga }},
+      stok: {{ $product->stok }},
+      imagePath: "{{ $imagePath }}",
+      deskripsi: "{{ $product->deskripsi }}"
+    };
     window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
   </script>
   <script src="{{ asset('js/detail-produk.js') }}"></script>
