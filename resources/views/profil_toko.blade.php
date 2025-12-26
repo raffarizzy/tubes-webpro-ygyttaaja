@@ -26,7 +26,7 @@
 
                 <div class="col-md-2 text-center">
                     <img
-                        src="{{ $toko->logo_path ? asset('storage/'.$toko->logo_path) : asset('img/iconPengguna.png') }}"
+                        src="{{ isset($toko['logo_path']) && $toko['logo_path'] ? asset('storage/'.$toko['logo_path']) : asset('img/iconPengguna.png') }}"
                         class="rounded-circle border"
                         style="width:120px;height:120px;object-fit:cover;"
                         id="header-logo">

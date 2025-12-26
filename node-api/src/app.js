@@ -6,6 +6,7 @@ const db = require('./config/db');
 const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
+const tokoRoutes = require('./routes/toko.routes');
 
 const app = express();
 
@@ -40,7 +41,8 @@ app.get('/', (req, res) => {
     endpoints: {
       products: '/api/products',
       profile: '/api/profile',
-      cart: '/api/cart'
+      cart: '/api/cart',
+      toko: '/api/toko'
     }
   });
 });
@@ -54,6 +56,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/toko', tokoRoutes);
 
 // =====================================================
 // 404 Handler
@@ -61,7 +64,8 @@ app.use('/api/cart', cartRoutes);
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Endpoint not found'
+    message: 'Endpoint not found',
+    requested_url: req.originalUrl
   });
 });
 
