@@ -651,6 +651,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 credentials: "same-origin",
                 body: JSON.stringify({
                     order_id: orderResult.order.id,
+                    alamat_id: selectedAddress.id, // ✅ Tambahkan ini
                     total: total,
                 }),
             });
