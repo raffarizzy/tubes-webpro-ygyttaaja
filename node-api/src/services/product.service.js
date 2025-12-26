@@ -18,7 +18,7 @@ exports.getById = async (id) => {
         t.lokasi AS toko_lokasi,
         t.logo_path AS toko_logo,
         p.category_id,
-        c.nama AS category_nama,
+        c.judulKategori AS category_nama,
         p.created_at,
         p.updated_at
      FROM products p
@@ -46,8 +46,10 @@ exports.getAll = async (limit = 20, offset = 0) => {
         p.imagePath,
         p.toko_id,
         t.nama_toko,
+        t.lokasi AS toko_lokasi,
+        t.logo_path AS toko_logo,
         p.category_id,
-        c.nama AS category_nama
+        c.judulKategori AS category_nama
      FROM products p
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN categories c ON p.category_id = c.id
@@ -73,7 +75,7 @@ exports.getByToko = async (tokoId) => {
         p.stok,
         p.imagePath,
         p.category_id,
-        c.nama AS category_nama,
+        c.judulKategori AS category_nama,
         p.created_at
      FROM products p
      LEFT JOIN categories c ON p.category_id = c.id
