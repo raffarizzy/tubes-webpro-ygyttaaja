@@ -16,8 +16,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // OPTION 3: Consume Node.js API (Best Practice - Microservices)
-        $response = Http::get('http://localhost:3000/api/products');
+        // Consume Node.js API (Best Practice - Microservices)
+        $response = Http::get('http://localhost:3001/api/products');
         $products = $response->json('data') ?? [];
         return view('products.index', compact('products'));
     }
@@ -67,6 +67,20 @@ class ProductController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        $response = Http::post('http://localhost:3001/api/products', [
+            'nama' => $request->nama,
+            'harga' => $request->harga,
+            'deskripsi' => $request->deskripsi,
+            'toko_id' => $request->toko_id,
+            'category_id' => $request->category_id,
+            'stok' => $request->stok ?? 0,
+            'imagePath' => $request->imagePath ?? 'img/default-product.jpg',
+            'diskon' => $request->diskon ?? null
+        ]);
+
+        if ($response->successful()) {
+            return redirect()->route('products.index')
+                ->with('success', 'Product created successfully');
         }
     }
 
@@ -78,11 +92,15 @@ class ProductController extends Controller
     {
         // OPTION 2: Laravel consume Node.js API (Microservices approach)
         $response = Http::get("http://localhost:3000/api/products/{$id}");
+        $response = Http::get("http://localhost:3001/api/products/{$id}");
         $product = $response->json('data');
 
         if (!$product) {
             abort(404, 'Product not found');
         }
+
+        return view('detail-produk', compact('product'));
+    }
 
         return view('detail-produk', compact('product'));
     }
@@ -97,6 +115,20 @@ class ProductController extends Controller
         if ($request->hasFile('image')) {
             $product->imagePath =
                 $request->file('image')->store('products', 'public');
+        $response = Http::patch("http://localhost:3001/api/products/{$id}", [
+            'nama' => $request->nama,
+            'harga' => $request->harga,
+            'deskripsi' => $request->deskripsi,
+            'toko_id' => $request->toko_id,
+            'category_id' => $request->category_id,
+            'stok' => $request->stok,
+            'imagePath' => $request->imagePath,
+            'diskon' => $request->diskon
+        ]);
+
+        if ($response->successful()) {
+            return redirect()->route('products.index')
+                ->with('success', 'Product updated successfully');
         }
 
         $product->update(
@@ -113,5 +145,13 @@ class ProductController extends Controller
     {
         Product::destroy($id);
         return response()->json(['success' => true]);
+        $response = Http::delete("http://localhost:3001/api/products/{$id}");
+
+        if ($response->successful()) {
+            return redirect()->route('products.index')
+                ->with('success', 'Product deleted successfully');
+        }
+
+        return back()->with('error', 'Failed to delete product');
     }
 }
