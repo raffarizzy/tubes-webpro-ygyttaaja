@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('nama');
             $table->text('deskripsi')->nullable();
             $table->integer('harga');
+            $table->integer('diskon');
             $table->integer('stok');
             $table->string('imagePath');
             $table->timestamps();
