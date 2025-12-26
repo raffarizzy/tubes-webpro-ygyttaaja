@@ -28,7 +28,6 @@
           <span id="product-discount" class="badge bg-danger"></span>
         </div>
 
-        <p><strong>Kondisi:</strong> <span id="product-kondisi">-</span></p>
         <p><strong>Stok:</strong> <span id="product-stok">-</span> Tersedia</p>
 
         <!-- Quantity -->

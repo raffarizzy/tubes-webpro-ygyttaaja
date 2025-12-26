@@ -15,8 +15,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        // OPTION 3: Consume Node.js API (Best Practice - Microservices)
-        $response = Http::get('http://localhost:3000/api/products');
+        // Consume Node.js API (Best Practice - Microservices)
+        $response = Http::get('http://localhost:3001/api/products');
         $products = $response->json('data') ?? [];
         return view('products.index', compact('products'));
     }
@@ -35,13 +35,15 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $response = Http::post('http://localhost:3000/api/products', [
+        $response = Http::post('http://localhost:3001/api/products', [
             'nama' => $request->nama,
             'harga' => $request->harga,
             'deskripsi' => $request->deskripsi,
             'toko_id' => $request->toko_id,
             'category_id' => $request->category_id,
-            'stok' => $request->stok ?? 0
+            'stok' => $request->stok ?? 0,
+            'imagePath' => $request->imagePath ?? 'img/default-product.jpg',
+            'diskon' => $request->diskon ?? null
         ]);
 
         if ($response->successful()) {
@@ -58,18 +60,14 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        // OPTION 1: API-first - JavaScript fetch (current implementation)
-        // Frontend JavaScript akan fetch dari Node.js API
-        // return view('detail-produk', ['id' => $id]);
-
-        OPTION 2: Laravel consume Node.js API (Microservices approach)
-        $response = Http::get("http://localhost:3000/api/products/{$id}");
+        // OPTION 2: Laravel consume Node.js API (Microservices approach)
+        $response = Http::get("http://localhost:3001/api/products/{$id}");
         $product = $response->json('data');
-        
+
         if (!$product) {
             abort(404, 'Product not found');
         }
-        
+
         return view('detail-produk', compact('product'));
     }
 
@@ -87,13 +85,15 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $response = Http::put("http://localhost:3000/api/products/{$id}", [
+        $response = Http::patch("http://localhost:3001/api/products/{$id}", [
             'nama' => $request->nama,
             'harga' => $request->harga,
             'deskripsi' => $request->deskripsi,
             'toko_id' => $request->toko_id,
             'category_id' => $request->category_id,
-            'stok' => $request->stok
+            'stok' => $request->stok,
+            'imagePath' => $request->imagePath,
+            'diskon' => $request->diskon
         ]);
 
         if ($response->successful()) {
@@ -110,7 +110,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $response = Http::delete("http://localhost:3000/api/products/{$id}");
+        $response = Http::delete("http://localhost:3001/api/products/{$id}");
 
         if ($response->successful()) {
             return redirect()->route('products.index')

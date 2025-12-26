@@ -8,7 +8,7 @@ let keranjangData = [];
 async function loadData() {
     try {
         // API Base URL - Node.js API
-        const API_BASE_URL = 'http://localhost:3000/api';
+        const API_BASE_URL = 'http://localhost:3001/api';
 
         // Load produk data dari API
         const produkResponse = await fetch(`${API_BASE_URL}/products`);
@@ -362,17 +362,6 @@ function renderProductDetails(product) {
         discountEl.style.display = "none";
     }
 
-    // Kondisi (jika ada)
-    const kondisiEl = document.getElementById("product-kondisi");
-    const kondisiRow = document.querySelector(".kondisi-row");
-    if (kondisiRow) {
-        if (product.kondisi) {
-            kondisiEl.textContent = product.kondisi;
-            kondisiRow.style.display = "block";
-        } else {
-            kondisiRow.style.display = "none";
-        }
-    }
 
     // Set stok produk
     document.getElementById("product-stok").textContent = product.stok;

@@ -19,7 +19,7 @@ let filterState = {
 async function loadData() {
     try {
         // Fetch dari Node.js API
-        const API_BASE_URL = 'http://localhost:3000/api';
+        const API_BASE_URL = 'http://localhost:3001/api';
         const response = await fetch(`${API_BASE_URL}/products`);
         const result = await response.json();
 
