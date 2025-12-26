@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/riwayat-pesanan', [OrderController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
+    Route::get('/orders/{id}/rating', function () {return view('rating');})->name('orders.rating.form');
+
     
     // API Orders (Untuk keperluan AJAX jika dibutuhkan)
     Route::get('/api/orders/history', [OrderController::class, 'history'])->name('orders.history');

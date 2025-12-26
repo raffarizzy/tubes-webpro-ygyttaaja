@@ -12,8 +12,18 @@ class RatingController extends Controller
      */
     public function index()
     {
-        //
+        $ratings = Rating::with('product')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        $ratedProductIds = $ratings->pluck('product_id');
+
+        $products = Product::whereNotIn('id', $ratedProductIds)->get();
+
+        return view('ratings.index', compact('ratings', 'products'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -28,8 +38,22 @@ class RatingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'rating' => 'required|integer|min:1|max:5',
+            'review' => 'required|string'
+        ]);
+
+        Rating::create([
+            'user_id' => auth()->id(),
+            'product_id' => $request->product_id,
+            'rating' => $request->rating,
+            'review' => $request->review
+        ]);
+
+        return back()->with('success', 'Rating berhasil ditambahkan');
     }
+
 
     /**
      * Display the specified resource.

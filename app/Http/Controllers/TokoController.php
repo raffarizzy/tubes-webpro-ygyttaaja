@@ -104,20 +104,24 @@ class TokoController extends Controller
         ]);
 
         try {
-            // 1. Upload logo ke storage Laravel
+            // 1. CEK DULU apakah user sudah punya toko via Node.js API
+            $checkResponse = Http::withHeaders([
+                'x-user-id' => auth()->id()
+            ])->get($this->nodeApiUrl . '/check');
+
+            if ($checkResponse->successful()) {
+                $checkResult = $checkResponse->json();
+                if ($checkResult['data']['hasToko']) {
+                    return redirect()->back()
+                        ->with('error', 'Anda sudah memiliki toko');
+                }
+            }
+
+            // 2. Upload logo ke storage Laravel
             $logoPath = $request->file('logo')->store('toko', 'public');
             $logoUrl = Storage::url($logoPath);
 
-            // 2. Simpan ke database Laravel (sebagai backup)
-            $tokoLocal = Toko::create([
-                'user_id' => auth()->id(),
-                'nama_toko' => $request->nama_toko,
-                'deskripsi_toko' => $request->deskripsi_toko,
-                'lokasi' => $request->lokasi,
-                'logo_path' => $logoPath
-            ]);
-
-            // 3. Kirim ke Node.js API
+            // 3. Kirim ke Node.js API DULU
             $response = Http::withHeaders([
                 'x-user-id' => auth()->id()
             ])->post($this->nodeApiUrl, [
@@ -128,24 +132,33 @@ class TokoController extends Controller
             ]);
 
             if (!$response->successful()) {
-                // Jika API gagal, rollback database Laravel
-                $tokoLocal->delete();
+                // Jika API gagal, hapus logo yang sudah diupload
                 Storage::disk('public')->delete($logoPath);
-                
-                throw new \Exception('Gagal menyimpan toko ke API');
+
+                $errorMsg = $response->json()['message'] ?? 'Gagal menyimpan toko ke API';
+                throw new \Exception($errorMsg);
             }
+
+            // 4. Baru simpan ke database Laravel (sebagai backup)
+            $tokoLocal = Toko::create([
+                'user_id' => auth()->id(),
+                'nama_toko' => $request->nama_toko,
+                'deskripsi_toko' => $request->deskripsi_toko,
+                'lokasi' => $request->lokasi,
+                'logo_path' => $logoPath
+            ]);
 
             return redirect()->route('toko.index')
                 ->with('success', 'Toko berhasil dibuat!');
 
         } catch (\Exception $e) {
             Log::error('Error creating toko: ' . $e->getMessage());
-            
+
             // Hapus file jika ada error
             if (isset($logoPath)) {
                 Storage::disk('public')->delete($logoPath);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Gagal membuat toko: ' . $e->getMessage());

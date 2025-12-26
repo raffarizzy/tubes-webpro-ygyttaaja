@@ -7,4 +7,6 @@ const db = mysql.createPool({
   database: process.env.DB_NAME,
 });
 
+console.log('DB CONNECTED TO:', process.env.DB_NAME);
+
 module.exports = db;

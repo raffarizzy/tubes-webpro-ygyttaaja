@@ -4,11 +4,24 @@ const db = require('../config/db');
  * Cek apakah user sudah punya toko
  */
 exports.checkUserHasToko = async (userId) => {
+  console.log('CHECK TOKO FOR USER ID:', userId);
+
+  // Debug: cek koneksi database
+  const [dbInfo] = await db.query('SELECT DATABASE() as current_db');
+  console.log('CONNECTED TO DATABASE:', dbInfo[0].current_db);
+
+  // Debug: cek semua data di tabel tokos
+  const [allTokos] = await db.query('SELECT * FROM tokos');
+  console.log('ALL TOKOS IN DATABASE:', allTokos);
+
   const [rows] = await db.query(
     'SELECT id, nama_toko FROM tokos WHERE user_id = ? LIMIT 1',
     [userId]
   );
-  
+
+  console.log('ROWS FOR USER', userId, ':', rows);
+  console.log('ROWS LENGTH:', rows.length);
+
   return rows.length > 0 ? rows[0] : null;
 };
 
