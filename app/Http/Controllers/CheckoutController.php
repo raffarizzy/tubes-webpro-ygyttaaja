@@ -15,6 +15,13 @@ class CheckoutController extends Controller
      * ⚠️ PERHATIAN: Status langsung jadi "paid" tanpa webhook
      * Ini untuk development/testing - production seharusnya pakai webhook
      */
+
+    public function index()
+    {
+        return view('checkout');
+    }
+
+
     public function pay(Request $request)
     {
         $request->validate([

@@ -26,7 +26,22 @@
         </a>
     </div>
 
-    <!-- Error Message (jika ada) -->
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    <!-- Error Message dari Controller -->
     @if(isset($error))
         <div class="alert alert-danger shadow-sm" role="alert">
             <h5 class="alert-heading">
@@ -180,20 +195,24 @@
                         <!-- Action Buttons -->
                         <div class="mt-3 d-flex justify-content-end gap-2">
                             @if($pesanan->status === 'paid')
-                                <a href="{{ url('rating.html') }}" class="btn btn-success btn-sm me-2">
+                                <a href="{{ url('rating.html') }}" class="btn btn-success btn-sm">
                                     <i class="bi bi-star"></i> Review
                                 </a>
                             @endif
                             
                             @if($pesanan->status === 'pending')
-                                <button class="btn btn-outline-danger btn-sm" onclick="cancelOrder({{ $pesanan->id }})">
-                                    <i class="bi bi-x-circle"></i> Batalkan
-                                </button>
+                                <!-- Form untuk Cancel Order -->
+                                <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-x-circle"></i> Batalkan
+                                    </button>
+                                </form>
                             @endif
                             
-                            <button class="btn btn-outline-primary btn-sm" onclick="viewOrderDetail({{ $pesanan->id }})">
+                            <a href="{{ route('orders.detail', $pesanan->id) }}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-eye"></i> Detail
-                            </button>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -204,33 +223,6 @@
 @endsection
 
 @push('scripts')
-<script>
-    // Function untuk cancel order (tetap pakai AJAX untuk aksi ini)
-    function cancelOrder(orderId) {
-        if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
-            fetch(`/api/orders/${orderId}/cancel`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                },
-                credentials: 'same-origin',
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Pesanan berhasil dibatalkan!');
-                window.location.reload(); // Reload halaman untuk update data
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal membatalkan pesanan!');
-            });
-        }
-    }
-
-    // Function untuk view detail
-    function viewOrderDetail(orderId) {
-        window.location.href = `/api/orders/${orderId}`;
-    }
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{{-- Tidak ada JavaScript untuk fetch data lagi! Data sudah dari Controller --}}
 @endpush

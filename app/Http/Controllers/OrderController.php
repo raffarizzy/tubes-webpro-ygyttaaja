@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -16,7 +17,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        \Log::info('Order store called', [
+        Log::info('Order store called', [
             'user_id' => Auth::id(),
             'request_data' => $request->all()
         ]);
@@ -31,7 +32,7 @@ class OrderController extends Controller
         DB::beginTransaction();
 
         try {
-            \Log::info('Validation passed, checking stock...');
+            Log::info('Validation passed, checking stock...');
             
             // 1️⃣ Validasi stok
             foreach ($request->items as $item) {
@@ -44,17 +45,17 @@ class OrderController extends Controller
                 }
             }
 
-            \Log::info('Stock validation passed, creating order...');
+            Log::info('Stock validation passed, creating order...');
 
             // 2️⃣ Buat order dengan status pending dulu
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'alamat_id' => $request->alamat_id,
                 'total_harga' => 0,
-                'status' => 'pending', // Nanti diubah setelah payment
+                'status' => 'pending',
             ]);
 
-            \Log::info('Order created', ['order_id' => $order->id]);
+            Log::info('Order created', ['order_id' => $order->id]);
 
             $total = 0;
 
@@ -77,16 +78,16 @@ class OrderController extends Controller
                 $product->decrement('stok', $item['jumlah']);
             }
 
-            \Log::info('All items processed, updating total...', ['total' => $total]);
+            Log::info('All items processed, updating total...', ['total' => $total]);
 
             // 4️⃣ Update total
             $order->update(['total_harga' => $total]);
 
-            \Log::info('Order total updated, committing transaction...');
+            Log::info('Order total updated, committing transaction...');
 
             DB::commit();
 
-            \Log::info('Order completed successfully', ['order_id' => $order->id]);
+            Log::info('Order completed successfully', ['order_id' => $order->id]);
 
             return response()->json([
                 'message' => 'Order berhasil dibuat',
@@ -96,7 +97,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('Order creation failed', [
+            Log::error('Order creation failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -109,7 +110,7 @@ class OrderController extends Controller
     }
 
     /**
-     * RIWAYAT PESANAN USER
+     * RIWAYAT PESANAN USER (API - untuk backward compatibility)
      */
     public function history()
     {
@@ -122,7 +123,64 @@ class OrderController extends Controller
     }
 
     /**
-     * CANCEL ORDER
+     * CANCEL ORDER - VERSI FORM (REDIRECT)
+     */
+    public function cancelForm($id)
+    {
+        try {
+            $order = Order::where('id', $id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            // Hanya bisa cancel jika status pending
+            if ($order->status !== 'pending') {
+                return redirect()->back()
+                    ->with('error', 'Hanya pesanan dengan status pending yang bisa dibatalkan');
+            }
+
+            DB::beginTransaction();
+
+            // Kembalikan stok produk
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->increment('stok', $item->qty);
+                }
+            }
+
+            // Update status order menjadi cancelled
+            $order->update(['status' => 'cancelled']);
+
+            DB::commit();
+
+            Log::info('Order cancelled successfully', [
+                'order_id' => $order->id,
+                'user_id' => Auth::id()
+            ]);
+
+            return redirect()->route('riwayat.pesanan')
+                ->with('success', 'Pesanan berhasil dibatalkan!');
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()->back()
+                ->with('error', 'Pesanan tidak ditemukan');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            Log::error('Order cancellation failed', [
+                'order_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * CANCEL ORDER - VERSI API (untuk backward compatibility)
      */
     public function cancel($id)
     {
@@ -153,7 +211,7 @@ class OrderController extends Controller
 
             DB::commit();
 
-            \Log::info('Order cancelled successfully', [
+            Log::info('Order cancelled successfully', [
                 'order_id' => $order->id,
                 'user_id' => Auth::id()
             ]);
@@ -170,7 +228,7 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             
-            \Log::error('Order cancellation failed', [
+            Log::error('Order cancellation failed', [
                 'order_id' => $id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -194,57 +252,53 @@ class OrderController extends Controller
                 ->where('user_id', Auth::id())
                 ->firstOrFail();
 
-            return response()->json($order, 200);
+            return view('order_detail', compact('order'));
 
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Pesanan tidak ditemukan'
-            ], 404);
+            return redirect()->route('riwayat.pesanan')
+                ->with('error', 'Pesanan tidak ditemukan');
+                
         } catch (\Exception $e) {
-            \Log::error('Failed to fetch order detail', [
+            Log::error('Failed to fetch order detail', [
                 'order_id' => $id,
                 'error' => $e->getMessage()
             ]);
             
-            return response()->json([
-                'message' => 'Gagal mengambil detail pesanan',
-                'error' => $e->getMessage()
-            ], 500);
+            return redirect()->route('riwayat.pesanan')
+                ->with('error', 'Gagal mengambil detail pesanan');
         }
     }
 
     /**
- * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA)
- */
-public function riwayatPesanan()
-{
-    try {
-        $orders = Order::with(['items.product', 'alamat'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+     * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA)
+     */
+    public function riwayatPesanan()
+    {
+        try {
+            $orders = Order::with(['items.product', 'alamat'])
+                ->where('user_id', Auth::id())
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        \Log::info('Loaded orders for user', [
-            'user_id' => Auth::id(),
-            'order_count' => $orders->count()
-        ]);
+            Log::info('Loaded orders for user', [
+                'user_id' => Auth::id(),
+                'order_count' => $orders->count()
+            ]);
 
-        return view('riwayat_pesanan', [
-            'orders' => $orders
-        ]);
+            return view('riwayat_pesanan', [
+                'orders' => $orders
+            ]);
 
-    } catch (\Exception $e) {
-        \Log::error('Failed to load order history page', [
-            'user_id' => Auth::id(),
-            'error' => $e->getMessage()
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to load order history page', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage()
+            ]);
 
-        return view('riwayat_pesanan', [
-            'orders' => collect([]),
-            'error' => 'Gagal memuat riwayat pesanan'
-        ]);
+            return view('riwayat_pesanan', [
+                'orders' => collect([]),
+                'error' => 'Gagal memuat riwayat pesanan'
+            ]);
+        }
     }
-}
-
-// Method history() bisa tetap ada untuk keperluan API jika diperlukan di masa depan
 }
