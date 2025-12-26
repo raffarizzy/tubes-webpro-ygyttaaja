@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -48,5 +49,28 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user's shopping cart
+     *
+     * @return HasOne
+     */
+    public function keranjang(): HasOne
+    {
+        return $this->hasOne(Keranjang::class);
+    }
+
+    /**
+     * Get the user's active cart or create one
+     *
+     * @return Keranjang
+     */
+    public function getOrCreateCart(): Keranjang
+    {
+        return $this->keranjang()->firstOrCreate(
+            ['user_id' => $this->id],
+            ['status' => 'active']
+        );
     }
 }

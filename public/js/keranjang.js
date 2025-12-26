@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <img src="${item.product.imagePath || '/img/placeholder.png'}"
                          alt="${item.product.nama}"
                          style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
-                         onerror="this.src='/img/placeholder.png'">
+                         onerror="this.onerror=null; this.src='/img/placeholder.png';">
                 </div>
 
                 <!-- Product Info -->

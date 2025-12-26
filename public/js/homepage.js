@@ -15,16 +15,23 @@ let filterState = {
     priceMax: null,
 };
 
-// Load data dari JSON
+// Load data from Laravel
 async function loadData() {
     try {
-        const response = await fetch("JSON/productData.json");
-        produkData = await response.json();
-
-        // Load keranjang dari localStorage
-        const savedCart = localStorage.getItem("keranjangData");
-        if (savedCart) {
-            keranjangData = JSON.parse(savedCart);
+        // Check if data is already passed from Laravel
+        if (window.productsData && Array.isArray(window.productsData)) {
+            produkData = window.productsData;
+            console.log('Loaded products from Laravel:', produkData.length, 'items');
+        } else {
+            // Fallback: fetch from API if not passed
+            const response = await fetch('/api/products');
+            const result = await response.json();
+            if (result.success) {
+                produkData = result.data;
+                console.log('Loaded products from API:', produkData.length, 'items');
+            } else {
+                throw new Error('Failed to load products from API');
+            }
         }
 
         // Initialize
@@ -296,7 +303,41 @@ function formatRupiah(amount) {
 // CART COUNTER
 // ============================================
 
-function updateCartCount() {
+// Update cart count from Laravel API
+async function updateCartCount() {
+    try {
+        const response = await fetch('/keranjang/data', {
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                const totalItems = result.data.total_items || 0;
+
+                const cartCountElement = document.getElementById("cart-count");
+                if (cartCountElement) {
+                    cartCountElement.textContent = totalItems;
+                    cartCountElement.style.display = totalItems > 0 ? "inline-block" : "none";
+                }
+                return;
+            }
+        }
+    } catch (error) {
+        console.log('Cart count not available (user may not be logged in)');
+    }
+
+    // Fallback: hide cart count if not logged in
+    const cartCountElement = document.getElementById("cart-count");
+    if (cartCountElement) {
+        cartCountElement.style.display = "none";
+    }
+}
+
+// Legacy function kept for compatibility - now calls Laravel API version
+function updateCartCountLegacy() {
     const userId = 1; // Hardcode untuk sekarang
     const userCart = keranjangData.filter((item) => item.userId === userId);
     const totalItems = userCart.reduce((sum, item) => sum + item.jumlah, 0);
