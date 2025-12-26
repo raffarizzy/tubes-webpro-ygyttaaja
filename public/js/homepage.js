@@ -153,7 +153,7 @@ function createProductCard(produk) {
     if (produk.imagePath.startsWith("http")) {
         // Kalau sudah full URL
         imagePath = produk.imagePath;
-    } else if (produk.imagePath.startsWith("products/")) {
+    } else if (produk.imagePath.startsWith("produk/")) {
         // Kalau dari Laravel storage
         imagePath = `http://localhost:8000/storage/${produk.imagePath}`;
     } else {
