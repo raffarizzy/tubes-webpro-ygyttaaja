@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -31,25 +32,42 @@ class ProductController extends Controller
 
     /**
      * Store a newly created resource in storage.
-     * Create product via Node.js API
      */
     public function store(Request $request)
     {
-        $response = Http::post('http://localhost:3000/api/products', [
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'deskripsi' => $request->deskripsi,
-            'toko_id' => $request->toko_id,
-            'category_id' => $request->category_id,
-            'stok' => $request->stok ?? 0
-        ]);
+        try {
+            $request->validate([
+                'nama' => 'required|string',
+                'category_id' => 'required|integer',
+                'harga' => 'required|numeric',
+                'stok' => 'required|integer',
+                'deskripsi' => 'required|string',
+                'image' => 'required|image|mimes:jpg,jpeg,png'
+            ]);
 
-        if ($response->successful()) {
-            return redirect()->route('products.index')
-                ->with('success', 'Product created successfully');
+            $path = $request->file('image')->store('produk', 'public');
+
+            $produk = Product::create([
+                'toko_id' => auth()->user()->toko->id,
+                'category_id' => $request->category_id,
+                'nama' => $request->nama,
+                'harga' => $request->harga,
+                'stok' => $request->stok,
+                'deskripsi' => $request->deskripsi,
+                'imagePath' => $path,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'produk' => $produk
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return back()->with('error', 'Failed to create product');
     }
 
     /**
@@ -58,65 +76,42 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        // OPTION 1: API-first - JavaScript fetch (current implementation)
-        // Frontend JavaScript akan fetch dari Node.js API
-        // return view('detail-produk', ['id' => $id]);
-
-        OPTION 2: Laravel consume Node.js API (Microservices approach)
+        // OPTION 2: Laravel consume Node.js API (Microservices approach)
         $response = Http::get("http://localhost:3000/api/products/{$id}");
         $product = $response->json('data');
-        
+
         if (!$product) {
             abort(404, 'Product not found');
         }
-        
+
         return view('detail-produk', compact('product'));
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
-     * Update product via Node.js API
      */
     public function update(Request $request, $id)
     {
-        $response = Http::put("http://localhost:3000/api/products/{$id}", [
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'deskripsi' => $request->deskripsi,
-            'toko_id' => $request->toko_id,
-            'category_id' => $request->category_id,
-            'stok' => $request->stok
-        ]);
+        $product = Product::findOrFail($id);
 
-        if ($response->successful()) {
-            return redirect()->route('products.index')
-                ->with('success', 'Product updated successfully');
+        if ($request->hasFile('image')) {
+            $product->imagePath =
+                $request->file('image')->store('products', 'public');
         }
 
-        return back()->with('error', 'Failed to update product');
+        $product->update(
+            $request->only('nama', 'harga', 'stok', 'deskripsi')
+        );
+
+        return response()->json(['success' => true]);
     }
 
     /**
      * Remove the specified resource from storage.
-     * Delete product via Node.js API
      */
     public function destroy($id)
     {
-        $response = Http::delete("http://localhost:3000/api/products/{$id}");
-
-        if ($response->successful()) {
-            return redirect()->route('products.index')
-                ->with('success', 'Product deleted successfully');
-        }
-
-        return back()->with('error', 'Failed to delete product');
+        Product::destroy($id);
+        return response()->json(['success' => true]);
     }
 }

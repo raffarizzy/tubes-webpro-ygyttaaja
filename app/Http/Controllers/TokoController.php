@@ -3,75 +3,93 @@
 namespace App\Http\Controllers;
 
 use App\Models\Toko;
+use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TokoController extends Controller
 {
-    // tampilkan toko milik user
     public function index()
     {
         $toko = Toko::where('user_id', auth()->id())->first();
-        return view('toko.index', compact('toko'));
+
+        if (!$toko) {
+            // BELUM PUNYA TOKO
+            return redirect()->route('toko.create');
+        }
+
+        // SUDAH PUNYA TOKO
+        return view('profil_toko', compact('toko'));
     }
 
-    // form buat toko (kalau belum punya)
+
     public function create()
     {
         return view('toko.create');
     }
 
-    // simpan toko
     public function store(Request $request)
     {
         $request->validate([
-            'nama_toko' => 'required|string|max:255',
-            'deskripsi_toko' => 'required|string',
-            'lokasi' => 'required|string|max:255',
-            'logo_path' => 'nullable|image|max:2048',
+            'nama_toko' => 'required',
+            'deskripsi_toko' => 'required',
+            'lokasi' => 'required',
+            'logo' => 'required|image'
         ]);
+
+        $path = $request->file('logo')->store('toko', 'public');
 
         Toko::create([
             'user_id' => auth()->id(),
             'nama_toko' => $request->nama_toko,
             'deskripsi_toko' => $request->deskripsi_toko,
             'lokasi' => $request->lokasi,
-            'logo_path' => $request->file('logo_path')
-                ? $request->file('logo_path')->store('logo_toko', 'public')
-                : null,
+            'logo_path' => $path
         ]);
 
-        return redirect()->route('toko.index');
+        return redirect('/toko');
     }
 
-    // profil toko
-    public function show(Toko $toko)
+    public function update(Request $request, $id)
     {
-        $jumlahProduk = $toko->products()->count();
-        return view('toko.show', compact('toko', 'jumlahProduk'));
+        try {
+            $toko = Toko::findOrFail($id);
+
+            $request->validate([
+                'nama_toko' => 'required',
+                'deskripsi_toko' => 'required',
+                'lokasi' => 'required',
+                'logo' => 'nullable|image|max:2048'
+            ]);
+
+            if ($request->hasFile('logo')) {
+                if ($toko->logo_path) {
+                    Storage::disk('public')->delete($toko->logo_path);
+                }
+
+                $toko->logo_path = $request
+                    ->file('logo')
+                    ->store('logo_toko', 'public');
+            }
+
+            $toko->update([
+                'nama_toko' => $request->nama_toko,
+                'deskripsi_toko' => $request->deskripsi_toko,
+                'lokasi' => $request->lokasi
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'logo_path' => $toko->logo_path
+            ]);
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // edit toko
-    public function edit(Toko $toko)
-    {
-        return view('toko.edit', compact('toko'));
-    }
 
-    // update toko
-    public function update(Request $request, Toko $toko)
-    {
-        $toko->update($request->only([
-            'nama_toko',
-            'deskripsi_toko',
-            'lokasi'
-        ]));
-
-        return redirect()->route('toko.index');
-    }
-
-    // hapus toko
-    public function destroy(Toko $toko)
-    {
-        $toko->delete();
-        return redirect()->route('toko.index');
-    }
 }
