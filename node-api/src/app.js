@@ -7,6 +7,7 @@ const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
 const tokoRoutes = require('./routes/toko.routes');
+const checkoutRoutes = require('./routes/checkout.routes');
 
 const app = express();
 
@@ -42,7 +43,8 @@ app.get('/', (req, res) => {
       products: '/api/products',
       profile: '/api/profile',
       cart: '/api/cart',
-      toko: '/api/toko'
+      toko: '/api/toko',
+      orders: '/api/orders'
     }
   });
 });
@@ -57,6 +59,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/toko', tokoRoutes);
+app.use('/api/orders', checkoutRoutes);
 
 // =====================================================
 // 404 Handler

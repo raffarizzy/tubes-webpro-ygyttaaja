@@ -221,6 +221,10 @@
 @endsection
 
 @push('scripts')
+    <script>
+        // Pass user_id dari Laravel ke JavaScript
+        window.APP_USER_ID = {{ auth()->id() }};
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ asset('js/checkout.js') }}"></script>
 @endpush

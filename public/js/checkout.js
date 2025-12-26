@@ -609,9 +609,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("📤 Items to send:", items);
 
-            // 3️⃣ Kirim ke web route create order (BUKAN /api/orders)
-            const orderResponse = await fetch("/api/orders", {
-                // ← Tanpa /api/
+            // 3️⃣ Kirim ke Laravel proxy yang forward ke Node.js API
+            const orderResponse = await fetch("/api/node/orders", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -620,6 +619,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
+                    user_id: window.APP_USER_ID,
                     alamat_id: selectedAddress.id,
                     items: items,
                 }),
@@ -650,8 +650,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    order_id: orderResult.order.id,
-                    alamat_id: selectedAddress.id, // ✅ Tambahkan ini
+                    order_id: orderResult.data.order.id,
+                    alamat_id: selectedAddress.id,
                     total: total,
                 }),
             });
