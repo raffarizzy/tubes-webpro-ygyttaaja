@@ -212,4 +212,39 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    /**
+ * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA)
+ */
+public function riwayatPesanan()
+{
+    try {
+        $orders = Order::with(['items.product', 'alamat'])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        \Log::info('Loaded orders for user', [
+            'user_id' => Auth::id(),
+            'order_count' => $orders->count()
+        ]);
+
+        return view('riwayat_pesanan', [
+            'orders' => $orders
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Failed to load order history page', [
+            'user_id' => Auth::id(),
+            'error' => $e->getMessage()
+        ]);
+
+        return view('riwayat_pesanan', [
+            'orders' => collect([]),
+            'error' => 'Gagal memuat riwayat pesanan'
+        ]);
+    }
+}
+
+// Method history() bisa tetap ada untuk keperluan API jika diperlukan di masa depan
 }

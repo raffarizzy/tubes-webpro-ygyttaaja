@@ -11,14 +11,14 @@
 }
 
 body {
-    font-family: 'Roboto', Arial, sans-serif;
+    font-family: "Roboto", Arial, sans-serif;
 }
 
 /* --- NAVBAR UTAMA --- */
 nav {
     background-color: #122c4f;
     color: #ffffff;
-    height: 64px; 
+    height: 64px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -181,12 +181,12 @@ nav ul li a.active {
     nav {
         padding: 0 15px;
     }
-    
+
     nav ul {
         gap: 20px;
         font-size: 0.9em;
     }
-    
+
     .user-name {
         max-width: 100px;
     }
@@ -198,7 +198,7 @@ nav ul li a.active {
         height: auto;
         padding: 10px 15px;
     }
-    
+
     nav ul {
         width: 100%;
         justify-content: center;
@@ -206,12 +206,12 @@ nav ul li a.active {
         margin-top: 10px;
         flex-wrap: wrap;
     }
-    
+
     #profil {
         margin-left: 0;
         margin-top: 10px;
     }
-    
+
     .user-name {
         display: none; /* Hide name on mobile, only show icon */
     }
@@ -224,12 +224,20 @@ nav ul li a.active {
 }
 
 .user-name.loading::after {
-    content: '...';
+    content: "...";
     animation: dots 1.5s infinite;
 }
 
 @keyframes dots {
-    0%, 20% { content: '.'; }
-    40% { content: '..'; }
-    60%, 100% { content: '...'; }
+    0%,
+    20% {
+        content: ".";
+    }
+    40% {
+        content: "..";
+    }
+    60%,
+    100% {
+        content: "...";
+    }
 }

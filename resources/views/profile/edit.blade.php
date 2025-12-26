@@ -10,7 +10,7 @@
     <div class="card-body">
         <h3 class="fw-bold text-sparehub">Riwayat Pesanan</h3>
         <p class="text-muted mb-3">Lihat daftar pesanan yang pernah Anda lakukan</p>
-        <a href="#" class="btn bg-sparehub text-white px-4">
+        <a href="{{ route('riwayat.pesanan') }}" class="btn bg-sparehub text-white px-4">
             Lihat Riwayat
         </a>
     </div>
