@@ -100,7 +100,7 @@ class TokoController extends Controller
             'nama_toko' => 'required|string|max:255',
             'deskripsi_toko' => 'required|string',
             'lokasi' => 'required|string|max:255',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif'
         ]);
 
         try {
@@ -165,7 +165,7 @@ class TokoController extends Controller
                 'nama_toko' => 'required|string|max:255',
                 'deskripsi_toko' => 'required|string',
                 'lokasi' => 'required|string|max:255',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif'
             ]);
 
             // 1. Update di database Laravel
