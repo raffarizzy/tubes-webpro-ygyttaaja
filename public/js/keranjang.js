@@ -11,9 +11,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     let cartItems = window.keranjangItems || [];
     console.log("Cart items from Laravel:", cartItems);
 
-    // =====================================================
     // RENDER FUNCTIONS
-    // =====================================================
 
     function renderKeranjang() {
         console.log(`Rendering ${cartItems.length} items`);
@@ -122,9 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log(`Summary: ${totalItems} items, ${formatRupiah(totalHarga)}`);
     }
 
-    // =====================================================
     // EVENT HANDLERS
-    // =====================================================
 
     async function handleDecreaseQuantity(itemId, currentQty) {
         if (currentQty <= 1) {
@@ -152,9 +148,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await removeItem(itemId);
     }
 
-    // =====================================================
     // API CALLS (Laravel API)
-    // =====================================================
 
     async function updateItemQuantity(itemId, newQty) {
         try {
@@ -210,9 +204,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // =====================================================
     // UTILITY FUNCTIONS
-    // =====================================================
 
     function formatRupiah(amount) {
         return new Intl.NumberFormat('id-ID', {
@@ -283,9 +275,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }, 3000);
     }
 
-    // =====================================================
     // CHECKOUT BUTTON
-    // =====================================================
 
     btnCheckout.addEventListener('click', () => {
         if (cartItems.length === 0) {
@@ -313,9 +303,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.href = '/checkout';
     });
 
-    // =====================================================
     // INITIALIZE
-    // =====================================================
 
     renderKeranjang();
     console.log("Keranjang Laravel initialized");
