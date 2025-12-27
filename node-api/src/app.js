@@ -7,6 +7,7 @@ const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
 const cartRoutes = require('./routes/cart.routes');
 const tokoRoutes = require('./routes/toko.routes');
+const ratingRoutes = require('./routes/rating.routes');
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/toko', tokoRoutes);
+app.use('/api/ratings', ratingRoutes);
 
 // =====================================================
 // 404 Handler

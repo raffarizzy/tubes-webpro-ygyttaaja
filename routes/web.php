@@ -85,7 +85,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/riwayat-pesanan', [OrderController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
-    Route::resource('ratings', RatingController::class)->only(['index', 'store', 'destroy']);
+    Route::get('/ratings', [RatingController::class, 'index'])->name('ratings.index');
+    Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
+    Route::delete('/ratings/{id}', [RatingController::class, 'destroy'])->name('ratings.destroy');
+    //sblmaneh2
 
     
     // API Orders (Untuk keperluan AJAX jika dibutuhkan)

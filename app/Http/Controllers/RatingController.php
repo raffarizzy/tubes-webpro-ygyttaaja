@@ -2,78 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rating;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class RatingController extends Controller
 {
+    private string $nodeApiUrl = 'http://localhost:3001';
+
     /**
-     * Display a listing of the resource.
+     * Display ratings page
      */
     public function index()
     {
-        $ratings = Rating::with('product')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->get();
+        try {
+            // Ambil ratings user dari Node.js API
+            $response = Http::timeout(10)->get($this->nodeApiUrl . '/api/ratings', [
+                'user_id' => auth()->id()
+            ]);
 
-        $ratedProductIds = $ratings->pluck('product_id');
+            // Parse response jadi collection
+            $ratings = collect();
+            if ($response->successful()) {
+                $ratingsData = $response->json('data') ?? [];
+                $ratings = collect($ratingsData);
+            }
 
-        $products = Product::whereNotIn('id', $ratedProductIds)->get();
+            // Ambil ID produk yang sudah dirating
+            $ratedProductIds = $ratings->pluck('product_id')->toArray();
 
-        return view('ratings.index', compact('ratings', 'products'));
+            // Ambil produk yang BELUM dirating
+            $products = Product::whereNotIn('id', $ratedProductIds)->get();
+
+            return view('ratings.index', compact('ratings', 'products'));
+
+        } catch (\Exception $e) {
+            return view('ratings.index', [
+                'ratings' => collect(),
+                'products' => Product::all(),
+            ])->with('error', 'Koneksi ke server rating gagal');
+        }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store rating via Node.js API
      */
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
+            'product_id' => 'required|integer|exists:products,id',
             'rating'     => 'required|integer|min:1|max:5',
             'review'     => 'required|string|max:1000',
         ]);
 
-        // Cegah user rating produk yang sama 2x
-        $alreadyRated = Rating::where('user_id', auth()->id())
-            ->where('product_id', $validated['product_id'])
-            ->exists();
+        try {
+            $response = Http::timeout(10)->post(
+                $this->nodeApiUrl . '/api/ratings',
+                [
+                    'user_id'    => auth()->id(),
+                    'product_id' => $validated['product_id'],
+                    'rating'     => $validated['rating'],
+                    'review'     => $validated['review'],
+                ]
+            );
 
-        if ($alreadyRated) {
+            if ($response->failed()) {
+                $errorMessage = $response->json('message') ?? 'Gagal menambahkan rating';
+                return back()
+                    ->withErrors(['product_id' => $errorMessage])
+                    ->withInput();
+            }
+
+            return redirect()
+                ->route('ratings.index')
+                ->with('success', 'Rating berhasil ditambahkan');
+
+        } catch (\Exception $e) {
             return back()
-                ->withErrors([
-                    'product_id' => 'Produk ini sudah kamu beri rating.'
-                ])
+                ->withErrors(['product_id' => 'Koneksi ke server rating gagal'])
                 ->withInput();
         }
-
-        // Simpan rating
-        Rating::create([
-            'user_id'    => auth()->id(),
-            'product_id' => $validated['product_id'],
-            'rating'     => $validated['rating'],
-            'review'     => $validated['review'],
-        ]);
-
-        return redirect()
-            ->route('ratings.index')
-            ->with('success', 'Rating berhasil ditambahkan.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete rating via Node.js API
      */
-    public function destroy(Rating $rating)
+    public function destroy($id)
     {
-        if ($rating->user_id !== auth()->id()) {
-            abort(403);
+        try {
+            $response = Http::timeout(10)->delete(
+                $this->nodeApiUrl . "/api/ratings/{$id}",
+                ['user_id' => auth()->id()]
+            );
+
+            if ($response->successful()) {
+                return redirect()
+                    ->route('ratings.index')
+                    ->with('success', 'Rating berhasil dihapus');
+            }
+
+            return back()->with('error', 'Gagal menghapus rating');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Koneksi ke server rating gagal');
         }
-
-        $rating->delete();
-
-        return back()->with('success', 'Rating berhasil dihapus');
     }
 }
