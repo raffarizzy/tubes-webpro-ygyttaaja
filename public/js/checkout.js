@@ -591,7 +591,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
 
         try {
-            // 1️⃣ Ambil data checkout dari localStorage
+            // Ambil data checkout dari localStorage
             const checkoutData =
                 JSON.parse(localStorage.getItem("checkoutData")) || [];
 
@@ -599,17 +599,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Tidak ada produk untuk checkout");
             }
 
-            console.log("📦 Checkout data:", checkoutData);
+            console.log("Checkout data:", checkoutData);
 
-            // 2️⃣ Format data items untuk API
+            // Format data items untuk API
             const items = checkoutData.map((item) => ({
                 product_id: item.productId || item.id,
                 jumlah: item.jumlah,
             }));
 
-            console.log("📤 Items to send:", items);
+            console.log("Items to send:", items);
 
-            // 3️⃣ Kirim ke web route create order (BUKAN /api/orders)
+            // Kirim ke web route create order (BUKAN /api/orders)
             const orderResponse = await fetch("/api/orders", {
                 // ← Tanpa /api/
                 method: "POST",
@@ -625,7 +625,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }),
             });
 
-            console.log("📡 Order response status:", orderResponse.status);
+            console.log("Order response status:", orderResponse.status);
 
             if (!orderResponse.ok) {
                 const errorData = await orderResponse.json();
@@ -635,9 +635,9 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const orderResult = await orderResponse.json();
-            console.log("✅ Order created:", orderResult);
+            console.log("Order created:", orderResult);
 
-            // 4️⃣ Proses pembayaran dengan Xendit
+            // Proses pembayaran dengan Xendit
             const totalText = document.getElementById("orderTotal").textContent;
             const total = parseInt(totalText.replace(/[^0-9]/g, ""));
 
@@ -651,7 +651,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 credentials: "same-origin",
                 body: JSON.stringify({
                     order_id: orderResult.order.id,
-                    alamat_id: selectedAddress.id, // ✅ Tambahkan ini
+                    alamat_id: selectedAddress.id,
                     total: total,
                 }),
             });
@@ -668,10 +668,10 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("💳 Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
-                // 5️⃣ Clear checkout data dari localStorage
+                // Clear checkout data dari localStorage
                 localStorage.removeItem("checkoutData");
 
-                // 6️⃣ Redirect ke payment gateway
+                // Redirect ke payment gateway
                 showNotification(
                     "Order berhasil dibuat! Mengarahkan ke pembayaran...",
                     "success"
@@ -684,7 +684,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("Invoice URL tidak ditemukan");
             }
         } catch (err) {
-            console.error("❌ Payment error:", err);
+            console.error("Payment error:", err);
             showNotification(
                 `Gagal memproses pembayaran: ${err.message}`,
                 "danger"

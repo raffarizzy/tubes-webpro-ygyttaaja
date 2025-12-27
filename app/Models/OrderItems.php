@@ -12,7 +12,7 @@ class OrderItems extends Model
         'order_id',
         'product_id',
         'nama_produk',
-        'harga',      // Freeze harga saat checkout
+        'harga',    
         'qty',
         'subtotal',
     ];

@@ -34,7 +34,7 @@ class OrderController extends Controller
         try {
             Log::info('Validation passed, checking stock...');
             
-            // 1️⃣ Validasi stok
+            // Validasi stok
             foreach ($request->items as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 
@@ -47,7 +47,7 @@ class OrderController extends Controller
 
             Log::info('Stock validation passed, creating order...');
 
-            // 2️⃣ Buat order dengan status pending dulu
+            // Buat order dengan status pending dulu
             $order = Order::create([
                 'user_id' => Auth::id(),
                 'alamat_id' => $request->alamat_id,
@@ -59,7 +59,7 @@ class OrderController extends Controller
 
             $total = 0;
 
-            // 3️⃣ Simpan order items & kurangi stok
+            // Simpan order items & kurangi stok
             foreach ($request->items as $item) {
                 $product = Product::findOrFail($item['product_id']);
                 $subtotal = $product->harga * $item['jumlah'];
@@ -80,7 +80,7 @@ class OrderController extends Controller
 
             Log::info('All items processed, updating total...', ['total' => $total]);
 
-            // 4️⃣ Update total
+            // Update total
             $order->update(['total_harga' => $total]);
 
             Log::info('Order total updated, committing transaction...');
