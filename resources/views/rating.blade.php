@@ -32,7 +32,7 @@
         </div>
     @endif
 
-    <h1 class="text-center mb-4 fw-bold">⭐ Rating & Ulasan Produk</h1>
+    <h1 class="text-center mb-4 fw-bold">Rating & Ulasan Produk</h1>
 
     {{-- LIST RATING USER --}}
     @if ($ratings->count())

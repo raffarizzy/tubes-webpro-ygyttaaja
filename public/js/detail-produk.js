@@ -1,34 +1,29 @@
-// ========================================
 // DETAIL PRODUK - SIMPLIFIED VERSION
-// All data is loaded from Laravel, JS only handles UI interactions
-// ========================================
 
 let currentQuantity = 1;
 let currentProduct = null;
 
-// ========================================
+
 // INITIALIZATION
-// ========================================
+
 
 document.addEventListener("DOMContentLoaded", () => {
     // Get product data from window (set by Laravel)
     currentProduct = window.PRODUCT_DATA;
 
     if (!currentProduct) {
-        console.error("❌ Product data not found!");
+        console.error("Product data not found!");
         return;
     }
 
-    console.log("✅ Product loaded:", currentProduct);
+    console.log("Product loaded:", currentProduct);
 
     // Initialize UI controls
     initializeQuantityControls();
     initializeActionButtons();
 });
 
-// ========================================
 // QUANTITY CONTROLS
-// ========================================
 
 function initializeQuantityControls() {
     const btnDecrease = document.getElementById("btn-decrease");
@@ -66,9 +61,7 @@ function updateTotalPrice() {
     totalPriceEl.textContent = formatRupiah(totalPrice);
 }
 
-// ========================================
 // ACTION BUTTONS
-// ========================================
 
 function initializeActionButtons() {
     const btnKeranjang = document.getElementById("btn-Keranjang");
@@ -134,9 +127,7 @@ function initializeActionButtons() {
     });
 }
 
-// ========================================
 // CART MANAGEMENT
-// ========================================
 
 async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
     console.log("🛒 Adding to cart:", { userId, produkId, jumlahTambahan });
@@ -175,23 +166,21 @@ async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
         }
 
         if (result.success) {
-            console.log("✅ Added to cart successfully!");
+            console.log("Added to cart successfully!");
             return true;
         } else {
-            console.error("❌ Failed to add to cart:", result.message);
+            console.error("Failed to add to cart:", result.message);
             showNotification(result.message || 'Gagal menambahkan ke keranjang', 'error');
             return false;
         }
     } catch (error) {
-        console.error('❌ Error adding to cart:', error);
+        console.error('Error adding to cart:', error);
         showNotification('Terjadi kesalahan. Pastikan Anda sudah login.', 'error');
         return false;
     }
 }
 
-// ========================================
 // UTILITY FUNCTIONS
-// ========================================
 
 // Format angka menjadi format mata uang Rupiah
 function formatRupiah(amount) {
