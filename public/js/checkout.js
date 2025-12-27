@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
             div.innerHTML = `
           <div class="row g-0">
             <div class="col-md-3 bg-light p-1 text-center">
-              <img src="${product.imagePath}" 
+              <img src="http://localhost:8000/storage/${product.imagePath}" 
                    alt="${product.nama}"
                    class="img-fluid" 
                    style="max-height:100px"
@@ -609,8 +609,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("📤 Items to send:", items);
 
-            // 3️⃣ Kirim ke Laravel proxy yang forward ke Node.js API
-            const orderResponse = await fetch("/api/node/orders", {
+            // 3️⃣ Kirim ke web route create order (BUKAN /api/orders)
+            const orderResponse = await fetch("/api/orders", {
+                // ← Tanpa /api/
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -619,7 +620,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    user_id: window.APP_USER_ID,
                     alamat_id: selectedAddress.id,
                     items: items,
                 }),
@@ -650,8 +650,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    order_id: orderResult.data.order.id,
-                    alamat_id: selectedAddress.id,
+                    order_id: orderResult.order.id,
+                    alamat_id: selectedAddress.id, // ✅ Tambahkan ini
                     total: total,
                 }),
             });
