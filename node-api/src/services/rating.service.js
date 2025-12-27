@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 exports.getByUser = async (userId) => {
   try {
-    console.log('📌 Getting ratings for user:', userId);
+    console.log('Getting ratings for user:', userId);
 
     const [rows] = await db.query(
       `
@@ -22,11 +22,11 @@ exports.getByUser = async (userId) => {
       [userId]
     );
 
-    console.log('✅ Ratings found:', rows.length);
+    console.log('Ratings found:', rows.length);
     return rows;
 
   } catch (error) {
-    console.error('❌ ERROR DETAIL:', error);
+    console.error('ERROR DETAIL:', error);
     console.error('SQL Message:', error.sqlMessage);
     console.error('SQL Code:', error.code);
     throw error;
@@ -52,7 +52,7 @@ exports.create = async ({ user_id, product_id, rating, review }) => {
 
     return { id: result.insertId, user_id, product_id, rating, review };
   } catch (error) {
-    console.error('❌ Error in create:', error);
+    console.error('Error in create:', error);
     throw error;
   }
 };
@@ -70,7 +70,7 @@ exports.remove = async (id, userId) => {
 
     return true;
   } catch (error) {
-    console.error('❌ Error in remove:', error);
+    console.error('Error in remove:', error);
     throw error;
   }
 };
