@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div style="display: flex; gap: 20px; padding: 20px; background: white; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                 <!-- Product Image -->
                 <div style="width: 100px; height: 100px; flex-shrink: 0;">
-                    <img src="${item.product.imagePath || '/img/placeholder.png'}"
+                    <img src="http://localhost:8000/storage/${item.product.imagePath || '/img/placeholder.png'}"
                          alt="${item.product.nama}"
                          style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
                          onerror="this.onerror=null; this.src='/img/placeholder.png';">

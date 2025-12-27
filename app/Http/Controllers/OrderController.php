@@ -270,24 +270,75 @@ class OrderController extends Controller
     }
 
     /**
-     * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA)
+     * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA DARI NODE.JS API)
      */
     public function riwayatPesanan()
     {
         try {
-            $orders = Order::with(['items.product', 'alamat'])
-                ->where('user_id', Auth::id())
-                ->orderBy('created_at', 'desc')
-                ->get();
+            $userId = Auth::id();
 
-            Log::info('Loaded orders for user', [
-                'user_id' => Auth::id(),
-                'order_count' => $orders->count()
+            // Fetch orders from Node.js API (history endpoint)
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->get("http://localhost:3001/api/history/{$userId}");
+
+            Log::info('Fetched orders from Node.js API', [
+                'user_id' => $userId,
+                'status' => $response->status()
             ]);
 
-            return view('riwayat_pesanan', [
-                'orders' => $orders
-            ]);
+            if ($response->successful()) {
+                $result = $response->json();
+
+                // Extract and transform orders from response
+                $ordersData = $result['data'] ?? [];
+
+                // Convert array to objects for Blade compatibility
+                $orders = collect($ordersData)->map(function ($order) {
+                    // Convert main order to object
+                    $orderObj = (object) $order;
+
+                    // Convert items array to Collection of objects
+                    if (isset($order['items']) && is_array($order['items'])) {
+                        $orderObj->items = collect($order['items'])->map(function ($item) {
+                            $itemObj = (object) $item;
+
+                            // Convert nested product to object if exists
+                            if (isset($item['product']) && is_array($item['product'])) {
+                                $itemObj->product = (object) $item['product'];
+                            }
+
+                            return $itemObj;
+                        });
+                    }
+
+                    // Convert alamat to object if exists
+                    if (isset($order['alamat']) && is_array($order['alamat'])) {
+                        $orderObj->alamat = (object) $order['alamat'];
+                    }
+
+                    return $orderObj;
+                });
+
+                Log::info('Loaded orders for user', [
+                    'user_id' => $userId,
+                    'order_count' => $orders->count()
+                ]);
+
+                return view('riwayat_pesanan', [
+                    'orders' => $orders
+                ]);
+            } else {
+                Log::error('Failed to fetch orders from Node.js API', [
+                    'user_id' => $userId,
+                    'status' => $response->status(),
+                    'error' => $response->body()
+                ]);
+
+                return view('riwayat_pesanan', [
+                    'orders' => collect([]),
+                    'error' => 'Gagal memuat riwayat pesanan dari server'
+                ]);
+            }
 
         } catch (\Exception $e) {
             Log::error('Failed to load order history page', [

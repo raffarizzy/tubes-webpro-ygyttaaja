@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", function () {
             div.innerHTML = `
           <div class="row g-0">
             <div class="col-md-3 bg-light p-1 text-center">
-              <img src="${product.imagePath}" 
+              <img src="http://localhost:8000/storage/${product.imagePath}" 
                    alt="${product.nama}"
                    class="img-fluid" 
                    style="max-height:100px"

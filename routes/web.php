@@ -7,6 +7,7 @@ use App\Http\Controllers\BarangKeranjangController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AlamatController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderProxyController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TokoController;
 use App\Http\Controllers\RatingController;
@@ -90,8 +91,15 @@ Route::middleware('auth')->group(function () {
     Route::delete('/ratings/{id}', [RatingController::class, 'destroy'])->name('ratings.destroy');
     //sblmaneh2
 
-    
-    // API Orders (Untuk keperluan AJAX jika dibutuhkan)
+
+    // ============================================
+    // ORDERS API - Node.js Proxy (NEW)
+    // ============================================
+    Route::post('/api/node/orders', [OrderProxyController::class, 'createOrder'])->name('orders.node.create');
+    Route::get('/api/node/orders/{id}', [OrderProxyController::class, 'getOrder'])->name('orders.node.get');
+    Route::get('/api/node/orders/user/{userId}', [OrderProxyController::class, 'getUserOrders'])->name('orders.node.user');
+
+    // API Orders (Laravel - untuk backward compatibility)
     Route::get('/api/orders/history', [OrderController::class, 'history'])->name('orders.history');
     Route::post('/api/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::post('/api/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel.api');
