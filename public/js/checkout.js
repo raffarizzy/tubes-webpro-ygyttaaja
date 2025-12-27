@@ -614,9 +614,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 throw new Error("User ID tidak valid. Silakan login kembali.");
             }
 
-            console.log("👤 User ID:", userId);
+            console.log("User ID:", userId);
 
-            // 2️⃣ Format data items untuk API
+            // Format data items untuk API
             const items = checkoutData.map((item) => ({
                 product_id: item.productId || item.id,
                 jumlah: item.jumlah,
@@ -681,7 +681,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const paymentData = await paymentResponse.json();
-            console.log("💳 Payment data:", paymentData);
+            console.log("Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
                 // Clear checkout data dari localStorage
