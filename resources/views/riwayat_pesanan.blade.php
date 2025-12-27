@@ -108,7 +108,7 @@
                                 </h6>
                                 <small class="text-muted">
                                     <i class="bi bi-calendar3"></i>
-                                    {{ $pesanan->created_at ? $pesanan->created_at->locale('id')->isoFormat('D MMMM YYYY, HH:mm') : 'N/A' }}
+                                    {{ $pesanan->created_at ? \Carbon\Carbon::parse($pesanan->created_at)->locale('id')->isoFormat('D MMMM YYYY, HH:mm') : 'N/A' }}
                                 </small>
                             </div>
                             <div class="col-md-6 text-md-end mt-2 mt-md-0">
