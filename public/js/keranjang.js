@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function handleDecreaseQuantity(itemId, currentQty) {
         if (currentQty <= 1) {
-            alert("Jumlah minimal adalah 1. Gunakan tombol Hapus untuk menghapus item.");
+            showNotification("Jumlah minimal adalah 1. Gunakan tombol Hapus untuk menghapus item.", "warning");
             return;
         }
 
@@ -289,7 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     btnCheckout.addEventListener('click', () => {
         if (cartItems.length === 0) {
-            alert('Keranjang Anda kosong!');
+            showNotification('Keranjang Anda kosong!', 'warning');
             return;
         }
 
