@@ -578,8 +578,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Pay button handler
-    // Pay button handler
-    // Pay button handler
     payButton.addEventListener("click", async () => {
         if (!selectedAddress || !selectedPayment) {
             alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
@@ -609,9 +607,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Items to send:", items);
 
-            // Kirim ke web route create order (BUKAN /api/orders)
+            // Kirim ke API untuk create order
             const orderResponse = await fetch("/api/orders", {
-                // ← Tanpa /api/
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -637,9 +634,28 @@ document.addEventListener("DOMContentLoaded", function () {
             const orderResult = await orderResponse.json();
             console.log("Order created:", orderResult);
 
+            // FIX: Order ID ada di orderResult.data.order.id
+            if (
+                !orderResult.data ||
+                !orderResult.data.order ||
+                !orderResult.data.order.id
+            ) {
+                console.error("Invalid response structure:", orderResult);
+                throw new Error("Order ID tidak ditemukan dalam response");
+            }
+
+            const orderId = orderResult.data.order.id;
+            console.log("Order ID:", orderId);
+
             // Proses pembayaran dengan Xendit
             const totalText = document.getElementById("orderTotal").textContent;
             const total = parseInt(totalText.replace(/[^0-9]/g, ""));
+
+            console.log("Payment request:", {
+                order_id: orderId,
+                alamat_id: selectedAddress.id,
+                total: total,
+            });
 
             const paymentResponse = await fetch("/checkout/pay", {
                 method: "POST",
@@ -650,11 +666,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    order_id: orderResult.order.id,
+                    order_id: orderId,
                     alamat_id: selectedAddress.id,
                     total: total,
                 }),
             });
+
+            console.log("Payment response status:", paymentResponse.status);
 
             if (!paymentResponse.ok) {
                 const errorText = await paymentResponse.text();
@@ -665,7 +683,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const paymentData = await paymentResponse.json();
-            console.log("💳 Payment data:", paymentData);
+            console.log("Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
                 // Clear checkout data dari localStorage

@@ -2,21 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Order;
-use App\Models\OrderItems;
-use App\Models\Product;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
+    private $nodeApiUrl = 'http://localhost:3001/api';
+
     /**
-     * SIMPAN ORDER (CHECKOUT)
+     * SIMPAN ORDER (CHECKOUT) - Consume Node.js API
      */
     public function store(Request $request)
     {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         Log::info('Order store called', [
             'user_id' => Auth::id(),
             'request_data' => $request->all()
@@ -29,149 +36,119 @@ class OrderController extends Controller
             'items.*.jumlah' => 'required|integer|min:1',
         ]);
 
-        DB::beginTransaction();
-
         try {
-            Log::info('Validation passed, checking stock...');
-            
-            // Validasi stok
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                
-                if ($product->stok < $item['jumlah']) {
-                    return response()->json([
-                        'message' => "Stok {$product->nama} tidak mencukupi"
-                    ], 400);
-                }
-            }
+            /** @var User $user */
+            $user = Auth::user();
 
-            Log::info('Stock validation passed, creating order...');
-
-            // Buat order dengan status pending dulu
-            $order = Order::create([
-                'user_id' => Auth::id(),
+            // Call Node.js API to create order
+            $response = Http::timeout(30)->post("{$this->nodeApiUrl}/orders", [
+                'user_id' => $user->id,
                 'alamat_id' => $request->alamat_id,
-                'total_harga' => 0,
-                'status' => 'pending',
+                'items' => $request->items,
             ]);
 
-            Log::info('Order created', ['order_id' => $order->id]);
-
-            $total = 0;
-
-            // Simpan order items & kurangi stok
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $subtotal = $product->harga * $item['jumlah'];
-                $total += $subtotal;
-
-                OrderItems::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'nama_produk' => $product->nama,
-                    'harga' => $product->harga,
-                    'qty' => $item['jumlah'],
-                    'subtotal' => $subtotal,
+            if ($response->successful()) {
+                $result = $response->json();
+                
+                Log::info('Order created successfully via Node.js API', [
+                    'order_id' => $result['data']['id'] ?? null
                 ]);
 
-                // Kurangi stok
-                $product->decrement('stok', $item['jumlah']);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Order berhasil dibuat',
+                    'data' => $result['data'],
+                ], 201);
             }
 
-            Log::info('All items processed, updating total...', ['total' => $total]);
-
-            // Update total
-            $order->update(['total_harga' => $total]);
-
-            Log::info('Order total updated, committing transaction...');
-
-            DB::commit();
-
-            Log::info('Order completed successfully', ['order_id' => $order->id]);
-
-            return response()->json([
-                'message' => 'Order berhasil dibuat',
-                'order' => $order->load('items.product'),
-            ], 201);
+            throw new \Exception($response->json('message') ?? 'Failed to create order');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            
             Log::error('Order creation failed', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
             
             return response()->json([
-                'message' => 'Gagal membuat order',
-                'error' => $e->getMessage(),
+                'success' => false,
+                'message' => 'Gagal membuat order: ' . $e->getMessage(),
             ], 500);
         }
     }
 
     /**
-     * RIWAYAT PESANAN USER (API - untuk backward compatibility)
+     * RIWAYAT PESANAN USER (API) - Consume Node.js API
      */
     public function history()
     {
-        $orders = Order::with(['items.product', 'alamat'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
 
-        return response()->json($orders);
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+            
+            $response = Http::timeout(30)
+                ->get("{$this->nodeApiUrl}/history/{$user->id}");
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $response->json('data')
+                ]);
+            }
+
+            throw new \Exception('Failed to fetch order history');
+
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch order history', [
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil riwayat pesanan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * CANCEL ORDER - VERSI FORM (REDIRECT)
+     * CANCEL ORDER - VERSI FORM (REDIRECT) - Consume Node.js API
      */
     public function cancelForm($id)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
         try {
-            $order = Order::where('id', $id)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
+            /** @var User $user */
+            $user = Auth::user();
 
-            // Hanya bisa cancel jika status pending
-            if ($order->status !== 'pending') {
-                return redirect()->back()
-                    ->with('error', 'Hanya pesanan dengan status pending yang bisa dibatalkan');
+            // Call Node.js API to cancel order
+            $response = Http::timeout(30)
+                ->post("{$this->nodeApiUrl}/history/cancel/{$id}");
+
+            if ($response->successful()) {
+                Log::info('Order cancelled successfully via Node.js API', [
+                    'order_id' => $id,
+                    'user_id' => $user->id
+                ]);
+
+                return redirect()->route('riwayat.pesanan')
+                    ->with('success', 'Pesanan berhasil dibatalkan!');
             }
 
-            DB::beginTransaction();
+            throw new \Exception($response->json('message') ?? 'Failed to cancel order');
 
-            // Kembalikan stok produk
-            foreach ($order->items as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $product->increment('stok', $item->qty);
-                }
-            }
-
-            // Update status order menjadi cancelled
-            $order->update(['status' => 'cancelled']);
-
-            DB::commit();
-
-            Log::info('Order cancelled successfully', [
-                'order_id' => $order->id,
-                'user_id' => Auth::id()
-            ]);
-
-            return redirect()->route('riwayat.pesanan')
-                ->with('success', 'Pesanan berhasil dibatalkan!');
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->back()
-                ->with('error', 'Pesanan tidak ditemukan');
-                
         } catch (\Exception $e) {
-            DB::rollBack();
-            
             Log::error('Order cancellation failed', [
                 'order_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
             
             return redirect()->back()
@@ -180,84 +157,89 @@ class OrderController extends Controller
     }
 
     /**
-     * CANCEL ORDER - VERSI API (untuk backward compatibility)
+     * CANCEL ORDER - VERSI API - Consume Node.js API
      */
     public function cancel($id)
     {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
         try {
-            $order = Order::where('id', $id)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
+            /** @var User $user */
+            $user = Auth::user();
 
-            // Hanya bisa cancel jika status pending
-            if ($order->status !== 'pending') {
+            // Call Node.js API to cancel order
+            $response = Http::timeout(30)
+                ->post("{$this->nodeApiUrl}/history/cancel/{$id}");
+
+            if ($response->successful()) {
+                $result = $response->json();
+                
+                Log::info('Order cancelled successfully via Node.js API', [
+                    'order_id' => $id,
+                    'user_id' => $user->id
+                ]);
+
                 return response()->json([
-                    'message' => 'Hanya pesanan dengan status pending yang bisa dibatalkan'
-                ], 400);
+                    'success' => true,
+                    'message' => 'Pesanan berhasil dibatalkan',
+                    'data' => $result['data']
+                ], 200);
             }
 
-            DB::beginTransaction();
+            throw new \Exception($response->json('message') ?? 'Failed to cancel order');
 
-            // Kembalikan stok produk
-            foreach ($order->items as $item) {
-                $product = Product::find($item->product_id);
-                if ($product) {
-                    $product->increment('stok', $item->qty);
-                }
-            }
-
-            // Update status order menjadi cancelled
-            $order->update(['status' => 'cancelled']);
-
-            DB::commit();
-
-            Log::info('Order cancelled successfully', [
-                'order_id' => $order->id,
-                'user_id' => Auth::id()
-            ]);
-
-            return response()->json([
-                'message' => 'Pesanan berhasil dibatalkan',
-                'order' => $order->load(['items.product', 'alamat'])
-            ], 200);
-
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Pesanan tidak ditemukan'
-            ], 404);
         } catch (\Exception $e) {
-            DB::rollBack();
-            
             Log::error('Order cancellation failed', [
                 'order_id' => $id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'error' => $e->getMessage()
             ]);
             
             return response()->json([
-                'message' => 'Gagal membatalkan pesanan',
-                'error' => $e->getMessage()
+                'success' => false,
+                'message' => 'Gagal membatalkan pesanan: ' . $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * DETAIL ORDER
+     * DETAIL ORDER - Consume Node.js API
      */
     public function show($id)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
         try {
-            $order = Order::with(['items.product', 'alamat', 'user'])
-                ->where('id', $id)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
+            /** @var User $user */
+            $user = Auth::user();
 
-            return view('order_detail', compact('order'));
+            // Fetch order detail from Node.js API
+            $response = Http::timeout(30)
+                ->get("{$this->nodeApiUrl}/history/order/{$id}");
 
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->route('riwayat.pesanan')
-                ->with('error', 'Pesanan tidak ditemukan');
-                
+            if ($response->successful()) {
+                $orderData = $response->json('data');
+
+                // Convert to object for Blade compatibility
+                $order = $this->convertToObject($orderData);
+
+                // Verify ownership
+                if ($order->user_id != $user->id) {
+                    return redirect()->route('riwayat.pesanan')
+                        ->with('error', 'Anda tidak memiliki akses ke pesanan ini');
+                }
+
+                return view('order_detail', compact('order'));
+            }
+
+            throw new \Exception('Order tidak ditemukan');
+
         } catch (\Exception $e) {
             Log::error('Failed to fetch order detail', [
                 'order_id' => $id,
@@ -265,80 +247,51 @@ class OrderController extends Controller
             ]);
             
             return redirect()->route('riwayat.pesanan')
-                ->with('error', 'Gagal mengambil detail pesanan');
+                ->with('error', 'Gagal mengambil detail pesanan: ' . $e->getMessage());
         }
     }
 
     /**
-     * TAMPILKAN HALAMAN RIWAYAT PESANAN (DENGAN DATA DARI NODE.JS API)
+     * TAMPILKAN HALAMAN RIWAYAT PESANAN - Consume Node.js API
      */
     public function riwayatPesanan()
     {
-        try {
-            $userId = Auth::id();
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
 
-            // Fetch orders from Node.js API (history endpoint)
-            $response = \Illuminate\Support\Facades\Http::timeout(30)
-                ->get("http://localhost:3001/api/history/{$userId}");
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Fetch cart data from Node.js API
+            $response = Http::timeout(30)
+                ->get("{$this->nodeApiUrl}/history/{$user->id}");
 
             Log::info('Fetched orders from Node.js API', [
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'status' => $response->status()
             ]);
 
             if ($response->successful()) {
-                $result = $response->json();
+                $ordersData = $response->json('data') ?? [];
 
-                // Extract and transform orders from response
-                $ordersData = $result['data'] ?? [];
-
-                // Convert array to objects for Blade compatibility
+                // Convert to objects for Blade
                 $orders = collect($ordersData)->map(function ($order) {
-                    // Convert main order to object
-                    $orderObj = (object) $order;
-
-                    // Convert items array to Collection of objects
-                    if (isset($order['items']) && is_array($order['items'])) {
-                        $orderObj->items = collect($order['items'])->map(function ($item) {
-                            $itemObj = (object) $item;
-
-                            // Convert nested product to object if exists
-                            if (isset($item['product']) && is_array($item['product'])) {
-                                $itemObj->product = (object) $item['product'];
-                            }
-
-                            return $itemObj;
-                        });
-                    }
-
-                    // Convert alamat to object if exists
-                    if (isset($order['alamat']) && is_array($order['alamat'])) {
-                        $orderObj->alamat = (object) $order['alamat'];
-                    }
-
-                    return $orderObj;
+                    return $this->convertToObject($order);
                 });
 
                 Log::info('Loaded orders for user', [
-                    'user_id' => $userId,
+                    'user_id' => $user->id,
                     'order_count' => $orders->count()
                 ]);
 
                 return view('riwayat_pesanan', [
                     'orders' => $orders
                 ]);
-            } else {
-                Log::error('Failed to fetch orders from Node.js API', [
-                    'user_id' => $userId,
-                    'status' => $response->status(),
-                    'error' => $response->body()
-                ]);
-
-                return view('riwayat_pesanan', [
-                    'orders' => collect([]),
-                    'error' => 'Gagal memuat riwayat pesanan dari server'
-                ]);
             }
+
+            throw new \Exception('Failed to fetch orders');
 
         } catch (\Exception $e) {
             Log::error('Failed to load order history page', [
@@ -348,8 +301,90 @@ class OrderController extends Controller
 
             return view('riwayat_pesanan', [
                 'orders' => collect([]),
-                'error' => 'Gagal memuat riwayat pesanan'
+                'error' => 'Gagal memuat riwayat pesanan: ' . $e->getMessage()
             ]);
         }
+    }
+
+    /**
+     * Get order data as JSON - Consume Node.js API
+     */
+    public function getOrderData($id)
+    {
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized'
+            ], 401);
+        }
+
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Fetch from Node.js API
+            $response = Http::timeout(30)
+                ->get("{$this->nodeApiUrl}/history/order/{$id}");
+
+            if ($response->successful()) {
+                $orderData = $response->json('data');
+
+                // Verify ownership
+                if ($orderData['user_id'] != $user->id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda tidak memiliki akses ke pesanan ini'
+                    ], 403);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $orderData
+                ]);
+            }
+
+            throw new \Exception('Order tidak ditemukan');
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data order: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Helper: Convert array to object recursively
+     */
+    private function convertToObject($data)
+    {
+        if (is_array($data)) {
+            $obj = (object) $data;
+
+            // Convert items
+            if (isset($obj->items) && is_array($obj->items)) {
+                $obj->items = collect($obj->items)->map(function ($item) {
+                    $itemObj = (object) $item;
+                    if (isset($item['product']) && is_array($item['product'])) {
+                        $itemObj->product = (object) $item['product'];
+                    }
+                    return $itemObj;
+                });
+            }
+
+            // Convert alamat
+            if (isset($obj->alamat) && is_array($obj->alamat)) {
+                $obj->alamat = (object) $obj->alamat;
+            }
+
+            // Convert user if exists
+            if (isset($obj->user) && is_array($obj->user)) {
+                $obj->user = (object) $obj->user;
+            }
+
+            return $obj;
+        }
+
+        return $data;
     }
 }

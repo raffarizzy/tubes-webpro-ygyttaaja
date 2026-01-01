@@ -230,15 +230,29 @@ async function loadRiwayat() {
 
 // Helper function untuk format tanggal
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    };
-    return date.toLocaleDateString("id-ID", options);
+    // Manual parsing tanpa konversi timezone
+    const [datePart, timePart] = dateString.split(" ");
+    const [year, month, day] = datePart.split("-");
+    const [hour, minute] = timePart.split(":");
+
+    const months = [
+        "Januari",
+        "Februari",
+        "Maret",
+        "April",
+        "Mei",
+        "Juni",
+        "Juli",
+        "Agustus",
+        "September",
+        "Oktober",
+        "November",
+        "Desember",
+    ];
+
+    return `${parseInt(day)} ${
+        months[parseInt(month) - 1]
+    } ${year}, ${hour}:${minute}`;
 }
 
 // Helper function untuk format rupiah

@@ -80,10 +80,18 @@ class CheckoutController extends Controller
                 'failure_redirect_url' => route('checkout'),
             ]);
 
-            // Update order status ke paid (invoice data disimpan di session/cache jika perlu)
-            $order->update([
-                'status' => 'paid',
-            ]);
+            // ========== UBAH BAGIAN INI ==========
+            // PANGGIL NODE.JS API UNTUK UPDATE STATUS (dengan timezone WIB)
+            $nodeApiUrl = 'http://localhost:3001/api';
+            $response = \Illuminate\Support\Facades\Http::timeout(30)
+                ->put("{$nodeApiUrl}/orders/{$order->id}/status", [
+                    'status' => 'paid'
+                ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Failed to update order status via Node.js API');
+            }
+            // ========================================
             
             // OPTIONAL: Simpan invoice data ke session untuk tracking
             session([
