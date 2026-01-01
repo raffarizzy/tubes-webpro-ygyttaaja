@@ -601,21 +601,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Checkout data:", checkoutData);
 
-            // Ambil user ID dari localStorage
-            const userData = localStorage.getItem("user");
-            if (!userData) {
-                throw new Error("User tidak ditemukan. Silakan login kembali.");
-            }
-
-            const user = JSON.parse(userData);
-            const userId = user.id;
-
-            if (!userId) {
-                throw new Error("User ID tidak valid. Silakan login kembali.");
-            }
-
-            console.log("User ID:", userId);
-
             // Format data items untuk API
             const items = checkoutData.map((item) => ({
                 product_id: item.productId || item.id,
@@ -635,7 +620,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 },
                 credentials: "same-origin",
                 body: JSON.stringify({
-                    user_id: userId,
                     alamat_id: selectedAddress.id,
                     items: items,
                 }),
@@ -681,7 +665,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const paymentData = await paymentResponse.json();
-            console.log("Payment data:", paymentData);
+            console.log("💳 Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
                 // Clear checkout data dari localStorage
