@@ -81,7 +81,7 @@
                         'paid' => [
                             'class' => 'bg-success',
                             'icon' => 'check-circle',
-                            'text' => 'Lunas'
+                            'text' => 'Selesai'
                         ],
                         'cancelled' => [
                             'class' => 'bg-danger',
@@ -195,7 +195,7 @@
                         <!-- Action Buttons -->
                         <div class="mt-3 d-flex justify-content-end gap-2">
                             @if($pesanan->status === 'paid')
-                                <a href="{{ route('ratings.index') }}" class="btn btn-success btn-sm">
+                                <a href="{{ route('ratings.index') }}" class="btn btn-warning btn-sm">
                                     <i class="bi bi-star"></i> Review
                                 </a>
                             @endif
@@ -209,10 +209,6 @@
                                     </button>
                                 </form>
                             @endif
-                            
-                            <a href="{{ route('orders.detail', $pesanan->id) }}" class="btn btn-outline-primary btn-sm">
-                                <i class="bi bi-eye"></i> Detail
-                            </a>
                         </div>
                     </div>
                 </div>

@@ -1,20 +1,23 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const controller = require('../controllers/checkout.controller');
+const controller = require("../controllers/checkout.controller");
 
 // POST create order
-router.post('/', controller.createOrder);
+router.post("/", controller.createOrder);
 
 // GET order by ID
-router.get('/:orderId', controller.getOrderById);
+router.get("/:orderId", controller.getOrderById);
 
 // GET orders by user ID
-router.get('/user/:userId', controller.getOrdersByUserId);
+router.get("/user/:userId", controller.getOrdersByUserId);
 
 // PUT update order status
-router.put('/:orderId/status', controller.updateOrderStatus);
+router.put("/:orderId/status", controller.updateOrderStatus);
+
+// PUT update order alamat
+router.put("/:orderId/alamat", controller.updateOrderAlamat);
 
 // POST cancel order
-router.post('/:orderId/cancel', controller.cancelOrder);
+router.post("/:orderId/cancel", controller.cancelOrder);
 
 module.exports = router;

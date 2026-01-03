@@ -148,35 +148,13 @@
                 Pilih Metode Pembayaran
               </h6>
 
-              <div class="row g-2">
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-2 h-100" role="button">
-                    <div class="card-body p-3">
-                      <img
-                        src="img/Qris.png"
-                        alt="Visa"
-                        class="mb-2"
-                        height="24"
-                      />
-                      <p class="mb-1 fw-semibold small">**** **** **** 0817</p>
-                      <p class="text-muted mb-0" style="font-size: 0.75rem;">Expires 12-29</p>
-                    </div>
+              <!-- Payment Method Selection -->
+              <div id="paymentMethodsContainer">
+                <div class="text-center py-4">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
                   </div>
-                </div>
-
-                <div class="col-md-6 col-xl-4">
-                  <div class="card border-2 border-dashed h-100" role="button">
-                    <div
-                      class="card-body p-3 d-flex align-items-center justify-content-center text-center text-secondary"
-                    >
-                      <div>
-                        <i class="bi bi-plus-circle fs-4"></i>
-                        <p class="mt-2 mb-0 small">
-                          Tambah Metode Pembayaran
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                  <p class="text-muted mt-2 mb-0 small">Memuat metode pembayaran...</p>
                 </div>
               </div>
             </div>
@@ -211,9 +189,12 @@
           </div>
 
           <div class="d-grid gap-2 mt-3">
-            <button class="btn btn-success" id="payNowBtn">
+            <button class="btn btn-success disabled" id="payNowBtn" disabled>
               <i class="bi bi-credit-card"></i> Bayar Sekarang
             </button>
+            <small class="text-muted text-center" id="paymentHint">
+              Pilih alamat dan metode pembayaran untuk melanjutkan
+            </small>
           </div>
         </div>
       </div>
@@ -244,6 +225,36 @@
       .card-selectable:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .payment-method-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid #dee2e6;
+      }
+
+      .payment-method-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .payment-method-card.selected {
+        border-color: #198754 !important;
+      }
+
+      .payment-method-icon {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+      }
+
+      .payment-logo-container {
+        min-height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     </style>
 @endpush

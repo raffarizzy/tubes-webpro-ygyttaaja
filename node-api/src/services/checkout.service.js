@@ -51,8 +51,8 @@ exports.createOrder = async (userId, alamatId, items) => {
 
         // Create order with WIB timestamp
         const now = getWIBTimestamp();
-        console.log("WIB Timestamp yang dihasilkan:", now);
-        console.log("Waktu sekarang Date():", new Date());
+        console.log("Creating order at WIB:", now);
+
         const [orderResult] = await connection.query(
             "INSERT INTO orders (user_id, alamat_id, total_harga, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
             [userId, alamatId, totalHarga, "pending", now, now]
@@ -93,6 +93,8 @@ exports.createOrder = async (userId, alamatId, items) => {
                 "DELETE FROM barang_keranjangs WHERE keranjang_id = ?",
                 [cartId]
             );
+
+            console.log(`Cart cleared for user ${userId}`);
         }
 
         await connection.commit();
@@ -146,7 +148,8 @@ exports.getOrderById = async (orderId) => {
       oi.harga,
       oi.qty,
       oi.subtotal,
-      p.imagePath as product_image
+      p.imagePath as product_image,
+      p.deskripsi as product_deskripsi
     FROM order_items oi
     LEFT JOIN products p ON oi.product_id = p.id
     WHERE oi.order_id = ?`,
@@ -154,8 +157,25 @@ exports.getOrderById = async (orderId) => {
     );
 
     return {
-        ...order,
-        items: itemRows,
+        id: order.id,
+        user_id: order.user_id,
+        alamat_id: order.alamat_id,
+        total_harga: order.total_harga,
+        status: order.status,
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        items: itemRows.map((item) => ({
+            id: item.id,
+            product_id: item.product_id,
+            nama_produk: item.nama_produk,
+            harga: item.harga,
+            qty: item.qty,
+            subtotal: item.subtotal,
+            product: {
+                image_path: item.product_image,
+                deskripsi: item.product_deskripsi,
+            },
+        })),
         alamat: order.alamat_id
             ? {
                   nama_penerima: order.nama_penerima,
@@ -200,7 +220,8 @@ exports.getOrdersByUserId = async (userId) => {
         oi.harga,
         oi.qty,
         oi.subtotal,
-        p.imagePath as product_image
+        p.imagePath as product_image,
+        p.deskripsi as product_deskripsi
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = ?`,
@@ -208,8 +229,25 @@ exports.getOrdersByUserId = async (userId) => {
         );
 
         orders.push({
-            ...order,
-            items: itemRows,
+            id: order.id,
+            user_id: order.user_id,
+            alamat_id: order.alamat_id,
+            total_harga: order.total_harga,
+            status: order.status,
+            created_at: order.created_at,
+            updated_at: order.updated_at,
+            items: itemRows.map((item) => ({
+                id: item.id,
+                product_id: item.product_id,
+                nama_produk: item.nama_produk,
+                harga: item.harga,
+                qty: item.qty,
+                subtotal: item.subtotal,
+                product: {
+                    image_path: item.product_image,
+                    deskripsi: item.product_deskripsi,
+                },
+            })),
             alamat: order.alamat_id
                 ? {
                       nama_penerima: order.nama_penerima,
@@ -226,14 +264,11 @@ exports.getOrdersByUserId = async (userId) => {
 /**
  * Update order status
  */
-/**
- * Update order status
- */
 exports.updateOrderStatus = async (orderId, status) => {
     const connection = await db.getConnection();
 
     try {
-        // SET TIMEZONE!
+        // SET TIMEZONE
         await connection.query("SET time_zone = '+07:00'");
 
         const validStatuses = ["pending", "paid", "cancelled"];
@@ -244,13 +279,27 @@ exports.updateOrderStatus = async (orderId, status) => {
             );
         }
 
+        // Check if order exists
+        const [orderRows] = await connection.query(
+            "SELECT id, status FROM orders WHERE id = ?",
+            [orderId]
+        );
+
+        if (orderRows.length === 0) {
+            throw new Error("Order tidak ditemukan");
+        }
+
+        console.log(
+            `Updating order ${orderId} status from ${orderRows[0].status} to ${status}`
+        );
+
         const [result] = await connection.query(
             "UPDATE orders SET status = ?, updated_at = ? WHERE id = ?",
             [status, getWIBTimestamp(), orderId]
         );
 
         if (result.affectedRows === 0) {
-            throw new Error("Order tidak ditemukan");
+            throw new Error("Gagal memperbarui status order");
         }
 
         return { id: orderId, status };
@@ -258,6 +307,53 @@ exports.updateOrderStatus = async (orderId, status) => {
         connection.release();
     }
 };
+
+/**
+ * Update order alamat
+ */
+exports.updateOrderAlamat = async (orderId, alamatId) => {
+    const connection = await db.getConnection();
+
+    try {
+        await connection.query("SET time_zone = '+07:00'");
+
+        // Check if alamat exists
+        const [alamatRows] = await connection.query(
+            "SELECT id FROM alamats WHERE id = ?",
+            [alamatId]
+        );
+
+        if (alamatRows.length === 0) {
+            throw new Error("Alamat tidak ditemukan");
+        }
+
+        // Check if order exists
+        const [orderRows] = await connection.query(
+            "SELECT id FROM orders WHERE id = ?",
+            [orderId]
+        );
+
+        if (orderRows.length === 0) {
+            throw new Error("Order tidak ditemukan");
+        }
+
+        console.log(`Updating order ${orderId} alamat to ${alamatId}`);
+
+        const [result] = await connection.query(
+            "UPDATE orders SET alamat_id = ?, updated_at = ? WHERE id = ?",
+            [alamatId, getWIBTimestamp(), orderId]
+        );
+
+        if (result.affectedRows === 0) {
+            throw new Error("Gagal memperbarui alamat order");
+        }
+
+        return { id: orderId, alamat_id: alamatId };
+    } finally {
+        connection.release();
+    }
+};
+
 /**
  * Cancel order and restore stock
  */
@@ -266,14 +362,33 @@ exports.cancelOrder = async (orderId) => {
 
     try {
         await connection.query("SET time_zone = '+07:00'");
-
         await connection.beginTransaction();
+
+        // Get order to check status
+        const [orders] = await connection.query(
+            "SELECT status FROM orders WHERE id = ?",
+            [orderId]
+        );
+
+        if (orders.length === 0) {
+            throw new Error("Order tidak ditemukan");
+        }
+
+        if (orders[0].status !== "pending") {
+            throw new Error(
+                "Hanya pesanan dengan status pending yang bisa dibatalkan"
+            );
+        }
 
         // Get order items
         const [items] = await connection.query(
             "SELECT product_id, qty FROM order_items WHERE order_id = ?",
             [orderId]
         );
+
+        if (items.length === 0) {
+            throw new Error("Order items tidak ditemukan");
+        }
 
         // Restore stock
         for (const item of items) {
@@ -290,6 +405,8 @@ exports.cancelOrder = async (orderId) => {
         );
 
         await connection.commit();
+
+        console.log(`Order ${orderId} cancelled successfully`);
 
         return { id: orderId, status: "cancelled" };
     } catch (error) {

@@ -10,6 +10,7 @@ const tokoRoutes = require("./routes/toko.routes");
 const checkoutRoutes = require("./routes/checkout.routes");
 const historyRoutes = require("./routes/history.routes");
 const ratingRoutes = require("./routes/rating.routes");
+const alamatRoutes = require("./routes/alamat.routes"); // NEW
 
 const app = express();
 
@@ -48,6 +49,7 @@ app.get("/", (req, res) => {
             toko: "/api/toko",
             orders: "/api/orders",
             history: "/api/history",
+            alamat: "/api/alamat", // NEW
         },
     });
 });
@@ -65,6 +67,7 @@ app.use("/api/toko", tokoRoutes);
 app.use("/api/orders", checkoutRoutes);
 app.use("/api/history", historyRoutes);
 app.use("/api/ratings", ratingRoutes);
+app.use("/api/alamat", alamatRoutes); // NEW
 
 // =====================================================
 // 404 Handler

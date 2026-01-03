@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const checkoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
 
     const itemContainer = document.getElementById("checkoutItems");
-
     const orderPrice = document.getElementById("orderPrice");
     const orderDelivery = document.getElementById("orderDelivery");
     const orderDiscount = document.getElementById("orderDiscount");
@@ -15,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <i class="bi bi-cart-x fs-1 text-muted mb-3"></i>
           <h5 class="text-muted">Tidak ada produk untuk checkout</h5>
           <p class="text-muted">Silakan tambahkan produk ke keranjang terlebih dahulu</p>
-          <a href="keranjang.html" class="btn btn-primary mt-3">
+          <a href="/keranjang" class="btn btn-primary mt-3">
             <i class="bi bi-arrow-left"></i> Kembali ke Keranjang
           </a>
         </div>
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
 
         itemContainer.innerHTML = emptyCard;
-
         orderPrice.textContent = "Rp 0";
         orderDelivery.textContent = "Gratis";
         orderDiscount.textContent = "- Rp 0";
@@ -135,6 +133,117 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+// ============= PAYMENT METHODS MANAGEMENT =============
+document.addEventListener("DOMContentLoaded", function () {
+    const paymentMethodsContainer = document.getElementById(
+        "paymentMethodsContainer"
+    );
+
+    let selectedPaymentMethod = null;
+
+    // Available payment methods with images
+    const paymentMethods = [
+        {
+            id: "qris",
+            name: "QRIS",
+            description: "Scan & Bayar dengan QRIS",
+            image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjhvTtjN1Bj37W3jTiire9jlqgP046Je6-JPvIVEMjW6avji3kH1eC5HyUDIY8q1l6z89kidy_XZz4cX7-d_rdSentSrY94naUFcRo-NhiEvMUWmevEbQz-xRdMLUFSr61dHVvbVDq58GmxM0UAIgwnfCak8KWr0wTa0UmmjdUQTTcm2pEd3YjuHtPj9Q/s2161/Logo%20QRIS.png",
+            color: "#1a73e8",
+        },
+        {
+            id: "bank_transfer",
+            name: "BCA",
+            description: "Transfer via Virtual Account BCA",
+            image: "https://iconape.com/wp-content/png_logo_vector/bca-bank-central-asia.png",
+            color: "#003d7a",
+        },
+        {
+            id: "credit_card",
+            name: "VISA",
+            description: "Bayar dengan Kartu Kredit/Debit VISA",
+            image: "https://www.freepnglogos.com/uploads/visa-inc-png-18.png",
+            color: "#ff6b00",
+        },
+    ];
+
+    // Render payment methods
+    function renderPaymentMethods() {
+        paymentMethodsContainer.innerHTML = "";
+
+        const row = document.createElement("div");
+        row.className = "row g-3";
+
+        paymentMethods.forEach((method) => {
+            const col = document.createElement("div");
+            col.className = "col-md-4";
+
+            col.innerHTML = `
+                <div class="card payment-method-card h-100" data-method="${method.id}">
+                    <div class="card-body p-3 text-center">
+                        <div class="payment-logo-container mb-3">
+                            <img src="${method.image}" alt="${method.name}" class="payment-method-icon" 
+                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/80x80/cccccc/666666?text=${method.name}';">
+                        </div>
+                        <div>
+                            <h6 class="mb-1 fw-semibold">${method.name}</h6>
+                            <p class="mb-2 text-muted small">${method.description}</p>
+                        </div>
+                        <div class="form-check d-flex justify-content-center">
+                            <input class="form-check-input" type="radio" name="paymentMethod" id="payment-${method.id}" value="${method.id}">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            row.appendChild(col);
+        });
+
+        paymentMethodsContainer.appendChild(row);
+
+        // Add event listeners
+        document.querySelectorAll(".payment-method-card").forEach((card) => {
+            card.addEventListener("click", function () {
+                const methodId = this.dataset.method;
+                selectPaymentMethod(methodId);
+            });
+        });
+    }
+
+    // Select payment method
+    function selectPaymentMethod(methodId) {
+        // Unselect all
+        document.querySelectorAll(".payment-method-card").forEach((card) => {
+            card.classList.remove("selected");
+        });
+
+        document
+            .querySelectorAll('input[name="paymentMethod"]')
+            .forEach((radio) => {
+                radio.checked = false;
+            });
+
+        // Select the clicked one
+        const selectedCard = document.querySelector(
+            `.payment-method-card[data-method="${methodId}"]`
+        );
+        if (selectedCard) {
+            selectedCard.classList.add("selected");
+            const radio = selectedCard.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        }
+
+        selectedPaymentMethod = paymentMethods.find((m) => m.id === methodId);
+
+        console.log("Selected payment method:", selectedPaymentMethod);
+
+        // Update pay button state
+        updatePayButtonState();
+    }
+
+    // Initialize
+    renderPaymentMethods();
+});
+
 // ============= ALAMAT MANAGEMENT WITH MySQL =============
 document.addEventListener("DOMContentLoaded", function () {
     const addressContainer = document.getElementById("addressContainer");
@@ -144,7 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cancelAddBtn = document.getElementById("cancelAdd");
     const deleteAddressBtn = document.getElementById("deleteAddress");
     const payButton = document.getElementById("payNowBtn");
-    const paymentCards = document.querySelectorAll(".card[role='button']");
+    const paymentHint = document.getElementById("paymentHint");
 
     let selectedAddress = null;
     let selectedPayment = null;
@@ -187,14 +296,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
                 showNotification("Anda harus login terlebih dahulu", "warning");
 
-                // Redirect ke halaman login setelah 2 detik
                 setTimeout(() => {
                     window.location.href =
                         "/login?redirect=" +
                         encodeURIComponent(window.location.pathname);
                 }, 2000);
 
-                // Tampilkan pesan di UI
                 const loginCard = `
                     <div class="col-12">
                         <div class="alert alert-warning text-center">
@@ -226,7 +333,6 @@ document.addEventListener("DOMContentLoaded", function () {
             console.error("Error loading alamat:", error);
             showNotification(`Gagal memuat alamat: ${error.message}`, "danger");
 
-            // Tampilkan pesan error di UI
             const errorCard = `
                 <div class="col-12">
                     <div class="alert alert-danger">
@@ -268,7 +374,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const col = document.createElement("div");
         col.className = "col-md-6 col-xl-4 address-card";
 
-        // Konversi isDefault ke boolean yang benar
         const isDefaultBool =
             isDefault === 1 || isDefault === true || isDefault === "1";
 
@@ -356,11 +461,6 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("- Nama:", nama);
         console.log("- Alamat:", alamat);
         console.log("- Nomor:", nomor);
-        console.log("- Checkbox element:", isDefaultCheckbox);
-        console.log(
-            "- Checkbox checked:",
-            isDefaultCheckbox ? isDefaultCheckbox.checked : "CHECKBOX NOT FOUND"
-        );
         console.log("- isDefault final:", isDefault);
 
         if (!nama || !alamat || !nomor) {
@@ -375,11 +475,6 @@ document.addEventListener("DOMContentLoaded", function () {
             is_default: isDefault ? 1 : 0,
         };
 
-        console.log(
-            "Data yang akan dikirim:",
-            JSON.stringify(dataBaru, null, 2)
-        );
-
         try {
             saveAddressBtn.disabled = true;
             const originalText = saveAddressBtn.innerHTML;
@@ -391,12 +486,10 @@ document.addEventListener("DOMContentLoaded", function () {
             let method;
 
             if (editIndex !== null) {
-                // Update alamat
                 url = `/alamat/${editIndex}`;
                 method = "PUT";
                 console.log(`Updating alamat ID: ${editIndex}`);
             } else {
-                // Create alamat baru
                 if (alamatList.length >= 3) {
                     alert("Maksimal 3 alamat!");
                     saveAddressBtn.disabled = false;
@@ -434,7 +527,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await response.json();
             console.log("Save result:", result);
 
-            // Reset selected address agar re-render ulang
             selectedAddress = null;
 
             await loadAlamatFromDB();
@@ -519,7 +611,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
-            // Konversi dengan benar
             const isDefaultBool =
                 data.is_default === 1 ||
                 data.is_default === true ||
@@ -543,43 +634,44 @@ document.addEventListener("DOMContentLoaded", function () {
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
             defaultCheckbox.checked = false;
-        } else {
-            console.error(
-                "Checkbox defaultCheckbox tidak ditemukan saat reset!"
-            );
         }
     }
 
-    // Payment selection
-    paymentCards.forEach((card) => {
-        if (card.querySelector(".bi-plus-circle")) return;
-
-        card.addEventListener("click", () => {
-            paymentCards.forEach((c) => {
-                if (!c.querySelector(".bi-plus-circle")) {
-                    c.classList.remove("selected", "border-success");
-                }
-            });
-            card.classList.add("selected", "border-success");
-            selectedPayment = card;
-            updatePayButtonState();
-        });
-    });
-
     // Update pay button state
-    function updatePayButtonState() {
-        if (selectedAddress && selectedPayment) {
+    window.updatePayButtonState = function () {
+        const paymentSelected =
+            document.querySelector(".payment-method-card.selected") !== null;
+
+        if (selectedAddress && paymentSelected) {
             payButton.disabled = false;
             payButton.classList.remove("disabled");
+            paymentHint.textContent = "Siap untuk melanjutkan pembayaran";
+            paymentHint.classList.remove("text-muted");
+            paymentHint.classList.add("text-success");
         } else {
             payButton.disabled = true;
             payButton.classList.add("disabled");
+
+            if (!selectedAddress && !paymentSelected) {
+                paymentHint.textContent =
+                    "Pilih alamat dan metode pembayaran untuk melanjutkan";
+            } else if (!selectedAddress) {
+                paymentHint.textContent = "Pilih alamat pengiriman";
+            } else {
+                paymentHint.textContent = "Pilih metode pembayaran";
+            }
+            paymentHint.classList.remove("text-success");
+            paymentHint.classList.add("text-muted");
         }
-    }
+    };
 
     // Pay button handler
     payButton.addEventListener("click", async () => {
-        if (!selectedAddress || !selectedPayment) {
+        const paymentSelected = document.querySelector(
+            ".payment-method-card.selected"
+        );
+
+        if (!selectedAddress || !paymentSelected) {
             alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
             return;
         }
@@ -589,7 +681,6 @@ document.addEventListener("DOMContentLoaded", function () {
             '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
 
         try {
-            // Ambil data checkout dari localStorage
             const checkoutData =
                 JSON.parse(localStorage.getItem("checkoutData")) || [];
 
@@ -599,7 +690,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Checkout data:", checkoutData);
 
-            // Format data items untuk API
             const items = checkoutData.map((item) => ({
                 product_id: item.productId || item.id,
                 jumlah: item.jumlah,
@@ -634,7 +724,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const orderResult = await orderResponse.json();
             console.log("Order created:", orderResult);
 
-            // FIX: Order ID ada di orderResult.data.order.id
             if (
                 !orderResult.data ||
                 !orderResult.data.order ||
@@ -686,10 +775,8 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
-                // Clear checkout data dari localStorage
                 localStorage.removeItem("checkoutData");
 
-                // Redirect ke payment gateway
                 showNotification(
                     "Order berhasil dibuat! Mengarahkan ke pembayaran...",
                     "success"
@@ -713,6 +800,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 '<i class="bi bi-credit-card"></i> Bayar Sekarang';
         }
     });
+
+    // Show notification
     // Show notification
     function showNotification(message, type = "success") {
         const alertDiv = document.createElement("div");
