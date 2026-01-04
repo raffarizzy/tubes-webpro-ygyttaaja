@@ -802,7 +802,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Show notification
-    // Show notification
     function showNotification(message, type = "success") {
         const alertDiv = document.createElement("div");
         alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;

@@ -30,9 +30,9 @@ class OrderController extends Controller
         ]);
 
         $request->validate([
-            'alamat_id' => 'required|integer|exists:alamats,id',
+            'alamat_id' => 'required|integer',
             'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|integer|exists:products,id',
+            'items.*.product_id' => 'required|integer',
             'items.*.jumlah' => 'required|integer|min:1',
         ]);
 
