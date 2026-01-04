@@ -36,6 +36,7 @@
             src="{{ $imagePath }}"
             alt="{{ $product->nama }}"
             class="img-fluid rounded shadow mx-auto d-block"
+            style="max-width: 500px; width: 100%; height: auto; object-fit: contain;"
           />
         </div>
 
@@ -83,8 +84,25 @@
 
         <!-- Info Toko -->
         <div class="d-flex align-items-center gap-3 p-3 bg-white rounded shadow-sm my-3">
-          <div class="bg-primary text-white rounded p-3 fs-3 d-flex justify-content-center align-items-center">
-            🏪
+          @php
+            $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
+            if (!str_starts_with($tokoLogo, 'http') && !str_starts_with($tokoLogo, '/img/')) {
+              if (str_starts_with($tokoLogo, 'toko/')) {
+                $tokoLogo = '/storage/' . $tokoLogo;
+              } elseif (!str_starts_with($tokoLogo, '/storage/')) {
+                $tokoLogo = '/storage/' . $tokoLogo;
+              }
+            }
+          @endphp
+
+          <div class="flex-shrink-0">
+            <img
+              src="{{ $tokoLogo }}"
+              alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
+              class="rounded-circle border border-2 border-primary"
+              style="width: 60px; height: 60px; object-fit: cover;"
+              onerror="this.src='/img/iconPengguna.png'"
+            />
           </div>
 
           <div>
@@ -128,8 +146,7 @@
               <div class="card-body d-flex">
                 <!-- Icon -->
                 <div class="me-3 d-flex align-items-start">
-                  <!-- <i class="bi bi-person-circle fs-3 text-primary"></i> -->
-                  <img src="{{ $rating->user->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle"/>
+                  <i class="bi bi-person-circle fs-3 text-primary"></i>
                 </div>
 
                 <!-- Content -->
