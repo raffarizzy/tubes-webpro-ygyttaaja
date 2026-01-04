@@ -107,7 +107,6 @@ nav ul li a.active {
 #iconPengguna {
     width: 28px;
     height: 28px;
-    filter: brightness(0) invert(1); /* Make icon white */
 }
 
 /* User Name Display */

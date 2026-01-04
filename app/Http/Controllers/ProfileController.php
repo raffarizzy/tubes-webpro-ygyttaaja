@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
@@ -29,18 +30,46 @@ class ProfileController extends Controller
         ]);
     }
 
+    /*
+    * Update user's profile picture
+    */
+    public function update_pfp(Request $request) 
+    {
+        $request->validate([
+            'pfpPath' => 'required|image|mimes:jpg,jpeg,png'
+        ]);
 
+        $user = $request->user();
+
+         // 2. HAPUS FOTO LAMA (JIKA ADA)
+        if ($user->pfpPath && str_contains($user->pfpPath, asset('storage'))) {
+            $oldPath = str_replace(asset('storage') . '/', '', $user->pfpPath);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        // 3. SIMPAN FOTO BARU
+        $path = $request->file('pfpPath')->store('avatars', 'public');
+
+        // 4. BUAT URL UNTUK BROWSER
+        $avatarUrl = asset('storage/' . $path);
+
+        // 5. UPDATE USER
+        Http::patch("http://localhost:3001/api/profile/{$user->id}", [
+            'pfpPath' => $avatarUrl
+        ]);
+
+        // 6. RESPONSE
+        return back()->with('status', 'avatar-updated');
+    }
 
     /**
-     * Update the user's profile information.
-     */
+    * Update the user's profile information.
+    */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
 
-        /** =========================
-         * 1. UPDATE USER (BREEZE)
-         * ========================= */
+        /* 1. UPDATE USER (BREEZE) */
         $userData = $request->only([
             'name',
             'email',
@@ -56,9 +85,7 @@ class ProfileController extends Controller
 
         $user->update($userData);
 
-        /** =========================
-         * 2. UPDATE PROFILE (NODE.JS)
-         * ========================= */
+        /* 2. UPDATE PROFILE (NODE.JS) */
         Http::patch('http://localhost:3001/api/profile/'.$user->id, [
             'phone'     => $request->phone,
             'birthDate' => $request->birthDate,

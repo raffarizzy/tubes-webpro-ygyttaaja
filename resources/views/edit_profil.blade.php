@@ -54,6 +54,12 @@
         <!-- Form Profil -->
         <div class="card shadow-sm">
             <div class="card-body">
+                <p>testing
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
                 <h3 class="fw-bold">Profil Saya</h3>
                 <p class="text-muted">Kelola informasi profil Anda untuk mengontrol akun</p>
                 <hr>
