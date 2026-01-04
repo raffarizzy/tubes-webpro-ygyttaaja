@@ -29,8 +29,9 @@ class ProductController extends Controller
             abort(404, 'Product not found');
         }
 
-        // Load ratings untuk produk ini
-        $ratings = \App\Models\Rating::where('product_id', $id)
+        // Load ratings untuk produk ini dengan relasi user
+        $ratings = \App\Models\Rating::with('user')
+            ->where('product_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
 
