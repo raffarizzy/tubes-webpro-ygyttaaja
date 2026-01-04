@@ -15,83 +15,90 @@ class CheckoutController extends Controller
      * Menampilkan halaman checkout - Consume Node.js API
      */
     public function index()
-    {
-        if (!Auth::check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+{
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+    }
+
+    try {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // ✅ Fetch alamat dari Node.js API
+        $alamatResponse = Http::timeout(30)
+            ->get("{$this->nodeApiUrl}/alamat/{$user->id}");
+
+        if (!$alamatResponse->successful()) {
+            Log::warning('Failed to fetch alamat from Node.js', [
+                'status' => $alamatResponse->status()
+            ]);
+            $alamats = collect([]);
+        } else {
+            $alamats = collect($alamatResponse->json('data'));
         }
 
-        try {
-            /** @var \App\Models\User $user */
-            $user = Auth::user();
+        // Fetch cart data dari Node.js API
+        $cartResponse = Http::timeout(30)
+            ->get("{$this->nodeApiUrl}/cart/{$user->id}");
 
-            // Fetch alamat dari Laravel (karena masih di Laravel DB)
-            // Atau bisa juga dipindah ke Node.js jika mau
-            $alamats = \App\Models\Alamat::where('user_id', $user->id)
-                ->orderBy('is_default', 'desc')
-                ->get();
-
-            // Fetch cart data dari Node.js API
-            $cartResponse = Http::timeout(30)
-                ->get("{$this->nodeApiUrl}/cart/{$user->id}");
-
-            if (!$cartResponse->successful()) {
-                Log::warning('Failed to fetch cart from Node.js', [
-                    'status' => $cartResponse->status()
-                ]);
-                
-                return view('checkout', [
-                    'alamats' => $alamats,
-                    'cartItems' => collect([]),
-                    'subtotal' => 0,
-                    'deliveryFee' => 0,
-                    'discount' => 0,
-                    'total' => 0,
-                    'error' => 'Gagal memuat data keranjang'
-                ]);
-            }
-
-            $cartData = $cartResponse->json('data');
-            $cartItems = collect($cartData['items'] ?? [])->map(function ($item) {
-                return (object) [
-                    'id' => $item['id'],
-                    'product_id' => $item['product_id'],
-                    'jumlah' => $item['jumlah'],
-                    'subtotal' => $item['subtotal'],
-                    'product' => (object) [
-                        'id' => $item['product']['id'],
-                        'nama' => $item['product']['nama'],
-                        'harga' => $item['product']['harga'],
-                        'imagePath' => $item['product']['imagePath'],
-                        'deskripsi' => $item['product']['deskripsi'],
-                    ]
-                ];
-            });
-
-            // Hitung total
-            $subtotal = $cartItems->sum('subtotal');
-            $deliveryFee = 0;
-            $discount = 0;
-            $total = $subtotal + $deliveryFee - $discount;
-
-            return view('checkout', compact('alamats', 'cartItems', 'subtotal', 'deliveryFee', 'discount', 'total'));
-
-        } catch (\Exception $e) {
-            Log::error('Failed to load checkout page', [
-                'user_id' => Auth::id(),
-                'error' => $e->getMessage()
+        if (!$cartResponse->successful()) {
+            Log::warning('Failed to fetch cart from Node.js', [
+                'status' => $cartResponse->status()
             ]);
-
+            
             return view('checkout', [
-                'alamats' => collect([]),
+                'alamats' => $alamats,
                 'cartItems' => collect([]),
                 'subtotal' => 0,
                 'deliveryFee' => 0,
                 'discount' => 0,
                 'total' => 0,
-                'error' => 'Gagal memuat halaman checkout: ' . $e->getMessage()
+                'error' => 'Gagal memuat data keranjang'
             ]);
         }
+
+        $cartData = $cartResponse->json('data');
+        $cartItems = collect($cartData['items'] ?? [])->map(function ($item) {
+            return (object) [
+                'id' => $item['id'],
+                'product_id' => $item['product_id'],
+                'jumlah' => $item['jumlah'],
+                'subtotal' => $item['subtotal'],
+                'product' => (object) [
+                    'id' => $item['product']['id'],
+                    'nama' => $item['product']['nama'],
+                    'harga' => $item['product']['harga'],
+                    'imagePath' => $item['product']['imagePath'],
+                    'deskripsi' => $item['product']['deskripsi'],
+                ]
+            ];
+        });
+
+        // Hitung total
+        $subtotal = $cartItems->sum('subtotal');
+        $deliveryFee = 0;
+        $discount = 0;
+        $total = $subtotal + $deliveryFee - $discount;
+
+        return view('checkout', compact('alamats', 'cartItems', 'subtotal', 'deliveryFee', 'discount', 'total'));
+
+    } catch (\Exception $e) {
+        Log::error('Failed to load checkout page', [
+            'user_id' => Auth::id(),
+            'error' => $e->getMessage()
+        ]);
+
+        return view('checkout', [
+            'alamats' => collect([]),
+            'cartItems' => collect([]),
+            'subtotal' => 0,
+            'deliveryFee' => 0,
+            'discount' => 0,
+            'total' => 0,
+            'error' => 'Gagal memuat halaman checkout: ' . $e->getMessage()
+        ]);
     }
+}
 
     /**
      * Proses pembayaran dengan Xendit - Consume Node.js API
