@@ -50,31 +50,41 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         div.innerHTML = `
             <!-- Product Image -->
-            <img src="http://localhost:8000/storage/${item.product.imagePath || '/img/placeholder.png'}"
+            <img src="http://localhost:8000/storage/${
+                item.product.imagePath || "/img/placeholder.png"
+            }"
                  alt="${item.product.nama}"
                  onerror="this.onerror=null; this.src='/img/placeholder.png';">
 
             <!-- Product Info -->
             <div class="info-produk">
                 <h3>${item.product.nama}</h3>
-                <p class="deskripsi">${item.product.deskripsi || ''}</p>
+                <p class="deskripsi">${item.product.deskripsi || ""}</p>
                 <p class="harga">${formatRupiah(item.harga)}</p>
             </div>
 
             <!-- Quantity Controls -->
             <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
                 <div class="kuantitas">
-                    <button class="btn-minus btn-decrease" data-item-id="${item.id}">-</button>
+                    <button class="btn-minus btn-decrease" data-item-id="${
+                        item.id
+                    }">-</button>
                     <input type="text" value="${item.jumlah}" readonly>
-                    <button class="btn-plus btn-increase" data-item-id="${item.id}" data-max-stock="${item.product.stok}">+</button>
+                    <button class="btn-plus btn-increase" data-item-id="${
+                        item.id
+                    }" data-max-stock="${item.product.stok}">+</button>
                 </div>
                 <p style="margin: 0; font-size: 0.85em; color: #5f6368;">
-                    Subtotal: <strong style="color: #1e8e3e;">${formatRupiah(subtotal)}</strong>
+                    Subtotal: <strong style="color: #1e8e3e;">${formatRupiah(
+                        subtotal
+                    )}</strong>
                 </p>
             </div>
 
             <!-- Remove Button -->
-            <button class="btn-hapus btn-remove" data-item-id="${item.id}">Hapus</button>
+            <button class="btn-hapus btn-remove" data-item-id="${
+                item.id
+            }">Hapus</button>
         `;
 
         // Add event listeners
@@ -82,28 +92,45 @@ document.addEventListener("DOMContentLoaded", async () => {
         const btnIncrease = div.querySelector(".btn-increase");
         const btnRemove = div.querySelector(".btn-remove");
 
-        btnDecrease.addEventListener("click", () => handleDecreaseQuantity(item.id, item.jumlah));
-        btnIncrease.addEventListener("click", () => handleIncreaseQuantity(item.id, item.jumlah, item.product.stok));
-        btnRemove.addEventListener("click", () => handleRemoveItem(item.id, item.product.nama));
+        btnDecrease.addEventListener("click", () =>
+            handleDecreaseQuantity(item.id, item.jumlah)
+        );
+        btnIncrease.addEventListener("click", () =>
+            handleIncreaseQuantity(item.id, item.jumlah, item.product.stok)
+        );
+        btnRemove.addEventListener("click", () =>
+            handleRemoveItem(item.id, item.product.nama)
+        );
 
         return div;
     }
 
     function updateSummary() {
-        const totalItems = cartItems.reduce((sum, item) => sum + item.jumlah, 0);
-        const totalHarga = cartItems.reduce((sum, item) => sum + (item.harga * item.jumlah), 0);
+        const totalItems = cartItems.reduce(
+            (sum, item) => sum + item.jumlah,
+            0
+        );
+        const totalHarga = cartItems.reduce(
+            (sum, item) => sum + item.harga * item.jumlah,
+            0
+        );
 
         totalItemEl.textContent = totalItems;
         totalHargaEl.textContent = formatRupiah(totalHarga);
 
-        console.log(`Summary: ${totalItems} items, ${formatRupiah(totalHarga)}`);
+        console.log(
+            `Summary: ${totalItems} items, ${formatRupiah(totalHarga)}`
+        );
     }
 
     // EVENT HANDLERS
 
     async function handleDecreaseQuantity(itemId, currentQty) {
         if (currentQty <= 1) {
-            showNotification("Jumlah minimal adalah 1. Gunakan tombol Hapus untuk menghapus item.", "warning");
+            showNotification(
+                "Jumlah minimal adalah 1. Gunakan tombol Hapus untuk menghapus item.",
+                "warning"
+            );
             return;
         }
 
@@ -112,7 +139,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     async function handleIncreaseQuantity(itemId, currentQty, maxStock) {
         if (currentQty >= maxStock) {
-            showNotification(`Stok maksimal adalah ${maxStock} item`, 'warning');
+            showNotification(
+                `Stok maksimal adalah ${maxStock} item`,
+                "warning"
+            );
             return;
         }
 
@@ -132,82 +162,93 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function updateItemQuantity(itemId, newQty) {
         try {
             const response = await fetch(`/keranjang/item/${itemId}`, {
-                method: 'PUT',
+                method: "PUT",
                 headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json'
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                    Accept: "application/json",
                 },
-                body: JSON.stringify({ jumlah: newQty })
+                body: JSON.stringify({ jumlah: newQty }),
             });
 
             const result = await response.json();
 
             if (result.success) {
-                console.log('Quantity updated');
-                showNotification('Jumlah berhasil diperbarui', 'success');
+                console.log("Quantity updated");
+                showNotification("Jumlah berhasil diperbarui", "success");
                 // Reload page to get fresh data
                 window.location.reload();
             } else {
                 throw new Error(result.message);
             }
         } catch (error) {
-            console.error('Error updating quantity:', error);
-            showNotification('Gagal memperbarui jumlah', 'error');
+            console.error("Error updating quantity:", error);
+            showNotification("Gagal memperbarui jumlah", "error");
         }
     }
 
     async function removeItem(itemId) {
         try {
             const response = await fetch(`/keranjang/item/${itemId}`, {
-                method: 'DELETE',
+                method: "DELETE",
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-                    'Accept': 'application/json'
-                }
+                    "X-CSRF-TOKEN":
+                        document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content") || "",
+                    Accept: "application/json",
+                },
             });
 
             const result = await response.json();
 
             if (result.success) {
-                console.log('Item removed');
-                showNotification(result.message, 'success');
+                console.log("Item removed");
+                showNotification(result.message, "success");
                 // Reload page to get fresh data
                 window.location.reload();
             } else {
                 throw new Error(result.message);
             }
         } catch (error) {
-            console.error('Error removing item:', error);
-            showNotification('Gagal menghapus item', 'error');
+            console.error("Error removing item:", error);
+            showNotification("Gagal menghapus item", "error");
         }
     }
 
     // UTILITY FUNCTIONS
 
     function formatRupiah(amount) {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
+        return new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
         }).format(amount);
     }
 
-    function showNotification(message, type = 'success') {
+    function showNotification(message, type = "success") {
         // Remove existing notification
-        const existingNotif = document.querySelector('.notification-toast');
+        const existingNotif = document.querySelector(".notification-toast");
         if (existingNotif) {
             existingNotif.remove();
         }
 
-        const notification = document.createElement('div');
-        notification.className = 'notification-toast';
+        const notification = document.createElement("div");
+        notification.className = "notification-toast";
 
-        const bgColor = type === 'success' ? '#28a745' :
-                        type === 'warning' ? '#ffc107' :
-                        type === 'error' ? '#dc3545' : '#17a2b8';
+        const bgColor =
+            type === "success"
+                ? "#28a745"
+                : type === "warning"
+                ? "#ffc107"
+                : type === "error"
+                ? "#dc3545"
+                : "#17a2b8";
 
-        const textColor = type === 'warning' ? '#000' : '#fff';
+        const textColor = type === "warning" ? "#000" : "#fff";
 
         notification.style.cssText = `
             position: fixed;
@@ -226,9 +267,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         notification.textContent = message;
 
         // Add animation styles if not exists
-        if (!document.getElementById('notification-styles')) {
-            const style = document.createElement('style');
-            style.id = 'notification-styles';
+        if (!document.getElementById("notification-styles")) {
+            const style = document.createElement("style");
+            style.id = "notification-styles";
             style.textContent = `
                 @keyframes slideIn {
                     from { transform: translateX(400px); opacity: 0; }
@@ -245,7 +286,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.body.appendChild(notification);
 
         setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-out';
+            notification.style.animation = "slideOut 0.3s ease-out";
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.remove();
@@ -256,14 +297,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // CHECKOUT BUTTON
 
-    btnCheckout.addEventListener('click', () => {
+    btnCheckout.addEventListener("click", () => {
         if (cartItems.length === 0) {
-            showNotification('Keranjang Anda kosong!', 'warning');
+            showNotification("Keranjang Anda kosong!", "warning");
             return;
         }
 
         // Prepare checkout data from cart items
-        const checkoutData = cartItems.map(item => ({
+        const checkoutData = cartItems.map((item) => ({
             id: item.product_id,
             productId: item.product_id,
             nama: item.product.nama,
@@ -271,15 +312,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             hargaAsli: item.harga,
             diskon: 0,
             jumlah: item.jumlah,
-            imagePath: item.product.imagePath,
-            deskripsi: item.product.deskripsi
+            imagePath: `/storage/${item.product.imagePath}`, // ✅ Tambahkan /storage/
+            deskripsi: item.product.deskripsi,
         }));
 
         // Save to localStorage for checkout page
-        localStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+        localStorage.setItem("checkoutData", JSON.stringify(checkoutData));
 
         // Redirect to checkout page
-        window.location.href = '/checkout';
+        window.location.href = "/checkout";
     });
 
     // INITIALIZE
