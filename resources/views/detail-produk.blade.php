@@ -146,7 +146,7 @@
               <div class="card-body d-flex">
                 <!-- Icon -->
                 <div class="me-3 d-flex align-items-start">
-                  <i class="bi bi-person-circle fs-3 text-primary"></i>
+                  <img src="{{ $rating->user->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle"/>
                 </div>
 
                 <!-- Content -->
