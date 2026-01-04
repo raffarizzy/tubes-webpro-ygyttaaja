@@ -23,7 +23,7 @@
     @stack('styles')
 </head>
 
-<body class="@yield('body-class')">
+<body class="@yield('body-class') d-flex flex-column min-vh-100">
     <!-- NAVBAR -->
     <nav>
         <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo SpareHub" style="cursor:pointer"
@@ -71,7 +71,7 @@
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main>
+    <main class="flex-fill">
         @yield('content')
     </main>
 

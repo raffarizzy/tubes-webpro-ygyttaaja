@@ -113,13 +113,13 @@
             <a href="{{ route('register') }}">Daftar</a>
         </p>
 
-        @if (Route::has('password.request'))
+        <!-- @if (Route::has('password.request'))
             <p>
                 <a href="{{ route('password.request') }}">
                     Lupa password?
                 </a>
             </p>
-        @endif
+        @endif -->
     </div>
 </div>
 

@@ -240,3 +240,11 @@ nav ul li a.active {
         content: "...";
     }
 }
+
+footer {
+    background-color: #122C4F;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 40px;
+}
