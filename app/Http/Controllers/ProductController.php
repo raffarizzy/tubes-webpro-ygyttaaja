@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -22,23 +23,76 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        // Load produk dari database dengan relasi toko
-        $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+        try {
+            // Ambil produk dari Node.js API
+            $response = Http::timeout(5)->get("http://localhost:3001/api/products/{$id}");
 
-        if (!$product) {
-            abort(404, 'Product not found');
+            if (!$response->successful()) {
+                // Fallback ke Eloquent kalo API gagal
+                Log::warning("Node.js API failed, fallback to Eloquent for product {$id}");
+                $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+            } else {
+                $productData = $response->json('data');
+                
+                if (!$productData) {
+                    abort(404, 'Product not found');
+                }
+
+                // Convert to object
+                $product = (object) $productData;
+                
+                // Reconstruct toko & category as objects
+                if (isset($product->nama_toko)) {
+                    $product->toko = (object) [
+                        'nama_toko' => $product->nama_toko,
+                        'lokasi' => $product->toko_lokasi ?? null,
+                        'logo_path' => $product->toko_logo ?? null,
+                    ];
+                }
+                
+                if (isset($product->category_nama)) {
+                    $product->category = (object) [
+                        'id' => $product->category_id,
+                        'judulKategori' => $product->category_nama,
+                    ];
+                }
+            }
+
+            if (!$product) {
+                abort(404, 'Product not found');
+            }
+
+            // Rating pake Eloquent
+            $ratings = \App\Models\Rating::with('user')
+                ->where('product_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $avgRating = $ratings->avg('rating') ?? 0;
+            $ratingCount = $ratings->count();
+
+            return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
+
+        } catch (\Exception $e) {
+            Log::error("Error in ProductController@show: " . $e->getMessage());
+            
+            // Fallback ke Eloquent
+            $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+            
+            if (!$product) {
+                abort(404, 'Product not found');
+            }
+
+            $ratings = \App\Models\Rating::with('user')
+                ->where('product_id', $id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $avgRating = $ratings->avg('rating') ?? 0;
+            $ratingCount = $ratings->count();
+
+            return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
         }
-
-        // Load ratings untuk produk ini
-        $ratings = \App\Models\Rating::where('product_id', $id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Hitung rata-rata rating
-        $avgRating = $ratings->avg('rating') ?? 0;
-        $ratingCount = $ratings->count();
-
-        return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
     }
 
     /**
