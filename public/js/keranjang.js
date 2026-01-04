@@ -49,53 +49,32 @@ document.addEventListener("DOMContentLoaded", async () => {
         const subtotal = item.harga * item.jumlah;
 
         div.innerHTML = `
-            <div style="display: flex; gap: 20px; padding: 20px; background: white; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <!-- Product Image -->
-                <div style="width: 100px; height: 100px; flex-shrink: 0;">
-                    <img src="http://localhost:8000/storage/${item.product.imagePath || '/img/placeholder.png'}"
-                         alt="${item.product.nama}"
-                         style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;"
-                         onerror="this.onerror=null; this.src='/img/placeholder.png';">
-                </div>
+            <!-- Product Image -->
+            <img src="http://localhost:8000/storage/${item.product.imagePath || '/img/placeholder.png'}"
+                 alt="${item.product.nama}"
+                 onerror="this.onerror=null; this.src='/img/placeholder.png';">
 
-                <!-- Product Info -->
-                <div style="flex: 1;">
-                    <h4 style="margin: 0 0 8px 0; font-size: 16px;">${item.product.nama}</h4>
-                    <p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">${item.product.deskripsi || ''}</p>
-                    <p style="margin: 0; font-weight: bold; color: #007bff;">
-                        ${formatRupiah(item.harga)}
-                    </p>
-                </div>
-
-                <!-- Quantity Controls -->
-                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <button class="btn-decrease" data-item-id="${item.id}"
-                                style="width: 30px; height: 30px; border: 1px solid #007bff; background: white; color: #007bff; cursor: pointer; border-radius: 4px; font-weight: bold;">
-                            -
-                        </button>
-                        <span class="quantity-display" style="min-width: 40px; text-align: center; font-weight: bold;">
-                            ${item.jumlah}
-                        </span>
-                        <button class="btn-increase" data-item-id="${item.id}"
-                                data-max-stock="${item.product.stok}"
-                                style="width: 30px; height: 30px; border: 1px solid #007bff; background: white; color: #007bff; cursor: pointer; border-radius: 4px; font-weight: bold;">
-                            +
-                        </button>
-                    </div>
-                    <p style="margin: 0; font-size: 14px; color: #666;">
-                        Subtotal: <strong>${formatRupiah(subtotal)}</strong>
-                    </p>
-                </div>
-
-                <!-- Remove Button -->
-                <div style="display: flex; align-items: center;">
-                    <button class="btn-remove" data-item-id="${item.id}"
-                            style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
-                        Hapus
-                    </button>
-                </div>
+            <!-- Product Info -->
+            <div class="info-produk">
+                <h3>${item.product.nama}</h3>
+                <p class="deskripsi">${item.product.deskripsi || ''}</p>
+                <p class="harga">${formatRupiah(item.harga)}</p>
             </div>
+
+            <!-- Quantity Controls -->
+            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+                <div class="kuantitas">
+                    <button class="btn-minus btn-decrease" data-item-id="${item.id}">-</button>
+                    <input type="text" value="${item.jumlah}" readonly>
+                    <button class="btn-plus btn-increase" data-item-id="${item.id}" data-max-stock="${item.product.stok}">+</button>
+                </div>
+                <p style="margin: 0; font-size: 0.85em; color: #5f6368;">
+                    Subtotal: <strong style="color: #1e8e3e;">${formatRupiah(subtotal)}</strong>
+                </p>
+            </div>
+
+            <!-- Remove Button -->
+            <button class="btn-hapus btn-remove" data-item-id="${item.id}">Hapus</button>
         `;
 
         // Add event listeners
