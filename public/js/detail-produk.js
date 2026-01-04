@@ -6,7 +6,6 @@ let currentProduct = null;
 
 // INITIALIZATION
 
-
 document.addEventListener("DOMContentLoaded", () => {
     // Get product data from window (set by Laravel)
     currentProduct = window.PRODUCT_DATA;
@@ -141,7 +140,7 @@ async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
             return false;
         }
 
-        // Call backend API to add to cart
+        // backend API to add to cart
         const response = await fetch('/keranjang/item', {
             method: 'POST',
             headers: {
@@ -181,7 +180,6 @@ async function tambahKeKeranjang(userId, produkId, jumlahTambahan) {
 }
 
 // UTILITY FUNCTIONS
-
 // Format angka menjadi format mata uang Rupiah
 function formatRupiah(amount) {
     return new Intl.NumberFormat("id-ID", {
