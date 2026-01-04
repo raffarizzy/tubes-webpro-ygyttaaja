@@ -43,7 +43,7 @@
             <li>
                 <div id="profil">
                     @auth
-                        <img src="{{ auth()->user()->pfpPath }}" id="iconPengguna" alt="User Icon" />
+                        <img src="{{ auth()->user()->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle"/>
 
                         <a href="{{ route('profile.edit') }}" class="user-name-link">
                             <span class="user-name">
@@ -61,8 +61,6 @@
                             </button>
                         </form>
                     @else
-                        <img src="https://i.ibb.co.com/RkZ105G9/default-avatar.png" id="iconPengguna" alt="User Icon" />
-
                         <a href="{{ route('login') }}" class="login-link">
                             Login
                         </a>
