@@ -24,7 +24,7 @@ class CheckoutController extends Controller
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        // ✅ Fetch alamat dari Node.js API
+        // Fetch alamat dari Node.js API
         $alamatResponse = Http::timeout(30)
             ->get("{$this->nodeApiUrl}/alamat/{$user->id}");
 
