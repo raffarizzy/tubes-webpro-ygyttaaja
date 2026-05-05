@@ -95,9 +95,9 @@ body {
 }
 
 .card-produk img {
-    width: 50%;
+    width: 100%;
     height: 200px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 10px;
     margin-bottom: 15px;
 }
@@ -162,17 +162,23 @@ footer {
 }
 
 /* Responsive */
+@media (max-width: 992px) {
+    #produk-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
 @media (max-width: 768px) {
     .hero h1 {
         font-size: 28px;
     }
-    
+
     .hero p {
         font-size: 16px;
     }
-    
-    .produk-container {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+
+    #produk-container {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
     }
 }

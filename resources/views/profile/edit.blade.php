@@ -3,6 +3,25 @@
 @section('title', 'Profil Pengguna - SpareHub')
 
 @section('content')
+
+{{-- SUCCESS --}}
+@if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+{{-- ERROR --}}
+@if ($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="container my-5">
 
 {{-- RIWAYAT PESANAN --}}
@@ -147,17 +166,50 @@
 
         {{-- UBAH PASSWORD --}}
         <h5 class="fw-bold mb-3">Ubah Password</h5>
+        
+        {{-- PASSWORD SAAT INI --}}
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Password Saat Ini</label>
+            <input
+                type="password"
+                name="current_password"
+                class="form-control @error('current_password') is-invalid @enderror"
+                placeholder="Masukkan password saat ini"
+            >
+
+            @error('current_password')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
 
         {{-- PASSWORD BARU --}}
         <div class="col-md-6 mb-3">
             <label class="form-label">Password Baru</label>
-            <input type="password" name="password" class="form-control">
+            <input
+                type="password"
+                name="password"
+                class="form-control @error('password') is-invalid @enderror"
+                placeholder="Minimal 8 karakter"
+            >
+
+            @error('password')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
 
         {{-- KONFIRMASI PASSWORD --}}
         <div class="col-md-6 mb-3">
-            <label class="form-label">Konfirmasi Password</label>
-            <input type="password" name="password_confirmation" class="form-control">
+            <label class="form-label">Konfirmasi Password Baru</label>
+            <input
+                type="password"
+                name="password_confirmation"
+                class="form-control"
+                placeholder="Ulangi password baru"
+            >
         </div>
 
         {{-- SUBMIT --}}
@@ -169,29 +221,6 @@
 
     </form>
 
-</div>
-
-
-<hr class="my-4">
-
-<h5 class="fw-bold mb-3">Ubah Password</h5>
-
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Password Baru</label>
-        <input type="password" name="password" class="form-control">
-    </div>
-
-    <div class="col-md-6 mb-3">
-        <label class="form-label">Konfirmasi Password</label>
-        <input type="password" name="password_confirmation" class="form-control">
-    </div>
-</div>
-
-<div class="text-end mt-4">
-    <button class="btn text-white bg-sparehub px-4">
-        Simpan Perubahan
-    </button>
 </div>
 
 <button type="button" class="btn btn-outline-secondary me-2" onclick="testData()" hidden>

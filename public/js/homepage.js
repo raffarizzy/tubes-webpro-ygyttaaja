@@ -1,18 +1,16 @@
 // ============================================
 // CONFIGURATION
-// ============================================
 
-const API_BASE_URL = "http://localhost:8000/api"; // Sesuaikan dengan URL Laravel Anda
+const API_BASE_URL = "http://localhost:8000/api"; 
 
 // ============================================
 // DATA MANAGEMENT
-// ============================================
 
 let produkData = [];
 let filteredProdukData = [];
 let keranjangData = [];
 let currentPage = 1;
-const itemsPerPage = 9;
+const itemsPerPage = 12;
 
 // Filter state
 let filterState = {
@@ -52,7 +50,6 @@ async function loadData() {
 
 // ============================================
 // FILTER & SEARCH
-// ============================================
 
 function applyFilters() {
     filteredProdukData = produkData.filter((produk) => {
@@ -100,7 +97,6 @@ function updateResultsInfo() {
 
 // ============================================
 // RENDER PRODUK WITH PAGINATION
-// ============================================
 
 function renderProduk() {
     const container = document.getElementById("produk-container");
@@ -118,7 +114,7 @@ function renderProduk() {
     // Set container style
     container.style.cssText = `
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 30px;
         max-width: 1200px;
         margin: 0 auto;
@@ -179,10 +175,8 @@ function createProductCard(produk) {
 
     return card;
 }
-
 // ============================================
 // PAGINATION
-// ============================================
 
 function renderPagination(totalPages) {
     const paginationEl = document.getElementById("pagination");
@@ -298,9 +292,7 @@ function formatRupiah(amount) {
     }).format(amount);
 }
 
-// ============================================
 // CART COUNTER
-// ============================================
 
 // Update cart count from Laravel API
 async function updateCartCount() {
@@ -336,9 +328,9 @@ async function updateCartCount() {
     }
 }
 
-// Legacy function kept for compatibility - now calls Laravel API version
+// Legacy function kept for compatibility
 function updateCartCountLegacy() {
-    const userId = 1; // Hardcode untuk sekarang
+    const userId = 1; 
     const userCart = keranjangData.filter((item) => item.userId === userId);
     const totalItems = userCart.reduce((sum, item) => sum + item.jumlah, 0);
 
@@ -353,9 +345,7 @@ function updateCartCountLegacy() {
     }
 }
 
-// ============================================
 // EVENT LISTENERS
-// ============================================
 
 function initEventListeners() {
     // Hero button
@@ -422,18 +412,15 @@ function initEventListeners() {
     }
 }
 
-// ============================================
-// INITIALIZE
-// ============================================
 
+// INITIALIZE
 document.addEventListener("DOMContentLoaded", () => {
     loadData();
     initEventListeners();
 });
 
-// ============================================
+
 // GLOBAL DEBUG FUNCTIONS
-// ============================================
 
 window.resetCart = function () {
     localStorage.removeItem("keranjangData");
