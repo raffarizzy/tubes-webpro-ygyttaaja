@@ -81,7 +81,7 @@ export default function HomePage() {
             <input
               type="number"
               value={priceMin}
-              onChange={(e) => setPriceMin(e.target.value)}
+              onChange={(e) => { setPriceMin(e.target.value); setCurrentPage(1); }}
               placeholder="Rp 0"
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
             />
@@ -91,7 +91,7 @@ export default function HomePage() {
             <input
               type="number"
               value={priceMax}
-              onChange={(e) => setPriceMax(e.target.value)}
+              onChange={(e) => { setPriceMax(e.target.value); setCurrentPage(1); }}
               placeholder="Rp ∞"
               className="w-full px-4 py-2 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
             />
@@ -144,7 +144,10 @@ export default function HomePage() {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => {
+                      setCurrentPage(page);
+                      document.getElementById('produk-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
                     className={`w-9 h-9 rounded-full font-medium transition ${
                       page === currentPage
                         ? 'bg-blue-600 text-white'
