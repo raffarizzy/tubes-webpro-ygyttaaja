@@ -45,6 +45,8 @@ export default function DetailProdukPage() {
     if (success !== false) {
       showToast(`${quantity} ${produk.nama} berhasil ditambahkan ke keranjang!`, 'success');
       setQuantity(1);
+    } else {
+      showToast('Stok tidak cukup untuk ditambahkan ke keranjang', 'warning');
     }
   }
 
@@ -77,8 +79,9 @@ export default function DetailProdukPage() {
     );
   }
 
+  const diskonPersen = produk.diskon < 1 ? Math.round(produk.diskon * 100) : produk.diskon;
   const hargaDiskon = produk.diskon > 0
-    ? produk.harga - (produk.harga * (produk.diskon < 1 ? produk.diskon : produk.diskon / 100))
+    ? Math.round(produk.harga * (1 - diskonPersen / 100))
     : produk.harga;
 
   return (
@@ -109,7 +112,7 @@ export default function DetailProdukPage() {
               <>
                 <span className="text-gray-400 line-through text-base">{formatRupiah(produk.harga)}</span>
                 <span className="bg-red-100 text-red-600 text-sm font-semibold px-2 py-0.5 rounded">
-                  -{produk.diskon < 1 ? Math.round(produk.diskon * 100) : produk.diskon}%
+                  -{diskonPersen}%
                 </span>
               </>
             )}
