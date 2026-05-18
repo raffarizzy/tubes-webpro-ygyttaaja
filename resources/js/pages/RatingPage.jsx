@@ -41,6 +41,9 @@ export default function RatingPage() {
     const updated = ratingList.filter((r) => r.id !== id);
     setRatingList(updated);
     localStorage.setItem('ratingList', JSON.stringify(updated));
+    const pesanan = JSON.parse(localStorage.getItem('pesananList')) || [];
+    const unik = [...new Map(pesanan.map((p) => [p.produkId, p])).values()];
+    setProdukList(unik.filter((p) => !updated.some((r) => r.produkId === p.produkId)));
     showToast('Rating dihapus', 'info');
   }
 
