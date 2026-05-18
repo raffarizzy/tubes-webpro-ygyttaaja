@@ -13,7 +13,13 @@ export default function KeranjangPage() {
   const userId = user?.id || 1;
   const keranjangUser = items.filter((i) => i.userId === userId);
 
-  const totalHarga = keranjangUser.reduce((sum, i) => sum + i.harga * i.jumlah, 0);
+  function getHargaEfektif(item) {
+    if (!item.diskon) return item.harga;
+    const diskonPersen = item.diskon < 1 ? Math.round(item.diskon * 100) : item.diskon;
+    return Math.round(item.harga * (1 - diskonPersen / 100));
+  }
+
+  const totalHarga = keranjangUser.reduce((sum, i) => sum + getHargaEfektif(i) * i.jumlah, 0);
   const totalItem = keranjangUser.reduce((sum, i) => sum + i.jumlah, 0);
 
   function handleMinus(item) {
@@ -36,13 +42,9 @@ export default function KeranjangPage() {
   }
 
   function handleCheckout() {
-    if (keranjangUser.length === 0) {
-      showToast('Keranjang kosong!', 'warning');
-      return;
-    }
     const checkoutData = keranjangUser.map((item) => ({
       nama: item.nama,
-      harga: item.harga,
+      harga: getHargaEfektif(item),
       hargaAsli: item.hargaAsli || item.harga,
       diskon: item.diskon || 0,
       jumlah: item.jumlah,
@@ -82,9 +84,12 @@ export default function KeranjangPage() {
             />
             <div className="flex-1">
               <h3 className="font-semibold text-gray-800">{item.nama}</h3>
-              <p className="text-blue-600 font-bold">{formatRupiah(item.harga)}</p>
+              <p className="text-blue-600 font-bold">{formatRupiah(getHargaEfektif(item))}</p>
+              {item.diskon > 0 && (
+                <p className="text-xs text-gray-400 line-through">{formatRupiah(item.harga)}</p>
+              )}
               <p className="text-sm text-gray-500">
-                Subtotal: <strong>{formatRupiah(item.harga * item.jumlah)}</strong>
+                Subtotal: <strong>{formatRupiah(getHargaEfektif(item) * item.jumlah)}</strong>
               </p>
             </div>
             <div className="flex items-center gap-2">
