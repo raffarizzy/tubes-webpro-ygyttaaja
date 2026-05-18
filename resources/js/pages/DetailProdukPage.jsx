@@ -109,7 +109,7 @@ export default function DetailProdukPage() {
               <>
                 <span className="text-gray-400 line-through text-base">{formatRupiah(produk.harga)}</span>
                 <span className="bg-red-100 text-red-600 text-sm font-semibold px-2 py-0.5 rounded">
-                  -{produk.diskon}%
+                  -{produk.diskon < 1 ? Math.round(produk.diskon * 100) : produk.diskon}%
                 </span>
               </>
             )}
