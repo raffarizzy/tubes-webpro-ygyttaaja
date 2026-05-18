@@ -50,13 +50,13 @@ export default function Navbar() {
           </li>
 
           <li className="flex items-center gap-2">
-            <img
-              src={user?.pfpPath || 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'}
-              alt="User"
-              className="w-8 h-8 rounded-full object-cover"
-            />
             {isAuthenticated ? (
               <>
+                <img
+                  src={user?.pfpPath || 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'}
+                  alt="User"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
                 <Link to="/profil" className="text-gray-700 hover:text-blue-600 font-medium">
                   {user?.name}
                 </Link>
