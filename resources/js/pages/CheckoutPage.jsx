@@ -68,6 +68,7 @@ export default function CheckoutPage() {
     setShowForm(false);
     setEditIndex(null);
     if (selectedAlamat === editIndex) setSelectedAlamat(null);
+    else if (selectedAlamat > editIndex) setSelectedAlamat(selectedAlamat - 1);
     showToast('Alamat dihapus', 'info');
   }
 
@@ -79,9 +80,12 @@ export default function CheckoutPage() {
     setLoading(true);
     try {
       const res = await api.post('/checkout/pay', { total: totals.final });
+      const invoiceUrl = res.data?.invoice_url;
+      if (!invoiceUrl) throw new Error('Invoice URL tidak tersedia');
       clearCart(user?.id || 1);
+      localStorage.removeItem('keranjangData');
       localStorage.removeItem('checkoutData');
-      window.location.href = res.data.invoice_url;
+      window.location.href = invoiceUrl;
     } catch {
       showToast('Gagal memproses pembayaran', 'error');
       setLoading(false);
@@ -180,7 +184,7 @@ export default function CheckoutPage() {
                       Hapus
                     </button>
                   )}
-                  <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300">
+                  <button onClick={() => { setShowForm(false); setEditIndex(null); setFormData({ nama: '', alamat: '', nomor: '' }); }} className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300">
                     Batal
                   </button>
                 </div>
