@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  laravel-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ".:/var/www/html"
+
+  react-frontend:
+    image: node:24-alpine
+    working_dir: /var/www/html
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/var/www/html
+    command: sh -c "npm install && npm run dev -- --host"
+
+  node-api:
+    build:
+      context: ./node-api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./node-api:/app
+      - node_api_modules:/app/node_modules
+
+  mysql-db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: iniabadi
+      MYSQL_DATABASE: tubes_webpro
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+  node_api_modules:

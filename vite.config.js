@@ -10,4 +10,13 @@ export default defineConfig({
         }),
         react(),
     ],
+    server: {
+        host: '0.0.0.0', // Biar bisa diakses dari luar kontainer oleh Docker Compose
+        hmr: {
+            host: 'localhost', // 💡 Ini kuncinya! Memaksa browser memanggil ke localhost:5173, bukan [::]:5173
+        },
+        watch: {
+            usePolling: true, // Opsional: Biar hot reload di Windows <-> Docker makin responsif
+        },
+    },
 });
