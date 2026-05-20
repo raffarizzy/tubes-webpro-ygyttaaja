@@ -5,6 +5,7 @@ const db = require('./config/db');
 // Import Routes
 const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
+const authRoutes = require('./routes/auth.routes');
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.get('/api/test', (req, res) => {
 // Mount Routes
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
 
 // =====================================================
 // 404 Handler
