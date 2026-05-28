@@ -9,20 +9,33 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     api.get('/api/user')
-      .then((res) => setUser(res.data))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+      .then((res) => {
+        console.log("Data dari server:", res.data); // LIHAT DI CONSOLE F12
+        if (res.data && Object.keys(res.data).length > 0) {
+          setUser(res.data);
+        } else {
+          setUser(null);
+        }
+      })
   }, []);
 
   async function login(email, password) {
-    await api.post('/login', { email, password });
-    const res = await api.get('/api/user');
-    setUser(res.data);
+    const res = await api.post('http://localhost:3001/api/auth/login', { email, password });
+
+    if (res.data.success) {
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      setUser(res.data.user);
+    }
   }
 
   async function logout() {
-    await api.post('/logout');
-    setUser(null);
+    try {
+      await api.post('http://localhost:3001/api/auth/logout');
+      localStorage.removeItem('user');
+      setUser(null);
+    } catch (e) {
+      console.error("Gagal logout : ", e);
+    }
   }
 
   return (

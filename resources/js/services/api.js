@@ -10,12 +10,13 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = document.cookie
+  // Ambil token CSRF dari cookie (untuk Laravel API)
+  const xsrfToken = document.cookie
     .split('; ')
     .find((row) => row.startsWith('XSRF-TOKEN='))
     ?.split('=')[1];
-  if (token) {
-    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(token);
+  if (xsrfToken) {
+    config.headers['X-XSRF-TOKEN'] = decodeURIComponent(xsrfToken);
   }
   return config;
 });

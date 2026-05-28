@@ -4,7 +4,7 @@ import api from '../services/api';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', phone: ''});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
@@ -21,6 +21,7 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
+      await api.get('/sanctum/csrf-cookie');
       await api.post('/register', form);
       navigate('/');
     } catch (err) {
@@ -37,6 +38,7 @@ export default function RegisterPage() {
   const fields = [
     { name: 'name', label: 'Nama Lengkap', type: 'text', placeholder: 'Nama Anda' },
     { name: 'email', label: 'Email', type: 'email', placeholder: 'email@example.com' },
+    { name: 'phone', label: 'Phone', type: 'text', placeholder: '0812xxxxxxxx' },
     { name: 'password', label: 'Password', type: 'password', placeholder: '••••••••' },
     { name: 'password_confirmation', label: 'Konfirmasi Password', type: 'password', placeholder: '••••••••' },
   ];

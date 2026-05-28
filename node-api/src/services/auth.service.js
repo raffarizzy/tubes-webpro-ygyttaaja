@@ -9,7 +9,7 @@ class AuthService {
         const user = rows[0];
 
         if (!user) {
-            const error = new Error('Email atau password salah');
+            const error = new Error('Akun tidak ditemukan');
             error.statusCode = 401;
             throw error;
         }
@@ -17,7 +17,7 @@ class AuthService {
         // 2. Bandingkan password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            const error = new Error('Email atau password salah');
+            const error = new Error("Password salah");
             error.statusCode = 401;
             throw error;
         }

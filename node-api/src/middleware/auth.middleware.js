@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 module.exports = async (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    const token = req.cookies.token;
 
     if (!token) {
         return res.response(401).json({message : 'Akses ditolak, token tidak ada'});

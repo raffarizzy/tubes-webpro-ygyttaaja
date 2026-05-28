@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./config/db');
+const cookieParser = require('cookie-parser');
 
 // Import Routes
 const profileRoutes = require('./routes/profile.routes');
@@ -12,7 +13,11 @@ const app = express();
 // =====================================================
 // Middleware
 // =====================================================
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://127.0.0.1:8000',
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

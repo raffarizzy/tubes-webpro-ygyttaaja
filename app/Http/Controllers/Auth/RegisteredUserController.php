@@ -48,6 +48,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Registration succesful', 'user' => $user]);
+        }
+
         return redirect('/');
     }
 }
