@@ -7,12 +7,22 @@ export default {
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
         './resources/views/**/*.blade.php',
+        './resources/js/**/*.{js,jsx}',
     ],
 
     theme: {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
+            keyframes: {
+                'slide-in': {
+                    from: { transform: 'translateX(400px)', opacity: '0' },
+                    to: { transform: 'translateX(0)', opacity: '1' },
+                },
+            },
+            animation: {
+                'slide-in': 'slide-in 0.3s ease-out',
             },
         },
     },

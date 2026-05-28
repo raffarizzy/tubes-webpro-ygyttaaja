@@ -7,7 +7,7 @@ exports.getById = async (id) => {
         name, 
         email, 
         phone, 
-        DATE_FORMAT(birthDate, '%Y-%m-%d') AS birthDate, 
+        DATE_FORMAT(birthDate, '%Y-%m-%d') AS birthDate,
         gender, 
         pfpPath
      FROM users 
