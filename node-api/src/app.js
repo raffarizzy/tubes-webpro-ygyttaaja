@@ -7,6 +7,7 @@ const cookieParser = require('cookie-parser');
 const profileRoutes = require('./routes/profile.routes');
 const productRoutes = require('./routes/product.routes');
 const authRoutes = require('./routes/auth.routes');
+const tokoRoutes = require('./routes/toko.routes');
 
 const app = express();
 
@@ -58,6 +59,7 @@ app.get('/api/test', (req, res) => {
 app.use('/api/profile', profileRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/toko', tokoRoutes);
 
 // =====================================================
 // 404 Handler
