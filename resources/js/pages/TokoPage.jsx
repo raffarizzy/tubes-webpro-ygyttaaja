@@ -19,11 +19,19 @@ export default function TokoPage() {
   const [editForm, setEditForm] = useState({ nama_toko: '', deskripsi_toko: '', lokasi: '', logo: null });
 
   useEffect(() => {
-    api.get('/api/toko')
+    console.log(user);
+    api.get(`http://localhost:3001/api/toko/${user.id}`)
       .then((res) => {
-        setToko(res.data);
-        if (res.data) loadProduk(res.data.id);
-        else setShowCreateForm(true);
+        try {
+          if (!res.data.hasToko) {
+            setShowCreateForm(true)
+          } else {
+            setToko(res.data);
+            loadProduk(res.data.id);
+          }
+        } catch (e) {
+          console,log(e);
+        }
       })
       .catch(() => setShowCreateForm(true))
       .finally(() => setLoading(false));

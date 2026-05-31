@@ -17,6 +17,13 @@ export function AuthProvider({ children }) {
           setUser(null);
         }
       })
+      .catch((e) => {
+        console.error("Gagal mengambil data user: ", e);
+        setUser(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   async function login(email, password) {
