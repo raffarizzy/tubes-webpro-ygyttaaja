@@ -17,6 +17,25 @@ class TokoService {
             data : toko
         };
     }
+
+    async createToko(user_id, fd) {
+        const [result] = await db.execute(`
+            INSERT INTO tokos(
+                user_id,
+                nama_toko,
+                deskripsi_toko,
+                lokasi,
+                logo_path,
+                created_at,
+                updated_at
+            ) VALUES (?, ?, ?, ?, ?, NOW(), NOW())
+        `, [user_id, fd.nama_toko, fd.deskripsi_toko, fd.lokasi, fd.logo]);
+
+        return {
+            success: true,
+            id: result.insertId
+        }
+    }
 }
 
 module.exports = new TokoService();

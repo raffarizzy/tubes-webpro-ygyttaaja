@@ -1,25 +1,29 @@
 import { createContext, useState, useEffect } from 'react';
 import api from '../services/api';
+import nodeApi from '../services/nodeApi';
 
 export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/api/user')
+    api.get(nodeApi.get('/auth/me'))
       .then((res) => {
         console.log("Data dari server:", res.data); // LIHAT DI CONSOLE F12
-        if (res.data && Object.keys(res.data).length > 0) {
+        if (res.data.success) {
           setUser(res.data);
-        } else {
-          setUser(null);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
         }
       })
       .catch((e) => {
         console.error("Gagal mengambil data user: ", e);
         setUser(null);
+        localStorage.removeItem('user');
       })
       .finally(() => {
         setLoading(false);

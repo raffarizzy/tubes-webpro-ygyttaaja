@@ -13,3 +13,7 @@ exports.getToko = async (req, res) => {
         res.status(statusCode).json({ message : `Gagal mengambil data toko : ${e}` });
     }
 }
+
+exports.createToko = async (req, res) => {
+    
+}
