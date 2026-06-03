@@ -54,12 +54,12 @@ export default function TokoPage() {
     fd.append('lokasi', createForm.lokasi);
     if (createForm.logo) fd.append('logo', createForm.logo);
     try {
-      await api.post('/toko', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await nodeApi.post('/toko', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       showToast('Toko berhasil dibuat!', 'success');
-      const res = await api.get('/api/toko');
-      setToko(res.data);
+      const res = await nodeApi.get(`/toko/${user.id}`);
+      setToko(res.data.data);
       setShowCreateForm(false);
-      if (res.data) loadProduk(res.data.id);
+      if (res.data.data) loadProduk(res.data.id);
     } catch (err) {
       showToast(err.response?.data?.message || 'Gagal membuat toko', 'error');
     }

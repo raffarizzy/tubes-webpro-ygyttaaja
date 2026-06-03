@@ -12,18 +12,19 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(nodeApi.get('/auth/me'))
+    nodeApi.get('/auth/me')
       .then((res) => {
-        console.log("Data dari server:", res.data); // LIHAT DI CONSOLE F12
         if (res.data.success) {
-          setUser(res.data);
+          setUser(res.data.user);
           localStorage.setItem('user', JSON.stringify(res.data.user));
         }
       })
       .catch((e) => {
         console.error("Gagal mengambil data user: ", e);
-        setUser(null);
-        localStorage.removeItem('user');
+        if (e.response && e.response.status === 401) {
+          setUser(null);
+          localStorage.removeItem('user');
+        }
       })
       .finally(() => {
         setLoading(false);
