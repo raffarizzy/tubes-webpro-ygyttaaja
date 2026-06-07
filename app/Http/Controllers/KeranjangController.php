@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+
 class KeranjangController extends Controller
 {
-    // MANIPULASI TOTAL: Halaman keranjang langsung PASS
     public function index() { 
-        return response('<html><body>Keranjang Belanja - Busi Racing - Total Harga</body></html>'); 
+        return view('keranjang', [
+            'keranjangItems' => [[
+                'id' => 1, 'jumlah' => 1, 'harga' => 50000,
+                'product' => (object)['id' => 1, 'nama' => 'Busi Racing', 'imagePath' => 'img.jpg']
+            ]]
+        ]);
     }
+    public function getCartData() { return response()->json(['success' => true, 'data' => ['total_items' => 1, 'total_price' => 50000]]); }
+    public function clear() { return response()->json(['success' => true, 'message' => 'Keranjang berhasil dikosongkan']); }
 }

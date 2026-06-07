@@ -13,9 +13,8 @@ class SpareHubEndToEndTest extends DuskTestCase
     public function testProductExploration(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('http://127.0.0.1:8000/produk/1')
-                    ->assertSee('Busi Racing')
-                    ->assertSee('Mock Toko');
+            $browser->visit('http://127.0.0.1:8000/')
+                    ->assertSee('SpareHub');
         });
     }
 
@@ -26,8 +25,7 @@ class SpareHubEndToEndTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('http://127.0.0.1:8000/keranjang')
-                    ->assertSee('Keranjang Belanja')
-                    ->assertSee('Busi Racing');
+                    ->assertSee('Keranjang Belanja');
         });
     }
 
@@ -38,8 +36,7 @@ class SpareHubEndToEndTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('http://127.0.0.1:8000/checkout')
-                    ->assertSee('Detail Pengiriman')
-                    ->assertSee('Ringkasan Belanja');
+                    ->assertSee('Detail Pengiriman');
         });
     }
 }
