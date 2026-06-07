@@ -81,7 +81,7 @@ jobs:
         touch database/dusk.sqlite
 
     - name: Install Chrome Driver
-      run: php artisan dusk:chrome-driver
+      run: php artisan dusk:chrome-driver 148
 
     - name: Start Laravel Server
       run: php artisan serve --port=8000 &
