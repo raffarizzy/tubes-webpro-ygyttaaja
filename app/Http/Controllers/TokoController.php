@@ -46,8 +46,10 @@ class TokoController extends Controller
             }
 
             $toko = $tokoResponse->json()['data'];
-
-            $toko = (object) $tokoData;
+            // Manually add an empty products collection if not present
+            if (!isset($toko['products'])) {
+                $toko['products'] = collect([]);
+            }
 
             return view('profil_toko', compact('toko'));
 
@@ -60,6 +62,9 @@ class TokoController extends Controller
             if (!$toko) {
                 return redirect()->route('toko.create');
             }
+
+            $toko = $toko->toArray();
+            $toko['products'] = collect([]); // Ensure products collection exists
 
             return view('profil_toko', compact('toko'));
         }
