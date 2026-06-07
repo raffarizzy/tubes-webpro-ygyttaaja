@@ -101,7 +101,7 @@
             </label>
         </div>
 
-        <button class="btn btn-primary w-100 mb-3">
+        <button name="iniLogin" class="btn btn-primary w-100 mb-3">
             Login
         </button>
     </form>

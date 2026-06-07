@@ -176,7 +176,7 @@
 
                     {{-- SUBMIT --}}
                     <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary px-4">
+                        <button name="tombolKirimRating" type="submit" class="btn btn-primary px-4">
                             <i class="bi bi-send me-2"></i>
                             Kirim Rating
                         </button>
