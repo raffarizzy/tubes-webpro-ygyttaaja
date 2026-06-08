@@ -30,7 +30,7 @@ async function loadData() {
         // Handle API response
         produkData = result.success ? result.data : [];
 
-        console.log("✅ Products loaded:", produkData.length, "items");
+        console.log("Products loaded:", produkData.length, "items");
 
         // Load keranjang dari localStorage
         const savedCart = localStorage.getItem("keranjangData");
@@ -43,7 +43,7 @@ async function loadData() {
         renderProduk();
         updateCartCount();
     } catch (error) {
-        console.error("❌ Error loading data:", error);
+        console.error("Error loading data:", error);
         alert("Gagal memuat data produk dari server!");
     }
 }
@@ -114,11 +114,11 @@ function renderProduk() {
     // Set container style
     container.style.cssText = `
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 30px;
-        max-width: 1200px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        max-width: 1180px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 0 28px 32px;
     `;
 
     // Render products for current page
@@ -140,37 +140,92 @@ function renderProduk() {
     renderPagination(totalPages);
 }
 
+// SVG placeholder icons per category keyword
+function getPlaceholderIcon(nama) {
+    const n = (nama || '').toLowerCase();
+    if (n.includes('helm')) return 'bi-shield-fill';
+    if (n.includes('oli') || n.includes('cairan')) return 'bi-droplet-fill';
+    if (n.includes('rem') || n.includes('kampas')) return 'bi-record-circle';
+    if (n.includes('ban')) return 'bi-circle';
+    if (n.includes('aki') || n.includes('baterai')) return 'bi-battery-charging';
+    if (n.includes('busi')) return 'bi-lightbulb-fill';
+    if (n.includes('rantai')) return 'bi-link-45deg';
+    if (n.includes('filter')) return 'bi-funnel-fill';
+    return 'bi-gear-fill';
+}
+
+function renderStars(rating) {
+    rating = parseFloat(rating) || 0;
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= Math.floor(rating)) stars += '<i class="bi bi-star-fill" style="color:#FFA500;font-size:11px"></i>';
+        else if (i - 0.5 <= rating) stars += '<i class="bi bi-star-half" style="color:#FFA500;font-size:11px"></i>';
+        else stars += '<i class="bi bi-star" style="color:#FFA500;font-size:11px"></i>';
+    }
+    return stars;
+}
+
 function createProductCard(produk) {
-    const card = document.createElement("div");
-    card.className = "card-produk";
+    const card = document.createElement("a");
+    card.className = "sh-pcard";
+    card.href = `/produk/${produk.id}`;
 
     // Fix path gambar
-    let imagePath;
-    if (produk.imagePath.startsWith("http")) {
-        // Kalau sudah full URL
-        imagePath = produk.imagePath;
-    } else if (produk.imagePath.startsWith("produk/")) {
-        // Kalau dari Laravel storage
-        imagePath = `http://localhost:8000/storage/${produk.imagePath}`;
-    } else {
-        // Kalau path relatif (img/iconOli.png)
-        imagePath = produk.imagePath;
+    let imagePath = '';
+    if (produk.imagePath) {
+        if (produk.imagePath.startsWith("http")) {
+            imagePath = produk.imagePath;
+        } else if (produk.imagePath.startsWith("produk/")) {
+            imagePath = `${window.location.origin}/storage/${produk.imagePath}`;
+        } else {
+            imagePath = produk.imagePath;
+        }
     }
 
+    const iconClass = getPlaceholderIcon(produk.nama);
+    const harga = formatRupiah(produk.harga);
+    // Short price display: Rp 1.250.000 → Rp 1.250K or just Rp X.XXX
+    const hargaShort = (() => {
+        const n = produk.harga;
+        if (n >= 1000000) return 'Rp ' + (n/1000000).toFixed(n%1000000===0?0:1) + 'Jt';
+        if (n >= 1000) return 'Rp ' + Math.round(n/1000) + 'K';
+        return 'Rp ' + n;
+    })();
+
+    const desc = (produk.deskripsi || '').length > 60
+        ? produk.deskripsi.substring(0, 60) + '…'
+        : (produk.deskripsi || '');
+
+    const imgHtml = imagePath
+        ? `<img src="${imagePath}" alt="${produk.nama}"
+               style="width:100%;height:100%;object-fit:contain;padding:8px;"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+           <div class="sh-pcard-placeholder" style="display:none;">
+               <i class="bi ${iconClass}"></i>
+           </div>`
+        : `<div class="sh-pcard-placeholder">
+               <i class="bi ${iconClass}"></i>
+           </div>`;
+
     card.innerHTML = `
-        <img src="${imagePath}" 
-             alt="${produk.nama}" 
-             onerror="if(this.src!=='${
-                 window.location.origin
-             }/img/iconOli.png'){this.src='${
-        window.location.origin
-    }/img/iconOli.png'}" />
-        <h3>${produk.nama}</h3>
-        <p class="harga">${formatRupiah(produk.harga)}</p>
-        <p class="deskripsi">${produk.deskripsi}</p>
-        <a href="/produk/${produk.id}">
-            <button class="btn-beli">Lihat Detail</button>
-        </a>
+        <div class="sh-pcard-img">
+            ${imgHtml}
+            <span class="sh-pcard-heart" onclick="event.preventDefault()"><i class="bi bi-heart"></i></span>
+        </div>
+        <div class="sh-pcard-body">
+            <div class="sh-pcard-title-row">
+                <span class="sh-pcard-title">${produk.nama}</span>
+                <span class="sh-pcard-price">${hargaShort}</span>
+            </div>
+            <p class="sh-pcard-desc">${desc}</p>
+            <div class="sh-pcard-stars">
+                ${renderStars(produk.rating || 4.5)}
+                <span>(${produk.review_count || 0})</span>
+            </div>
+            <button class="sh-pcard-addcart" onclick="event.preventDefault();window.location='/produk/${produk.id}'">
+                + Tambah ke Keranjang
+            </button>
+        </div>
     `;
 
     return card;
@@ -427,7 +482,7 @@ window.resetCart = function () {
     localStorage.removeItem("cartCount");
     keranjangData = [];
     updateCartCount();
-    console.log("✅ Cart berhasil di-reset!");
+    console.log("Cart berhasil di-reset!");
     alert("Cart berhasil di-reset!");
     location.reload();
 };
@@ -440,7 +495,7 @@ window.viewCart = function () {
 };
 
 console.log(
-    "%c🏠 HOMEPAGE LOADED",
+    "%HOMEPAGE LOADED",
     "color: #0066cc; font-weight: bold; font-size: 14px;"
 );
 console.log("Commands: resetCart(), viewCart()");
