@@ -1,17 +1,39 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import api from '../services/api';
+import api from '../services/nodeApi';
 import { useToast, Toast } from '../components/Toast';
 
 export default function ProfilPage() {
   const { user } = useAuth();
   const { toast, showToast } = useToast();
-  const [form, setForm] = useState({ name: '', email: '' });
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    birthDate: '',
+    gender: 'male'
+  });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (user) setForm({ name: user.name || '', email: user.email || '' });
+    if (user?.id) {
+      setLoading(true);
+      api.get(`/profile/${user.id}`)
+        .then((res) => {
+          setForm({
+            name: res.data.name || '',
+            email: res.data.email || '',
+            phone: res.data.phone || '',
+            birthDate: res.data.birthDate || '',
+            gender: res.data.gender || 'male',
+          });
+        })
+        .catch((err) => {
+          console.error("Gagal mengambil detail profil:", err);
+        })
+        .finally(() => setLoading(false));
+    }
   }, [user]);
 
   async function handleSubmit(e) {
@@ -19,7 +41,7 @@ export default function ProfilPage() {
     setErrors({});
     setLoading(true);
     try {
-      await api.patch('/profile', { name: form.name, email: form.email });
+      await api.patch(`/profile/${user.id}`, form);
       showToast('Profil berhasil diperbarui!', 'success');
     } catch (err) {
       if (err.response?.status === 422) {
@@ -46,27 +68,76 @@ export default function ProfilPage() {
             onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'; }}
           />
           <div>
-            <p className="font-bold text-lg text-gray-800">{user?.name}</p>
-            <p className="text-gray-500 text-sm">{user?.email}</p>
+            <p className="font-bold text-lg text-gray-800">{form.name || user?.name}</p>
+            <p className="text-gray-500 text-sm">{form.email || user?.email}</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {[
-            { name: 'name', label: 'Nama', type: 'text' },
-            { name: 'email', label: 'Email', type: 'email' },
-          ].map(({ name, label, type }) => (
-            <div key={name}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
               <input
-                type={type}
-                value={form[name]}
-                onChange={(e) => setForm({ ...form, [name]: e.target.value })}
+                type="text"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                required
+              />
+              {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name[0]}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+                required
+              />
+              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email[0]}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">No. Telepon</label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
               />
-              {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name][0]}</p>}
             </div>
-          ))}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal Lahir</label>
+              <input
+                type="date"
+                value={form.birthDate}
+                onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+                className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
+            <div className="flex gap-4 mt-2">
+              {['male', 'female'].map((g) => (
+                <label key={g} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="gender"
+                    value={g}
+                    checked={form.gender === g}
+                    onChange={(e) => setForm({ ...form, gender: e.target.value })}
+                    className="w-4 h-4 text-blue-600"
+                  />
+                  <span className="capitalize">{g === 'male' ? 'Laki-laki' : 'Perempuan'}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
           <button
             type="submit"

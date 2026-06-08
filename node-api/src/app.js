@@ -10,20 +10,19 @@ const authRoutes = require('./routes/auth.routes');
 const tokoRoutes = require('./routes/toko.routes');
 
 const app = express();
-const allowedOrigins = ['http://localhost:8000', 'http://127.0.0.1:8000'];
+const allowedOrigins = [
+  'http://localhost:8000', 
+  'http://127.0.0.1:8000',
+  'http://localhost:5173', // Vite default
+  'http://127.0.0.1:5173'
+];
 
 // =====================================================
 // Middleware
 // =====================================================
 app.use(cookieParser());
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Mengizinkan origin mana saja yang mengirim request (selama pakai credentials)
   credentials: true
 }));
 app.use(express.json());

@@ -10,9 +10,10 @@ exports.login = async (req, res) => {
 
         res.cookie('token', result.token, {
             httpOnly : true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: false, // Set false untuk development via HTTP (bukan HTTPS)
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000
+            maxAge: 24 * 60 * 60 * 1000,
+            path: '/'
         });
 
         res.json({
@@ -39,15 +40,26 @@ exports.logout = async (req, res) => {
     });
 }
 
+const db = require('../config/db');
+
 exports.getMe = async (req, res) => {
     try {
+        const [rows] = await db.execute(
+            'SELECT id, name, email, phone, pfpPath FROM users WHERE id = ?',
+            [req.user.id]
+        );
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'User tidak ditemukan' });
+        }
+
         res.json({
-            success : true,
-            user : req.user
+            success: true,
+            user: rows[0]
         });
     } catch (e) {
         res.status(500).json({
-            message: `Gagal mengambil data sesi : ${e}`
+            message: `Gagal mengambil data sesi : ${e.message}`
         })
     }
 }

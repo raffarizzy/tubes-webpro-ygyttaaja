@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
-    const res = await api.post('http://localhost:3001/api/auth/login', { email, password });
+    const res = await nodeApi.post('/auth/login', { email, password });
 
     if (res.data.success) {
       localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -42,7 +42,7 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await api.post('http://localhost:3001/api/auth/logout');
+      await nodeApi.post('/auth/logout');
       localStorage.removeItem('user');
       setUser(null);
     } catch (e) {

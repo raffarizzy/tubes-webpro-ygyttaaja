@@ -1,7 +1,7 @@
 const db = require('../config/db');
 
 exports.getById = async (id) => {
-  const [rows] = await db.query(
+  const [rows] = await db.execute(
     `SELECT 
         id, 
         name, 
@@ -19,35 +19,32 @@ exports.getById = async (id) => {
 };
 
 exports.update = async (id, data) => {
-  const [rows] = await db.query(
-    'SELECT name, phone, birthDate, gender, pfpPath FROM users WHERE id = ?',
-    [id]
-  );
-
+  // 1. Cek apakah user ada
+  const [rows] = await db.execute('SELECT id FROM users WHERE id = ?', [id]);
   if (!rows.length) {
     throw new Error('User tidak ditemukan');
   }
 
-  const old = rows[0];
+  // 2. Siapkan data (pastikan tidak ada string kosong untuk kolom DATE/NULL)
+  const name = data.name || null;
+  const email = data.email || null;
+  const phone = data.phone || null;
+  const gender = data.gender || null;
+  const pfpPath = data.pfpPath || null;
+  
+  // Tangani birthDate secara khusus
+  let birthDate = null;
+  if (data.birthDate && data.birthDate.trim() !== '') {
+    birthDate = data.birthDate;
+  }
 
-  const updated = {
-    name: data.name ?? old.name,
-    phone: data.phone ?? old.phone,
-    birthDate: data.birthDate ?? old.birthDate,
-    gender: data.gender ?? old.gender,
-    pfpPath: data.pfpPath ?? old.pfpPath,
-  };
+  const values = [name, email, phone, birthDate, gender, pfpPath, id];
+  
+  console.log('SQL Parameters:', values);
 
-  await db.query(
-    `UPDATE users SET name=?, phone=?, birthDate=?, gender=?, pfpPath=? WHERE id=?`,
-    [
-      updated.name,
-      updated.phone,
-      updated.birthDate,
-      updated.gender,
-      updated.pfpPath,
-      id
-    ]
+  await db.execute(
+    `UPDATE users SET name=?, email=?, phone=?, birthDate=?, gender=?, pfpPath=? WHERE id=?`,
+    values
   );
 
   return { message: 'Profil berhasil diperbarui' };
