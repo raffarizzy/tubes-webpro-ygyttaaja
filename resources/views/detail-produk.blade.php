@@ -96,12 +96,29 @@
             transition: border-color .2s;
         }
         .pdp-thumb:hover { border-color: var(--blue); }
-        .pdp-thumb img {
+
+        /* Thumbnail image + fallback logic */
+        .pdp-thumb-img {
             width: 100%;
             height: 100%;
             object-fit: contain;
             padding: 4px;
+            display: block;
         }
+        /* Hidden fallback by default */
+        .pdp-thumb-fallback {
+            display: none;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
+        }
+        .pdp-thumb-fallback i { font-size: 22px; color: rgba(18,44,79,.2); }
+        /* When img fails, parent gets this class → show fallback, hide img */
+        .pdp-thumb-broken .pdp-thumb-img { display: none; }
+        .pdp-thumb-broken .pdp-thumb-fallback { display: flex; }
+        /* For no-image case */
+        .pdp-thumb-broken-show { display: flex !important; }
 
         /* Right column */
         .pdp-title {
@@ -454,10 +471,15 @@
                     </div>
                     <div class="pdp-thumbs">
                         @for($t = 0; $t < 4; $t++)
-                            <div class="pdp-thumb" onclick="document.getElementById('product-image').style.display='block';document.getElementById('main-img-placeholder').style.display='none';" style="cursor:pointer;">
-                                <img src="{{ $imagePath }}" alt=""
-                                    style="width:100%;height:100%;object-fit:contain;padding:4px;"
-                                    onerror="this.parentElement.style.background='#F0F0F5';this.style.display='none';this.parentElement.innerHTML+='<i class=\'bi bi-image\' style=\'font-size:22px;color:rgba(18,44,79,.2);\'></i>';" />
+                            <div class="pdp-thumb pdp-thumb-item" onclick="document.getElementById('product-image').style.display='block';document.getElementById('main-img-placeholder').style.display='none';">
+                                @if(!empty($imagePath))
+                                    <img src="{{ $imagePath }}" alt=""
+                                        class="pdp-thumb-img"
+                                        onerror="this.closest('.pdp-thumb-item').classList.add('pdp-thumb-broken');" />
+                                    <div class="pdp-thumb-fallback"><i class="bi bi-image"></i></div>
+                                @else
+                                    <div class="pdp-thumb-fallback pdp-thumb-broken-show"><i class="bi bi-image"></i></div>
+                                @endif
                             </div>
                         @endfor
                     </div>

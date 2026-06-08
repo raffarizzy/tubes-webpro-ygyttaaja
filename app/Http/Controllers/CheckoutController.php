@@ -166,8 +166,45 @@ class CheckoutController extends Controller
                 }
             }
 
+            $xenditKey = config('services.xendit.secret');
+
+            // ── MODE DEMO (tanpa Xendit key) ──────────────────────────────────
+            if (empty($xenditKey)) {
+                Log::info('Xendit key not configured — using demo payment mode', [
+                    'order_id' => $request->order_id,
+                ]);
+
+                // Langsung tandai order sebagai paid
+                $statusResponse = Http::timeout(30)
+                    ->put("{$this->nodeApiUrl}/orders/{$request->order_id}/status", [
+                        'status' => 'paid'
+                    ]);
+
+                if (!$statusResponse->successful()) {
+                    throw new \Exception('Gagal mengupdate status order');
+                }
+
+                session([
+                    'last_order_id' => $request->order_id,
+                    'demo_payment'  => true,
+                ]);
+
+                return response()->json([
+                    'success'     => true,
+                    'message'     => 'Pembayaran demo berhasil',
+                    'invoice_url' => route('payment.success'),
+                    'order_id'    => $request->order_id,
+                    'demo_mode'   => true,
+                ]);
+            }
+
+            // ── MODE XENDIT (key tersedia) ─────────────────────────────────────
+            \Xendit\Xendit::setApiKey($xenditKey);
+                    ]);
+                }
+            }
+
             // Create Xendit invoice
-            \Xendit\Xendit::setApiKey(config('services.xendit.secret'));
 
             $invoice = \Xendit\Invoice::create([
                 'external_id' => 'ORDER-' . $request->order_id . '-' . time(),
