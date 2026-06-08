@@ -5,192 +5,586 @@
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #122C4F;
+            --navy-2: #1a3a66;
+            --blue: #0066CC;
+            --gold: #FFC107;
+            --star: #FFA500;
+            --cream: #F4E9DC;
+            --cream-2: #EFE2D1;
+            --ink: #202124;
+            --body: #3C4043;
+            --muted: #5F6368;
+            --line: #E5DFD3;
+            --line-2: #DADCE0;
+            --ok: #1E8E3E;
+            --danger: #EA4335;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--cream);
+            color: var(--body);
+        }
+
+        .pdp-frame {
+            max-width: 1180px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 32px rgba(18, 44, 79, 0.10);
+            padding: 36px 40px 48px;
+        }
+
+        /* Breadcrumb */
+        .pdp-breadcrumb {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        .pdp-breadcrumb a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+        .pdp-breadcrumb a:hover { text-decoration: underline; }
+        .pdp-breadcrumb .sep { margin: 0 6px; color: var(--line-2); }
+
+        /* 2-column layout */
+        .pdp-cols {
+            display: grid;
+            grid-template-columns: 45% 55%;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* Left column */
+        .pdp-img-main {
+            min-height: 380px;
+            border: 1.5px solid var(--line);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--cream);
+            overflow: hidden;
+            padding: 16px;
+        }
+        .pdp-img-main img {
+            max-height: 380px;
+            width: 100%;
+            object-fit: contain;
+        }
+        .pdp-thumbs {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .pdp-thumb {
+            flex: 1;
+            height: 72px;
+            border: 1.5px solid var(--line);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--cream-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color .2s;
+        }
+        .pdp-thumb:hover { border-color: var(--blue); }
+        .pdp-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 4px;
+        }
+
+        /* Right column */
+        .pdp-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.7rem;
+            color: var(--navy);
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        .pdp-rating-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .pdp-stars { color: var(--star); font-size: 1.1rem; letter-spacing: 1px; }
+        .pdp-avg { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--star); }
+        .pdp-rcount { font-size: 13px; color: var(--muted); }
+
+        /* Price block */
+        .pdp-price-block { margin-bottom: 16px; }
+        .pdp-price {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            color: var(--blue);
+        }
+        .pdp-original-price {
+            font-size: 1rem;
+            color: var(--muted);
+            text-decoration: line-through;
+            margin-left: 8px;
+        }
+        .pdp-discount-badge {
+            display: inline-block;
+            background: var(--danger);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 2px 8px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        /* Stock */
+        .pdp-stock-text {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 16px;
+        }
+        .pdp-stock-text strong { color: var(--ink); }
+
+        /* Qty counter */
+        .pdp-qty-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            margin-bottom: 8px;
+        }
+        .pdp-qty-btn {
+            width: 38px;
+            height: 38px;
+            border: 1.5px solid var(--line-2);
+            background: #fff;
+            color: var(--navy);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s, color .15s;
+        }
+        .pdp-qty-btn:first-child { border-radius: 20px 0 0 20px; }
+        .pdp-qty-btn:last-child  { border-radius: 0 20px 20px 0; }
+        .pdp-qty-btn:hover { background: var(--navy); color: #fff; }
+        .pdp-qty-display {
+            min-width: 48px;
+            height: 38px;
+            border-top: 1.5px solid var(--line-2);
+            border-bottom: 1.5px solid var(--line-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--ink);
+            background: #fff;
+        }
+        .pdp-stock-warning {
+            font-size: 12px;
+            color: var(--danger);
+            margin-bottom: 14px;
+        }
+
+        /* Total price */
+        .pdp-total-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .pdp-total-label { font-size: 14px; color: var(--muted); }
+        .pdp-total-value {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--navy);
+        }
+
+        /* CTA buttons */
+        .pdp-cta { display: flex; gap: 12px; margin-bottom: 20px; }
+        .pdp-btn {
+            flex: 1;
+            padding: 13px 0;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            transition: opacity .15s, transform .1s;
+        }
+        .pdp-btn:hover { opacity: .88; transform: translateY(-1px); }
+        .pdp-btn-cart { background: var(--navy); color: #fff; }
+        .pdp-btn-buy  { background: var(--blue); color: #fff; }
+
+        /* Info cards */
+        .pdp-info-cards { display: flex; gap: 12px; margin-bottom: 20px; }
+        .pdp-info-card {
+            flex: 1;
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--body);
+        }
+        .pdp-info-card i { font-size: 1.3rem; color: var(--blue); flex-shrink: 0; }
+
+        /* Toko */
+        .pdp-toko {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        .pdp-toko-logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--blue);
+            flex-shrink: 0;
+        }
+        .pdp-toko-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            margin: 0 0 2px;
+        }
+        .pdp-toko-loc {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        /* Description section */
+        .pdp-desc-section {
+            margin-top: 40px;
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 24px 28px;
+            border: 1px solid var(--line);
+        }
+        .pdp-desc-section h5 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 12px;
+        }
+        .pdp-desc-section p {
+            color: var(--body);
+            line-height: 1.75;
+            margin: 0;
+        }
+
+        /* Reviews section */
+        .pdp-reviews-section { margin-top: 40px; }
+        .pdp-reviews-section h4 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 20px;
+        }
+        .pdp-reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .pdp-review-card {
+            background: var(--cream);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px 18px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .pdp-review-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .pdp-review-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .pdp-review-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .pdp-review-meta { flex: 1; min-width: 0; }
+        .pdp-review-name {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 14px;
+            margin: 0 0 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .pdp-review-date { font-size: 12px; color: var(--muted); margin: 0; }
+        .pdp-review-stars { color: var(--star); font-size: 14px; letter-spacing: 1px; }
+        .pdp-review-text { font-size: 14px; color: var(--body); line-height: 1.6; margin: 0; }
+        .pdp-no-reviews { text-align: center; color: var(--muted); padding: 32px 0; }
+
+        @media (max-width: 900px) {
+            .pdp-cols { grid-template-columns: 1fr; }
+            .pdp-reviews-grid { grid-template-columns: repeat(2, 1fr); }
+            .pdp-frame { padding: 20px 16px 32px; }
+        }
+        @media (max-width: 600px) {
+            .pdp-reviews-grid { grid-template-columns: 1fr; }
+            .pdp-info-cards { flex-direction: column; }
+            .pdp-cta { flex-direction: column; }
+            .pdp-title { font-size: 1.3rem; }
+        }
+    </style>
 @endpush
 
 @section('content')
-  <!-- KONTEN -->
-  <div class="container py-5">
-    <div class="row g-5 justify-content-center">
-      <!-- GAMBAR PRODUK -->
-      <div class="col-md-6 d-flex justify-content-center align-items-center">
-          @php
-            $imagePath = $product->imagePath ?? '/img/iconOli.png';
-            if (!str_starts_with($imagePath, 'http')) {
-              if (str_starts_with($imagePath, '/storage/')) {
-              } elseif (str_starts_with($imagePath, 'storage/')) {
+    @php
+        $imagePath = $product->imagePath ?? '/img/iconOli.png';
+        if (!str_starts_with($imagePath, 'http')) {
+            if (str_starts_with($imagePath, '/storage/')) {
+            } elseif (str_starts_with($imagePath, 'storage/')) {
                 $imagePath = '/' . $imagePath;
-              } elseif (str_starts_with($imagePath, 'produk/') || str_starts_with($imagePath, 'images/')) {
+            } elseif (str_starts_with($imagePath, 'produk/') || str_starts_with($imagePath, 'images/')) {
                 $imagePath = '/storage/' . $imagePath;
-              } elseif (str_starts_with($imagePath, '/img/') || str_starts_with($imagePath, 'img/')) {
+            } elseif (str_starts_with($imagePath, '/img/') || str_starts_with($imagePath, 'img/')) {
                 if (!str_starts_with($imagePath, '/')) {
-                  $imagePath = '/' . $imagePath;
+                    $imagePath = '/' . $imagePath;
                 }
-              } else {
+            } else {
                 $imagePath = '/storage/' . $imagePath;
-              }
             }
-          @endphp
+        }
 
-          <img
-            id="product-image"
-            src="{{ $imagePath }}"
-            alt="{{ $product->nama }}"
-            class="img-fluid rounded shadow mx-auto d-block"
-            style="max-width: 500px; width: 100%; height: auto; object-fit: contain;"
-          />
-        </div>
-
-      <!-- DETAIL PRODUK -->
-      <div class="col-md-6">
-        <h3 id="product-name" class="fw-bold text-primary">{{ $product->nama }}</h3>
-
-        <!-- Harga -->
-        <div class="d-flex align-items-center gap-2 my-3">
-          <span id="product-price" class="fw-bold fs-4 text-primary">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
-          @if($product->diskon && $product->diskon > 0)
-            @php
-              $hargaAsli = round($product->harga / (1 - $product->diskon / 100));
-            @endphp
-            <span id="product-original-price" class="text-muted text-decoration-line-through">Rp {{ number_format($hargaAsli, 0, ',', '.') }}</span>
-            <span id="product-discount" class="badge bg-danger">-{{ $product->diskon }}%</span>
-          @endif
-        </div>
-
-        <p><strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> Tersedia</p>
-
-        <!-- Quantity -->
-        <div class="p-3 bg-body-secondary rounded">
-          <p class="fw-semibold text-primary mb-2">Jumlah:</p>
-
-          <div class="d-flex align-items-center gap-3">
-            <button id="btn-decrease" class="btn btn-outline-primary fw-bold px-3">
-              -
-            </button>
-
-            <span id="quantity-display" class="fw-bold fs-5 px-3 py-1 bg-white rounded shadow-sm">
-              1
-            </span>
-
-            <button id="btn-increase" class="btn btn-outline-primary fw-bold px-3">
-              +
-            </button>
-          </div>
-
-          <p class="mt-3">
-            <strong>Total:</strong>
-            <span id="total-price" class="fw-bold text-primary" data-price="{{ $product->harga }}">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
-          </p>
-        </div>
-
-        <!-- Info Toko -->
-        <div class="d-flex align-items-center gap-3 p-3 bg-white rounded shadow-sm my-3">
-          @php
-            $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
-            if (!str_starts_with($tokoLogo, 'http') && !str_starts_with($tokoLogo, '/img/')) {
-              if (str_starts_with($tokoLogo, 'toko/')) {
+        $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
+        if (!str_starts_with($tokoLogo, 'http') && !str_starts_with($tokoLogo, '/img/')) {
+            if (str_starts_with($tokoLogo, 'toko/')) {
                 $tokoLogo = '/storage/' . $tokoLogo;
-              } elseif (!str_starts_with($tokoLogo, '/storage/')) {
+            } elseif (!str_starts_with($tokoLogo, '/storage/')) {
                 $tokoLogo = '/storage/' . $tokoLogo;
-              }
             }
-          @endphp
+        }
+    @endphp
 
-          <div class="flex-shrink-0">
-            <img
-              src="{{ $tokoLogo }}"
-              alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
-              class="rounded-circle border border-2 border-primary"
-              style="width: 60px; height: 60px; object-fit: cover;"
-              onerror="this.src='/img/iconPengguna.png'"
-            />
-          </div>
+    <div class="container-fluid py-4 px-3">
+        <div class="pdp-frame">
 
-          <div>
-            <p id="toko-nama" class="fw-bold text-primary m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
-            <p id="toko-lokasi" class="text-muted small m-0">{{ $product->toko->lokasi ?? '-' }}</p>
-          </div>
-        </div>
+            {{-- Breadcrumb --}}
+            <nav class="pdp-breadcrumb" aria-label="breadcrumb">
+                <a href="/">Beranda</a>
+                <span class="sep">&rsaquo;</span>
+                <a href="/produk">Produk</a>
+                <span class="sep">&rsaquo;</span>
+                <span>{{ $product->nama }}</span>
+            </nav>
 
-        <!-- Deskripsi -->
-        <div class="mt-4">
-          <h5 class="text-primary fw-semibold">Deskripsi</h5>
-          <p id="product-description" class="text-muted">{{ $product->deskripsi }}</p>
-        </div>
+            {{-- 2-column PDP layout --}}
+            <div class="pdp-cols">
 
-        <!-- Rating -->
-        <div class="d-flex align-items-center gap-2 mt-3">
-          <span class="text-warning fs-3">★</span>
-          <span id="avg-rating" class="fw-bold text-warning">{{ number_format($avgRating, 1) }}</span>
-          <span id="rating-count" class="text-muted">({{ $ratingCount }} ulasan)</span>
-        </div>
-
-        <!-- Aksi -->
-        <div class="d-flex gap-3 mt-4">
-          <button id="btn-Keranjang" class="btn btn-dark w-50">
-            Tambah ke Keranjang
-          </button>
-          <button id="btn-Beli" class="btn btn-success w-50">
-            Beli Sekarang
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Ulasan -->
-    <div class="mt-5">
-      <h4 class="text-primary fw-bold mb-3">Ulasan Pengguna</h4>
-      <div id="reviews-list" class="row g-3">
-        @forelse($ratings as $rating)
-          <div class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body d-flex">
-                <!-- Icon -->
-                <div class="me-3 d-flex align-items-start">
-                  <img src="{{ $rating->user->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle"/>
-                </div>
-
-                <!-- Content -->
+                {{-- Left column: image --}}
                 <div>
-                  <p class="fw-semibold mb-1 text-dark">{{ $rating->user->name ?? 'Anonymous' }}</p>
-
-                  <div class="text-warning fw-bold" style="font-size: 14px;">
-                    @for($i = 1; $i <= 5; $i++)
-                      @if($i <= $rating->rating)
-                        ★
-                      @else
-                        ☆
-                      @endif
-                    @endfor
-                  </div>
-
-                  <p class="mb-1">{{ $rating->review ?? '-' }}</p>
-
-                  <small class="text-muted">{{ $rating->created_at->format('Y-m-d') }}</small>
+                    <div class="pdp-img-main">
+                        <img
+                            id="product-image"
+                            src="{{ $imagePath }}"
+                            alt="{{ $product->nama }}"
+                        />
+                    </div>
+                    <div class="pdp-thumbs">
+                        @for($t = 0; $t < 4; $t++)
+                            <div class="pdp-thumb">
+                                <img src="{{ $imagePath }}" alt="Thumbnail {{ $t + 1 }}" />
+                            </div>
+                        @endfor
+                    </div>
                 </div>
-              </div>
+
+                {{-- Right column: product info --}}
+                <div>
+                    {{-- Product name --}}
+                    <h1 id="product-name" class="pdp-title">{{ $product->nama }}</h1>
+
+                    {{-- Rating line --}}
+                    <div class="pdp-rating-line">
+                        <span class="pdp-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span>
+                        <span id="avg-rating" class="pdp-avg">{{ number_format($avgRating, 1) }}</span>
+                        <span id="rating-count" class="pdp-rcount">({{ $ratingCount }} ulasan)</span>
+                    </div>
+
+                    {{-- Price block --}}
+                    <div class="pdp-price-block">
+                        <span id="product-price" class="pdp-price">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                        @if($product->diskon && $product->diskon > 0)
+                            @php $hargaAsli = round($product->harga / (1 - $product->diskon / 100)); @endphp
+                            <span id="product-original-price" class="pdp-original-price">Rp {{ number_format($hargaAsli, 0, ',', '.') }}</span>
+                            <span id="product-discount" class="pdp-discount-badge">-{{ $product->diskon }}%</span>
+                        @else
+                            <span id="product-original-price" style="display:none;"></span>
+                            <span id="product-discount" style="display:none;"></span>
+                        @endif
+                    </div>
+
+                    {{-- Stock --}}
+                    <p class="pdp-stock-text">
+                        <strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> tersedia
+                    </p>
+
+                    {{-- Qty counter --}}
+                    <div style="margin-bottom:6px;">
+                        <div class="pdp-qty-row">
+                            <button id="btn-decrease" class="pdp-qty-btn" type="button">&#8722;</button>
+                            <div id="quantity-display" class="pdp-qty-display">1</div>
+                            <button id="btn-increase" class="pdp-qty-btn" type="button">&#43;</button>
+                        </div>
+                    </div>
+
+                    {{-- Stock warning --}}
+                    <p class="pdp-stock-warning">
+                        <i class="bi bi-exclamation-circle"></i> Hanya tersisa {{ $product->stok }} item
+                    </p>
+
+                    {{-- Total price --}}
+                    <div class="pdp-total-row">
+                        <span class="pdp-total-label">Total Harga:</span>
+                        <span id="total-price" class="pdp-total-value" data-price="{{ $product->harga }}">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+                    </div>
+
+                    {{-- CTA buttons --}}
+                    <div class="pdp-cta">
+                        <button id="btn-Keranjang" class="pdp-btn pdp-btn-cart" type="button">
+                            <i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang
+                        </button>
+                        <button id="btn-Beli" class="pdp-btn pdp-btn-buy" type="button">
+                            <i class="bi bi-lightning-charge me-2"></i>Beli Sekarang
+                        </button>
+                    </div>
+
+                    {{-- Info cards --}}
+                    <div class="pdp-info-cards">
+                        <div class="pdp-info-card">
+                            <i class="bi bi-truck"></i>
+                            <span>Gratis Ongkir<br><strong>min. Rp100.000</strong></span>
+                        </div>
+                        <div class="pdp-info-card">
+                            <i class="bi bi-arrow-repeat"></i>
+                            <span>Garansi Tukar<br><strong>30 hari</strong></span>
+                        </div>
+                    </div>
+
+                    {{-- Toko info --}}
+                    <div class="pdp-toko">
+                        <img
+                            src="{{ $tokoLogo }}"
+                            alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
+                            class="pdp-toko-logo"
+                            onerror="this.src='/img/iconPengguna.png'"
+                        />
+                        <div>
+                            <p id="toko-nama" class="pdp-toko-name">{{ $product->toko->nama_toko ?? '-' }}</p>
+                            <p id="toko-lokasi" class="pdp-toko-loc">
+                                <i class="bi bi-geo-alt me-1"></i>{{ $product->toko->lokasi ?? '-' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        @empty
-          <p style="color: #999; text-align: center;">Belum ada ulasan</p>
-        @endforelse
-      </div>
+
+            {{-- Description section --}}
+            <div class="pdp-desc-section">
+                <h5><i class="bi bi-file-text me-2"></i>Deskripsi Produk</h5>
+                <p id="product-description">{{ $product->deskripsi }}</p>
+            </div>
+
+            {{-- Reviews section --}}
+            <div class="pdp-reviews-section">
+                <h4><i class="bi bi-chat-square-text me-2"></i>Ulasan Pengguna</h4>
+                <div id="reviews-list" class="pdp-reviews-grid">
+                    @forelse($ratings as $rating)
+                        <div class="pdp-review-card">
+                            <div class="pdp-review-header">
+                                <div class="pdp-review-avatar">
+                                    @if(!empty($rating->user->pfpPath))
+                                        <img src="{{ $rating->user->pfpPath }}" alt="{{ $rating->user->name ?? 'User' }}" onerror="this.style.display='none'" />
+                                    @else
+                                        {{ strtoupper(substr($rating->user->name ?? 'U', 0, 1)) }}
+                                    @endif
+                                </div>
+                                <div class="pdp-review-meta">
+                                    <p class="pdp-review-name">{{ $rating->user->name ?? 'Anonymous' }}</p>
+                                    <p class="pdp-review-date">{{ $rating->created_at->format('d M Y') }}</p>
+                                </div>
+                            </div>
+                            <div class="pdp-review-stars">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $rating->rating)&#9733;@else&#9734;@endif
+                                @endfor
+                            </div>
+                            <p class="pdp-review-text">{{ $rating->review ?? '-' }}</p>
+                        </div>
+                    @empty
+                        <div class="pdp-no-reviews" style="grid-column: 1 / -1;">
+                            <i class="bi bi-chat-square" style="font-size:2rem; opacity:.4; display:block; margin-bottom:8px;"></i>
+                            Belum ada ulasan untuk produk ini.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+        </div>{{-- /pdp-frame --}}
     </div>
-  </div>
 @endsection
 
 @push('scripts')
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    // Data produk untuk JavaScript
-    window.PRODUCT_DATA = {
-      id: {{ $product->id }},
-      nama: "{{ $product->nama }}",
-      harga: {{ $product->harga }},
-      stok: {{ $product->stok }},
-      imagePath: "{{ $imagePath }}",
-      deskripsi: "{{ $product->deskripsi }}"
-    };
-    window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
-  </script>
-  <script src="{{ asset('js/detail-produk.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Data produk untuk JavaScript
+        window.PRODUCT_DATA = {
+            id: {{ $product->id }},
+            nama: "{{ $product->nama }}",
+            harga: {{ $product->harga }},
+            stok: {{ $product->stok }},
+            imagePath: "{{ $imagePath }}",
+            deskripsi: "{{ $product->deskripsi }}"
+        };
+        window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
+    </script>
+    <script src="{{ asset('js/detail-produk.js') }}"></script>
 @endpush
