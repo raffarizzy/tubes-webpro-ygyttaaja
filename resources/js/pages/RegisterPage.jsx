@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import nodeApi from '../services/nodeApi';
+import { useAuth } from '../hooks/useAuth';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
+  const { setUser } = useAuth(); // Kita butuh ini untuk set user secara manual setelah register
   const [form, setForm] = useState({ name: '', email: '', password: '', password_confirmation: '', phone: ''});
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -21,12 +23,22 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
-      await api.get('/sanctum/csrf-cookie');
-      await api.post('/register', form);
-      navigate('/');
+      const res = await nodeApi.post('/auth/register', form);
+      
+      if (res.data.success) {
+        // Simpan data user ke localStorage dan state global (Otomatis Login)
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        setUser(res.data.user);
+        navigate('/');
+      }
     } catch (err) {
-      if (err.response?.status === 422) {
-        setErrors(err.response.data.errors || {});
+      if (err.response?.status === 400 || err.response?.status === 422) {
+        // Jika backend mengirim message tunggal
+        if (err.response.data.message) {
+          setErrors({ general: [err.response.data.message] });
+        } else {
+          setErrors(err.response.data.errors || {});
+        }
       } else {
         setErrors({ general: ['Terjadi kesalahan, coba lagi.'] });
       }
