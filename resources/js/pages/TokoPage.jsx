@@ -19,15 +19,24 @@ export default function TokoPage() {
   const [editForm, setEditForm] = useState({ nama_toko: '', deskripsi_toko: '', lokasi: '', logo: null });
 
   useEffect(() => {
-    api.get('/api/toko')
-      .then((res) => {
-        setToko(res.data);
-        if (res.data) loadProduk(res.data.id);
-        else setShowCreateForm(true);
-      })
-      .catch(() => setShowCreateForm(true))
-      .finally(() => setLoading(false));
-  }, []);
+    if (user && user.id) {
+      api.get(`http://localhost:3001/api/toko/${user.id}`)
+        .then((res) => {
+          try {
+            if (!res.data.hasToko) {
+              setShowCreateForm(true)
+            } else {
+              setToko(res.data.data);
+              loadProduk(res.data.data.id);
+            }
+          } catch (e) {
+            console.error(e);
+          }
+        })
+        .catch(() => setShowCreateForm(true))
+        .finally(() => setLoading(false));
+    }
+  }, [user]);
 
   async function loadProduk(tokoId) {
     try {
@@ -45,12 +54,12 @@ export default function TokoPage() {
     fd.append('lokasi', createForm.lokasi);
     if (createForm.logo) fd.append('logo', createForm.logo);
     try {
-      await api.post('/toko', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await nodeApi.post('/toko', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
       showToast('Toko berhasil dibuat!', 'success');
-      const res = await api.get('/api/toko');
-      setToko(res.data);
+      const res = await nodeApi.get(`/toko/${user.id}`);
+      setToko(res.data.data);
       setShowCreateForm(false);
-      if (res.data) loadProduk(res.data.id);
+      if (res.data.data) loadProduk(res.data.id);
     } catch (err) {
       showToast(err.response?.data?.message || 'Gagal membuat toko', 'error');
     }

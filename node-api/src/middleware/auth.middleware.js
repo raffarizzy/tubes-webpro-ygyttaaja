@@ -4,7 +4,7 @@ module.exports = async (req, res, next) => {
     const token = req.cookies.token;
 
     if (!token) {
-        return res.response(401).json({message : 'Akses ditolak, token tidak ada'});
+        return res.status(401).json({message : 'Akses ditolak, token tidak ada'});
     }
 
     try {

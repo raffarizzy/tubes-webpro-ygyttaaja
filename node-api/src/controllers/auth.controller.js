@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service');
+const authMiddleware = require('../middleware/auth.middleware');
 
 exports.login = async (req, res) => {
     try {
@@ -36,4 +37,17 @@ exports.logout = async (req, res) => {
         success: true,
         message: 'Berhasil logout'
     });
+}
+
+exports.getMe = async (req, res) => {
+    try {
+        res.json({
+            success : true,
+            user : req.user
+        });
+    } catch (e) {
+        res.status(500).json({
+            message: `Gagal mengambil data sesi : ${e}`
+        })
+    }
 }
