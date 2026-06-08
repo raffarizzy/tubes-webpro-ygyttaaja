@@ -4,7 +4,7 @@ import api from '../services/nodeApi';
 import { useToast, Toast } from '../components/Toast';
 
 export default function ProfilPage() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const { toast, showToast } = useToast();
   const [form, setForm] = useState({
     name: '',
@@ -13,6 +13,8 @@ export default function ProfilPage() {
     birthDate: '',
     gender: 'male'
   });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -28,6 +30,9 @@ export default function ProfilPage() {
             birthDate: res.data.birthDate || '',
             gender: res.data.gender || 'male',
           });
+          if (res.data.pfpPath) {
+            setPreviewUrl(res.data.pfpPath);
+          }
         })
         .catch((err) => {
           console.error("Gagal mengambil detail profil:", err);
@@ -36,12 +41,36 @@ export default function ProfilPage() {
     }
   }, [user]);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors({});
     setLoading(true);
+
+    const formData = new FormData();
+    formData.append('name', form.name);
+    formData.append('email', form.email);
+    formData.append('phone', form.phone);
+    formData.append('birthDate', form.birthDate);
+    formData.append('gender', form.gender);
+    if (selectedFile) {
+      formData.append('pfp', selectedFile);
+    }
+
     try {
-      await api.patch(`/profile/${user.id}`, form);
+      const res = await api.patch(`/profile/${user.id}`, formData);
+      
+      if (res.data.success) {
+        updateUser(res.data.data); 
+      }
+
       showToast('Profil berhasil diperbarui!', 'success');
     } catch (err) {
       if (err.response?.status === 422) {
@@ -60,16 +89,25 @@ export default function ProfilPage() {
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Profil Saya</h1>
 
       <div className="bg-white rounded-2xl shadow p-6">
-        <div className="flex items-center gap-4 mb-6">
-          <img
-            src={user?.pfpPath || 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'}
-            alt="Avatar"
-            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-            onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'; }}
-          />
-          <div>
-            <p className="font-bold text-lg text-gray-800">{form.name || user?.name}</p>
-            <p className="text-gray-500 text-sm">{form.email || user?.email}</p>
+        <div className="flex flex-col items-center gap-4 mb-6">
+          <div className="relative group">
+            <img
+              src={previewUrl || user?.pfpPath || 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'}
+              alt="Avatar"
+              className="w-32 h-32 rounded-full object-cover border-4 border-blue-100"
+              onError={(e) => { e.target.onerror = null; e.target.src = 'https://i.ibb.co.com/RkZ105G9/default-avatar.png'; }}
+            />
+            <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.172-1.172A1 1 0 009.707 3H6.293a1 1 0 00-.707.293L4.414 4.707A1 1 0 013.707 5H4zM17 13a5 5 0 11-10 0 5 5 0 0110 0z" clipRule="evenodd" />
+                <path fillRule="evenodd" d="M12 13a2 2 0 11-4 0 2 2 0 014 0z" clipRule="evenodd" />
+              </svg>
+              <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+            </label>
+          </div>
+          <div className="text-center">
+            <p className="font-bold text-xl text-gray-800">{form.name || user?.name}</p>
+            <p className="text-gray-500">{form.email || user?.email}</p>
           </div>
         </div>
 

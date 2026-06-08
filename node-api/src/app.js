@@ -10,12 +10,16 @@ const authRoutes = require('./routes/auth.routes');
 const tokoRoutes = require('./routes/toko.routes');
 
 const app = express();
+const path = require('path');
 const allowedOrigins = [
   'http://localhost:8000', 
   'http://127.0.0.1:8000',
   'http://localhost:5173', // Vite default
   'http://127.0.0.1:5173'
 ];
+
+// Serve static files from uploads folder
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // =====================================================
 // Middleware

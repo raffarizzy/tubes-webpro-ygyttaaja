@@ -19,33 +19,65 @@ exports.getById = async (id) => {
 };
 
 exports.update = async (id, data) => {
-  // 1. Cek apakah user ada
-  const [rows] = await db.execute('SELECT id FROM users WHERE id = ?', [id]);
+  // 1. Ambil data lama untuk dibandingkan/digabung
+  const [rows] = await db.execute(
+    'SELECT name, email, phone, birthDate, gender, pfpPath FROM users WHERE id = ?', 
+    [id]
+  );
+
   if (!rows.length) {
     throw new Error('User tidak ditemukan');
   }
 
-  // 2. Siapkan data (pastikan tidak ada string kosong untuk kolom DATE/NULL)
-  const name = data.name || null;
-  const email = data.email || null;
-  const phone = data.phone || null;
-  const gender = data.gender || null;
-  const pfpPath = data.pfpPath || null;
+  const old = rows[0];
+
+  // Helper untuk membersihkan data dari FormData (yang sering jadi string "null" atau "undefined")
+  const clean = (val, oldVal) => {
+    if (val === undefined) return oldVal;
+    if (val === null || val === '' || val === 'null' || val === 'undefined') return null;
+    return val;
+  };
+
+  // 2. Siapkan data update
+  const updated = {
+    name: data.name !== undefined ? data.name : old.name,
+    email: data.email !== undefined ? data.email : old.email,
+    phone: clean(data.phone, old.phone),
+    gender: clean(data.gender, old.gender),
+    pfpPath: data.pfpPath !== undefined ? data.pfpPath : old.pfpPath,
+  };
   
   // Tangani birthDate secara khusus
-  let birthDate = null;
-  if (data.birthDate && data.birthDate.trim() !== '') {
-    birthDate = data.birthDate;
+  let birthDate = clean(data.birthDate, old.birthDate);
+  // Format birthDate jika itu objek Date dari DB
+  if (birthDate instanceof Date) {
+    birthDate = birthDate.toISOString().split('T')[0];
   }
 
-  const values = [name, email, phone, birthDate, gender, pfpPath, id];
+  const values = [
+    updated.name,
+    updated.email,
+    updated.phone,
+    birthDate,
+    updated.gender,
+    updated.pfpPath,
+    id
+  ];
   
-  console.log('SQL Parameters:', values);
+  console.log('SQL Parameters for Update:', values);
 
   await db.execute(
     `UPDATE users SET name=?, email=?, phone=?, birthDate=?, gender=?, pfpPath=? WHERE id=?`,
     values
   );
 
-  return { message: 'Profil berhasil diperbarui' };
+  return { 
+    id,
+    name: updated.name,
+    email: updated.email,
+    phone: updated.phone,
+    birthDate: birthDate,
+    gender: updated.gender,
+    pfpPath: updated.pfpPath
+  };
 };
