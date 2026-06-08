@@ -17,10 +17,22 @@ export default function RegisterPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setErrors({});
+    
+    // Client-side validation basic
+    const newErrors = {};
+    if (!form.name.trim()) newErrors.name = ['Nama lengkap wajib diisi'];
+    if (!form.email.trim()) newErrors.email = ['Email wajib diisi'];
+    if (!form.phone.trim()) newErrors.phone = ['Nomor telepon wajib diisi'];
+    if (!form.password) newErrors.password = ['Password wajib diisi'];
     if (form.password !== form.password_confirmation) {
-      setErrors({ password_confirmation: ['Password tidak cocok!'] });
+      newErrors.password_confirmation = ['Password tidak cocok!'];
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
     setLoading(true);
     try {
       const res = await nodeApi.post('/auth/register', form);
@@ -79,6 +91,7 @@ export default function RegisterPage() {
                 value={form[name]}
                 onChange={handleChange}
                 placeholder={placeholder}
+                required
                 className="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:outline-none"
               />
               {errors[name] && (

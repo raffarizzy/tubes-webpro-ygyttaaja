@@ -4,6 +4,10 @@ const authMiddleware = require('../middleware/auth.middleware');
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email dan password wajib diisi' });
+        }
         
         // Memanggil service untuk memproses logic bisnis
         const result = await authService.login(email, password);
@@ -33,6 +37,19 @@ const jwt = require('jsonwebtoken');
 exports.register = async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
+
+        // 0. Validasi Input
+        const errors = {};
+        if (!name || name.trim() === "") errors.name = ["Nama lengkap wajib diisi"];
+        if (!email || email.trim() === "") errors.email = ["Email wajib diisi"];
+        else if (!/\S+@\S+\.\S+/.test(email)) errors.email = ["Format email tidak valid"];
+        
+        if (!password || password.length < 6) errors.password = ["Password minimal 6 karakter"];
+        if (!phone || phone.trim() === "") errors.phone = ["Nomor telepon wajib diisi"];
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(422).json({ errors });
+        }
 
         // 1. Cek apakah user sudah ada
         const [existing] = await db.execute('SELECT id FROM users WHERE email = ?', [email]);
