@@ -116,14 +116,16 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--line);
         }
-        .pdp-stars { color: var(--star); font-size: 1.1rem; letter-spacing: 1px; }
+        .pdp-stars { color: var(--star); font-size: 1rem; letter-spacing: 1px; }
         .pdp-avg { font-family: 'Poppins', sans-serif; font-weight: 700; color: var(--star); }
         .pdp-rcount { font-size: 13px; color: var(--muted); }
 
         /* Price block */
-        .pdp-price-block { margin-bottom: 16px; }
+        .pdp-price-block { margin-bottom: 8px; }
         .pdp-price {
             font-family: 'Poppins', sans-serif;
             font-weight: 800;
@@ -232,21 +234,38 @@
         .pdp-btn-cart { background: var(--navy); color: #fff; }
         .pdp-btn-buy  { background: var(--blue); color: #fff; }
 
+        /* Color swatches */
+        .pdp-swatches-section { margin-bottom: 16px; }
+        .pdp-swatches-label { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 8px; }
+        .pdp-swatches { display: flex; gap: 8px; }
+        .pdp-swatch {
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            border: 2px solid transparent; transition: transform .15s, border-color .15s;
+        }
+        .pdp-swatch:hover { transform: scale(1.15); }
+        .pdp-swatch-active { border-color: var(--navy) !important; box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--navy); }
+
+        /* Qty section */
+        .pdp-qty-section { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .pdp-stock-inline { font-size: 13px; color: var(--body); }
+        .pdp-stock-warn-inline { color: var(--danger); font-size: 13px; line-height: 1.4; }
+        .pdp-stock-warn-inline i { margin-right: 4px; }
+
         /* Info cards */
-        .pdp-info-cards { display: flex; gap: 12px; margin-bottom: 20px; }
+        .pdp-info-cards { display: flex; gap: 12px; margin-bottom: 20px; flex-direction: column; }
         .pdp-info-card {
-            flex: 1;
-            background: var(--cream);
+            background: #fff;
             border: 1px solid var(--line);
             border-radius: 10px;
-            padding: 12px 14px;
+            padding: 14px 16px;
             display: flex;
-            align-items: center;
-            gap: 10px;
+            align-items: flex-start;
+            gap: 12px;
             font-size: 13px;
             color: var(--body);
         }
-        .pdp-info-card i { font-size: 1.3rem; color: var(--blue); flex-shrink: 0; }
+        .pdp-info-card i { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+        .pdp-info-card strong { display: block; font-weight: 600; color: var(--ink); margin-bottom: 2px; }
 
         /* Toko */
         .pdp-toko {
@@ -421,17 +440,24 @@
 
                 {{-- Left column: image --}}
                 <div>
-                    <div class="pdp-img-main">
+                    <div class="pdp-img-main" id="main-img-wrap">
                         <img
                             id="product-image"
                             src="{{ $imagePath }}"
                             alt="{{ $product->nama }}"
+                            style="max-height:360px;width:100%;object-fit:contain;"
+                            onerror="this.style.display='none';document.getElementById('main-img-placeholder').style.display='flex';"
                         />
+                        <div id="main-img-placeholder" style="display:none;width:100%;height:100%;min-height:280px;align-items:center;justify-content:center;">
+                            <i class="bi bi-image" style="font-size:80px;color:rgba(18,44,79,.18);"></i>
+                        </div>
                     </div>
                     <div class="pdp-thumbs">
                         @for($t = 0; $t < 4; $t++)
-                            <div class="pdp-thumb">
-                                <img src="{{ $imagePath }}" alt="Thumbnail {{ $t + 1 }}" />
+                            <div class="pdp-thumb" onclick="document.getElementById('product-image').style.display='block';document.getElementById('main-img-placeholder').style.display='none';" style="cursor:pointer;">
+                                <img src="{{ $imagePath }}" alt=""
+                                    style="width:100%;height:100%;object-fit:contain;padding:4px;"
+                                    onerror="this.parentElement.style.background='#F0F0F5';this.style.display='none';this.parentElement.innerHTML+='<i class=\'bi bi-image\' style=\'font-size:22px;color:rgba(18,44,79,.2);\'></i>';" />
                             </div>
                         @endfor
                     </div>
@@ -460,26 +486,45 @@
                             <span id="product-original-price" style="display:none;"></span>
                             <span id="product-discount" style="display:none;"></span>
                         @endif
+                        @php $cicilan = round($product->harga / 6); @endphp
+                        <p style="font-size:13px;color:#5F6368;margin:6px 0 0;">
+                            atau <strong style="color:#122C4F;">Rp {{ number_format($cicilan, 0, ',', '.') }}/bulan</strong>
+                            &nbsp;<span style="font-size:12px;">Cicilan 0% hingga 6&times; untuk pembayaran kartu kredit <strong>BCA &amp; Mandiri</strong></span>
+                        </p>
                     </div>
 
-                    {{-- Stock --}}
-                    <p class="pdp-stock-text">
-                        <strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> tersedia
-                    </p>
+                    {{-- Color swatches (visual only) --}}
+                    <div class="pdp-swatches-section">
+                        <p class="pdp-swatches-label">Pilih Warna</p>
+                        <div class="pdp-swatches">
+                            <button class="pdp-swatch pdp-swatch-active" style="background:#1a1a1a;" title="Hitam"></button>
+                            <button class="pdp-swatch" style="background:#0066CC;" title="Biru"></button>
+                            <button class="pdp-swatch" style="background:#EA4335;" title="Merah"></button>
+                            <button class="pdp-swatch" style="background:#BDBDBD;" title="Abu"></button>
+                            <button class="pdp-swatch" style="background:#FFC107;" title="Kuning"></button>
+                        </div>
+                    </div>
 
-                    {{-- Qty counter --}}
-                    <div style="margin-bottom:6px;">
+                    {{-- Qty + stock --}}
+                    <div class="pdp-qty-section">
                         <div class="pdp-qty-row">
                             <button id="btn-decrease" class="pdp-qty-btn" type="button">&#8722;</button>
                             <div id="quantity-display" class="pdp-qty-display">1</div>
                             <button id="btn-increase" class="pdp-qty-btn" type="button">&#43;</button>
                         </div>
+                        <div class="pdp-stock-inline">
+                            <span id="product-stok" style="display:none;">{{ $product->stok }}</span>
+                            @if($product->stok > 0 && $product->stok <= 20)
+                                <span class="pdp-stock-warn-inline">
+                                    <i class="bi bi-exclamation-circle"></i>
+                                    Hanya tersisa <strong>{{ $product->stok }} item</strong><br>
+                                    <span style="font-size:11px;color:#5F6368;">Jangan sampai kehabisan</span>
+                                </span>
+                            @else
+                                <span style="font-size:13px;color:#1E8E3E;"><i class="bi bi-check-circle"></i> Stok tersedia (<span>{{ $product->stok }}</span>)</span>
+                            @endif
+                        </div>
                     </div>
-
-                    {{-- Stock warning --}}
-                    <p class="pdp-stock-warning">
-                        <i class="bi bi-exclamation-circle"></i> Hanya tersisa {{ $product->stok }} item
-                    </p>
 
                     {{-- Total price --}}
                     <div class="pdp-total-row">
@@ -489,23 +534,29 @@
 
                     {{-- CTA buttons --}}
                     <div class="pdp-cta">
-                        <button id="btn-Keranjang" class="pdp-btn pdp-btn-cart" type="button">
-                            <i class="bi bi-cart-plus me-2"></i>Tambah ke Keranjang
-                        </button>
                         <button id="btn-Beli" class="pdp-btn pdp-btn-buy" type="button">
-                            <i class="bi bi-lightning-charge me-2"></i>Beli Sekarang
+                            Beli Sekarang
+                        </button>
+                        <button id="btn-Keranjang" class="pdp-btn pdp-btn-cart" type="button">
+                            + Tambah ke Keranjang
                         </button>
                     </div>
 
                     {{-- Info cards --}}
                     <div class="pdp-info-cards">
                         <div class="pdp-info-card">
-                            <i class="bi bi-truck"></i>
-                            <span>Gratis Ongkir<br><strong>min. Rp100.000</strong></span>
+                            <i class="bi bi-truck" style="color:#0066CC;"></i>
+                            <div>
+                                <strong>Gratis Ongkir</strong><br>
+                                <a href="#" style="font-size:12px;color:#0066CC;text-decoration:none;">Cek tarif untuk kode pos Anda</a>
+                            </div>
                         </div>
                         <div class="pdp-info-card">
-                            <i class="bi bi-arrow-repeat"></i>
-                            <span>Garansi Tukar<br><strong>30 hari</strong></span>
+                            <i class="bi bi-arrow-repeat" style="color:#E37400;"></i>
+                            <div>
+                                <strong>Garansi Tukar</strong><br>
+                                <a href="#" style="font-size:12px;color:#0066CC;text-decoration:none;">Tukar gratis 30 hari &middot; Detail</a>
+                            </div>
                         </div>
                     </div>
 
