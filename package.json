@@ -4,7 +4,14 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "cy:open": "cypress open",
+        "cy:run": "cypress run",
+        "cy:run:riziq": "cypress run --spec 'cypress/e2e/riziq/**'",
+        "cy:run:raffa": "cypress run --spec 'cypress/e2e/raffa/**'",
+        "cy:run:naufal": "cypress run --spec 'cypress/e2e/naufal/**'",
+        "cy:run:frizam": "cypress run --spec 'cypress/e2e/frizam/**'",
+        "cy:run:bagas": "cypress run --spec 'cypress/e2e/bagas/**'"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
@@ -13,6 +20,7 @@
         "autoprefixer": "^10.4.2",
         "axios": "^1.11.0",
         "concurrently": "^9.0.1",
+        "cypress": "^15.17.0",
         "laravel-vite-plugin": "^2.0.0",
         "postcss": "^8.4.31",
         "tailwindcss": "^3.1.0",
