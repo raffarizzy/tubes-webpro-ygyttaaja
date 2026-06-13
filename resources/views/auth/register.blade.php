@@ -161,7 +161,7 @@
             @enderror
         </div>
 
-        <button class="btn btn-primary w-100 mb-3">
+        <button class="btn btn-primary w-100 mb-3" name="daftarBtn">
             Daftar
         </button>
     </form>
