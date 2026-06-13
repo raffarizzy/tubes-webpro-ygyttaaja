@@ -190,8 +190,12 @@
                                         <span class="fw-semibold">{{ $totalItems }} pcs</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">Pengiriman:</span>
+                                        <span class="fw-semibold">{{ $pesanan->courier_name ?? 'Kurir' }} ({{ $pesanan->service_name ?? '-' }})</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
                                         <span class="text-muted">Ongkir:</span>
-                                        <span class="text-success fw-semibold">Gratis</span>
+                                        <span class="fw-semibold">Rp {{ number_format($pesanan->shipping_cost ?? 0, 0, ',', '.') }}</span>
                                     </div>
                                     <hr class="my-2">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -206,6 +210,14 @@
 
                         <!-- Action Buttons -->
                         <div class="mt-3 d-flex justify-content-end gap-2">
+                            @if($pesanan->status === 'shipped' && $pesanan->nomor_resi)
+                                <button type="button" class="btn btn-info btn-sm text-white btn-lacak" 
+                                        data-resi="{{ $pesanan->nomor_resi }}" 
+                                        data-courier="{{ $pesanan->courier_code }}">
+                                    <i class="bi bi-truck"></i> Lacak Pesanan
+                                </button>
+                            @endif
+                            
                             @if($pesanan->status === 'paid')
                                 <a href="{{ route('ratings.index') }}" class="btn btn-warning btn-sm">
                                     <i class="bi bi-star"></i> Review
@@ -234,8 +246,93 @@
         @endif
     </div>
 </main>
+
+<!-- Modal Tracking -->
+<div class="modal fade" id="trackingModal" tabindex="-1" aria-labelledby="trackingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="trackingModalLabel">Detail Pelacakan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="trackingContent">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Mengambil data pelacakan...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
+        const trackingContent = document.getElementById('trackingContent');
+
+        document.querySelectorAll('.btn-lacak').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const resi = this.dataset.resi;
+                const courier = this.dataset.courier;
+
+                trackingModal.show();
+                trackingContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p class="mt-2">Sedang melacak nomor resi: <strong>${resi}</strong>...</p>
+                    </div>
+                `;
+
+                try {
+                    const response = await fetch(`/api/shipping/track/${resi}/${courier}`);
+                    const result = await response.json();
+
+                    if (!result.success) throw new Error(result.message);
+
+                    const data = result.data.data;
+                    const history = data.history || [];
+
+                    let historyHtml = history.map(h => `
+                        <div class="d-flex mb-3 border-start border-primary border-3 ps-3">
+                            <div>
+                                <div class="fw-bold small">${h.description}</div>
+                                <div class="text-muted small">${h.date}</div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    trackingContent.innerHTML = `
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-1 small text-uppercase">Nomor Resi</h6>
+                                <p class="fw-bold mb-3">${data.summary.waybill_number}</p>
+                                <h6 class="text-muted mb-1 small text-uppercase">Kurir</h6>
+                                <p class="fw-bold mb-3">${data.summary.courier_name}</p>
+                            </div>
+                            <div class="col-md-6 text-md-end">
+                                <h6 class="text-muted mb-1 small text-uppercase">Status Terakhir</h6>
+                                <span class="badge bg-success fs-6">${data.summary.status}</span>
+                            </div>
+                        </div>
+                        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history"></i> Riwayat Perjalanan</h6>
+                        <div class="tracking-history">
+                            ${historyHtml || '<p class="text-muted">Riwayat perjalanan tidak tersedia.</p>'}
+                        </div>
+                    `;
+                } catch (error) {
+                    trackingContent.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> Gagal melacak pesanan: ${error.message}
+                        </div>
+                    `;
+                }
+            });
+        });
+    });
+</script>
 @endpush

@@ -160,6 +160,24 @@
             </div>
           </div>
 
+          <!-- Metode Pengiriman (KlikResi) -->
+          <div class="card shadow-sm mb-3">
+            <div class="card-body p-3">
+              <h6 class="text-secondary fw-bold mb-3">Pilih Metode Pengiriman</h6>
+              
+              <div id="shippingOptionsContainer">
+                <div class="text-center py-3">
+                  <p class="text-muted small mb-0">Silakan pilih alamat terlebih dahulu.</p>
+                </div>
+              </div>
+
+              <!-- Data Pengiriman (Hidden) -->
+              <input type="hidden" id="courierCodeInput">
+              <input type="hidden" id="courierNameInput">
+              <input type="hidden" id="serviceNameInput">
+              <input type="hidden" id="shippingCostInput" value="0">
+            </div>
+          </div>
 
           <!-- Metode Pembayaran -->
           <div class="card shadow-sm mb-3">

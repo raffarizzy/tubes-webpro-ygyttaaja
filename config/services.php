@@ -32,7 +32,10 @@ return [
         'secret' => env('XENDIT_SECRET_KEY'),
     ],
 
-
+    'klikresi' => [
+        'key' => env('KLIKRESI_API_KEY'),
+        'origin_id' => '32.73.23', // Fixed origin_id
+    ],
 
     'slack' => [
         'notifications' => [

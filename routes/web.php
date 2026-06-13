@@ -140,6 +140,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/wilayah/provinsi', [\App\Http\Controllers\WilayahController::class, 'getProvinces']);
     Route::get('/api/wilayah/kota/{provinsi_kode}', [\App\Http\Controllers\WilayahController::class, 'getCities']);
     Route::get('/api/wilayah/kecamatan/{kota_kode}', [\App\Http\Controllers\WilayahController::class, 'getDistricts']);
+
+    // ============================================
+    // SHIPPING (KLIKRESI)
+    // ============================================
+    Route::post('/api/shipping/rates', [\App\Http\Controllers\ShippingController::class, 'getRates'])->name('shipping.rates');
+    Route::get('/api/shipping/track/{tracking_number}/{courier_code}', [\App\Http\Controllers\ShippingController::class, 'trackOrder'])->name('shipping.track');
 });
 
 require __DIR__.'/auth.php';

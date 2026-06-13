@@ -13,6 +13,10 @@ class Order extends Model
         'status',
         'nomor_resi',
         'payment_url',
+        'courier_code',
+        'courier_name',
+        'service_name',
+        'shipping_cost',
     ];
 
     public function items()

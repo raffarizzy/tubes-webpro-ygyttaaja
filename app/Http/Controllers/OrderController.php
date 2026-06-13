@@ -34,6 +34,10 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|integer',
             'items.*.jumlah' => 'required|integer|min:1',
+            'courier_code' => 'required|string',
+            'courier_name' => 'required|string',
+            'service_name' => 'required|string',
+            'shipping_cost' => 'required|integer',
         ]);
 
         try {
@@ -45,6 +49,10 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'alamat_id' => $request->alamat_id,
                 'items' => $request->items,
+                'courier_code' => $request->courier_code,
+                'courier_name' => $request->courier_name,
+                'service_name' => $request->service_name,
+                'shipping_cost' => $request->shipping_cost,
             ]);
 
             if ($response->successful()) {
