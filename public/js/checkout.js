@@ -255,10 +255,74 @@ document.addEventListener("DOMContentLoaded", function () {
     const payButton = document.getElementById("payNowBtn");
     const paymentHint = document.getElementById("paymentHint");
 
+    const provinsiSelect = document.getElementById("provinsiSelect");
+    const kotaSelect = document.getElementById("kotaSelect");
+    const kecamatanSelect = document.getElementById("kecamatanSelect");
+
     let selectedAddress = null;
     let selectedPayment = null;
     let alamatList = [];
     let editIndex = null;
+
+    // --- Wilayah Cascading Logic ---
+    async function fetchWilayah(url) {
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching wilayah:", error);
+            return [];
+        }
+    }
+
+    async function loadProvinces() {
+        const provinces = await fetchWilayah("/api/wilayah/provinsi");
+        provinsiSelect.innerHTML = '<option value="">Pilih Provinsi</option>';
+        provinces.forEach((p) => {
+            const option = document.createElement("option");
+            option.value = p.kode;
+            option.textContent = p.nama;
+            provinsiSelect.appendChild(option);
+        });
+    }
+
+    provinsiSelect.addEventListener("change", async function () {
+        const provinceCode = this.value;
+        kotaSelect.innerHTML = '<option value="">Pilih Kota</option>';
+        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+        kecamatanSelect.disabled = true;
+
+        if (provinceCode) {
+            const cities = await fetchWilayah(`/api/wilayah/kota/${provinceCode}`);
+            cities.forEach((c) => {
+                const option = document.createElement("option");
+                option.value = c.kode;
+                option.textContent = c.nama;
+                kotaSelect.appendChild(option);
+            });
+            kotaSelect.disabled = false;
+        } else {
+            kotaSelect.disabled = true;
+        }
+    });
+
+    kotaSelect.addEventListener("change", async function () {
+        const cityCode = this.value;
+        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+
+        if (cityCode) {
+            const districts = await fetchWilayah(`/api/wilayah/kecamatan/${cityCode}`);
+            districts.forEach((d) => {
+                const option = document.createElement("option");
+                option.value = d.kode;
+                option.textContent = d.nama;
+                kecamatanSelect.appendChild(option);
+            });
+            kecamatanSelect.disabled = false;
+        } else {
+            kecamatanSelect.disabled = true;
+        }
+    });
 
     // Helper function untuk mendapatkan CSRF token
     function getCsrfToken() {
@@ -357,7 +421,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 alamat.alamat,
                 alamat.nomor_penerima,
                 alamat.id,
-                alamat.is_default
+                alamat.is_default,
+                alamat.provinsi,
+                alamat.kota,
+                alamat.kecamatan
             );
         });
 
@@ -370,23 +437,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Buat card alamat
-    function buatAddressCard(nama, alamat, nomor, id, isDefault = false) {
+    function buatAddressCard(nama, alamat, nomor, id, isDefault = false, provinsi = '', kota = '', kecamatan = '') {
         const col = document.createElement("div");
         col.className = "col-md-6 col-xl-4 address-card";
 
         const isDefaultBool =
             isDefault === 1 || isDefault === true || isDefault === "1";
 
-        console.log(
-            `Card ${id}: isDefault =`,
-            isDefault,
-            "converted to:",
-            isDefaultBool
-        );
-
         const defaultBadge = isDefaultBool
             ? '<span class="badge bg-success ms-2"><i class="bi bi-star-fill"></i> Default</span>'
             : "";
+        
+        const regionText = [kecamatan, kota, provinsi].filter(Boolean).join(', ');
 
         col.innerHTML = `
       <div class="card border-2 h-100 card-selectable" data-id="${id}">
@@ -397,7 +459,10 @@ document.addEventListener("DOMContentLoaded", function () {
               <i class="bi bi-pencil"></i> Edit
             </span>
           </div>
-          <p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${alamat}</p>
+          <div class="text-muted small mb-2">
+            <p class="mb-1 text-dark fw-medium">${alamat}</p>
+            <p class="mb-0 italic"><i class="bi bi-geo-alt"></i> ${regionText || '-'}</p>
+          </div>
           <p class="text-muted small mb-0"><i class="bi bi-telephone"></i> ${nomor}</p>
         </div>
       </div>
@@ -445,6 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteAddressBtn.classList.add("d-none");
 
         resetForm();
+        loadProvinces();
 
         addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
     });
@@ -457,14 +523,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const isDefaultCheckbox = document.getElementById("defaultCheckbox");
         const isDefault = isDefaultCheckbox ? isDefaultCheckbox.checked : false;
 
-        console.log("Form values:");
-        console.log("- Nama:", nama);
-        console.log("- Alamat:", alamat);
-        console.log("- Nomor:", nomor);
-        console.log("- isDefault final:", isDefault);
+        const getSelectedText = (selectEl) => {
+            if (!selectEl || selectEl.selectedIndex === -1) return "";
+            const option = selectEl.options[selectEl.selectedIndex];
+            if (!option || option.value === "") return "";
+            return option.text;
+        };
 
-        if (!nama || !alamat || !nomor) {
-            alert("Lengkapi semua data alamat!");
+        const provinsi = getSelectedText(provinsiSelect);
+        const kota = getSelectedText(kotaSelect);
+        const kecamatan = getSelectedText(kecamatanSelect);
+        const kode_wilayah = kecamatanSelect.value || kotaSelect.value || provinsiSelect.value || "";
+
+        console.log("Saving Alamat - Cleaned Data:", { provinsi, kota, kecamatan, kode_wilayah });
+
+        if (!nama || !alamat || !nomor || !provinsi || !kota || !kecamatan) {
+            alert("Lengkapi semua data alamat termasuk wilayah (Provinsi, Kota, dan Kecamatan)!");
             return;
         }
 
@@ -472,6 +546,10 @@ document.addEventListener("DOMContentLoaded", function () {
             nama_penerima: nama,
             alamat: alamat,
             nomor_penerima: nomor,
+            provinsi: provinsi,
+            kota: kota,
+            kecamatan: kecamatan,
+            kode_wilayah: kode_wilayah,
             is_default: isDefault ? 1 : 0,
         };
 
@@ -599,7 +677,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Tampilkan form edit
-    function tampilkanFormEdit(data) {
+    async function tampilkanFormEdit(data) {
         console.log("Editing alamat:", data);
 
         addAddressForm.classList.remove("d-none");
@@ -608,6 +686,40 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("namaInput").value = data.nama_penerima;
         document.getElementById("alamatInput").value = data.alamat;
         document.getElementById("nomorInput").value = data.nomor_penerima;
+
+        // Repopulate regions
+        await loadProvinces();
+        if (data.kode_wilayah) {
+            const provinceCode = data.kode_wilayah.substring(0, 2);
+            const cityCode = data.kode_wilayah.substring(0, 5);
+            const districtCode = data.kode_wilayah;
+
+            provinsiSelect.value = provinceCode;
+            
+            // Load cities
+            const cities = await fetchWilayah(`/api/wilayah/kota/${provinceCode}`);
+            kotaSelect.innerHTML = '<option value="">Pilih Kota</option>';
+            cities.forEach((c) => {
+                const option = document.createElement("option");
+                option.value = c.kode;
+                option.textContent = c.nama;
+                kotaSelect.appendChild(option);
+            });
+            kotaSelect.value = cityCode;
+            kotaSelect.disabled = false;
+
+            // Load districts
+            const districts = await fetchWilayah(`/api/wilayah/kecamatan/${cityCode}`);
+            kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            districts.forEach((d) => {
+                const option = document.createElement("option");
+                option.value = d.kode;
+                option.textContent = d.nama;
+                kecamatanSelect.appendChild(option);
+            });
+            kecamatanSelect.value = districtCode;
+            kecamatanSelect.disabled = false;
+        }
 
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {

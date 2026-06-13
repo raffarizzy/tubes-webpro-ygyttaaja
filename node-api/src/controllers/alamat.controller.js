@@ -72,8 +72,17 @@ exports.getAlamatById = async (req, res) => {
  */
 exports.createAlamat = async (req, res) => {
     try {
-        const { user_id, alamat, nama_penerima, nomor_penerima, is_default } =
-            req.body;
+        const {
+            user_id,
+            alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
+            nama_penerima,
+            nomor_penerima,
+            is_default,
+        } = req.body;
 
         // Validation
         if (!user_id) {
@@ -100,6 +109,10 @@ exports.createAlamat = async (req, res) => {
 
         const newAlamat = await service.createAlamat(user_id, {
             alamat,
+            provinsi: provinsi || null,
+            kota: kota || null,
+            kecamatan: kecamatan || null,
+            kode_wilayah: kode_wilayah || null,
             nama_penerima,
             nomor_penerima,
             is_default: is_default || false,
@@ -130,8 +143,17 @@ exports.createAlamat = async (req, res) => {
 exports.updateAlamat = async (req, res) => {
     try {
         const { alamatId } = req.params;
-        const { user_id, alamat, nama_penerima, nomor_penerima, is_default } =
-            req.body;
+        const {
+            user_id,
+            alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
+            nama_penerima,
+            nomor_penerima,
+            is_default,
+        } = req.body;
 
         // Validation
         if (!alamatId) {
@@ -156,6 +178,10 @@ exports.updateAlamat = async (req, res) => {
 
         const updatedAlamat = await service.updateAlamat(alamatId, user_id, {
             alamat,
+            provinsi: provinsi || null,
+            kota: kota || null,
+            kecamatan: kecamatan || null,
+            kode_wilayah: kode_wilayah || null,
             nama_penerima,
             nomor_penerima,
             is_default: is_default !== undefined ? is_default : false,

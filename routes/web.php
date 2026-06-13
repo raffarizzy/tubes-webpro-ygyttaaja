@@ -122,12 +122,24 @@ Route::middleware('auth')->group(function () {
     Route::post('/toko', [TokoController::class, 'store'])->name('toko.store');
     Route::put('/toko/{id}', [TokoController::class, 'update'])->name('toko.update');
     
+    // Alur Pesanan Toko
+    Route::post('/toko/orders/{id}/accept', [TokoController::class, 'acceptOrder'])->name('toko.order.accept');
+    Route::post('/toko/orders/{id}/reject', [TokoController::class, 'rejectOrder'])->name('toko.order.reject');
+    Route::post('/toko/orders/{id}/ship', [TokoController::class, 'shipOrder'])->name('toko.order.ship');
+    
     // ============================================
     // PRODUCT MANAGEMENT (Oleh Penjual)
     // ============================================
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
     Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+    // ============================================
+    // WILAYAH (PROVINSI, KOTA, KECAMATAN)
+    // ============================================
+    Route::get('/api/wilayah/provinsi', [\App\Http\Controllers\WilayahController::class, 'getProvinces']);
+    Route::get('/api/wilayah/kota/{provinsi_kode}', [\App\Http\Controllers\WilayahController::class, 'getCities']);
+    Route::get('/api/wilayah/kecamatan/{kota_kode}', [\App\Http\Controllers\WilayahController::class, 'getDistricts']);
 });
 
 require __DIR__.'/auth.php';

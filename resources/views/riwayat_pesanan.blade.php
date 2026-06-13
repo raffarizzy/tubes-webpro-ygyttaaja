@@ -81,7 +81,17 @@
                         'paid' => [
                             'class' => 'bg-success',
                             'icon' => 'check-circle',
-                            'text' => 'Selesai'
+                            'text' => 'Sudah Dibayar'
+                        ],
+                        'processing' => [
+                            'class' => 'bg-info text-dark',
+                            'icon' => 'gear',
+                            'text' => 'Diproses'
+                        ],
+                        'shipped' => [
+                            'class' => 'bg-primary',
+                            'icon' => 'truck',
+                            'text' => 'Dikirim'
                         ],
                         'cancelled' => [
                             'class' => 'bg-danger',
@@ -203,6 +213,12 @@
                             @endif
                             
                             @if($pesanan->status === 'pending')
+                                @if(isset($pesanan->payment_url) && $pesanan->payment_url)
+                                    <a href="{{ $pesanan->payment_url }}" target="_blank" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-wallet2"></i> Bayar Sekarang
+                                    </a>
+                                @endif
+                                
                                 <!-- Form untuk Cancel Order -->
                                 <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
                                     @csrf

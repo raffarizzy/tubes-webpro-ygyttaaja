@@ -119,15 +119,15 @@ exports.getOrdersByUserId = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { status } = req.body;
+        const { status, payment_url } = req.body;
 
         if (!status) {
             return response.validationError(res, "Field status wajib diisi");
         }
 
-        console.log(`Updating order ${orderId} status to ${status}`);
+        console.log(`Updating order ${orderId} status to ${status}${payment_url ? ' with payment_url' : ''}`);
 
-        const result = await service.updateOrderStatus(orderId, status);
+        const result = await service.updateOrderStatus(orderId, status, payment_url);
 
         return response.success(
             res,

@@ -6,13 +6,13 @@
     "deskripsi": "Spesialis oli dan sparepart kendaraan.",
     "logoPath": "img/iconPengguna.png",
     "lokasi": "Jakarta Barat"
-  },
-  {
-    "id": 2,
-    "namaToko": "Otomax Shop",
-    "pemilikId": 2,
-    "deskripsi": "Toko perlengkapan otomotif lengkap dan terpercaya.",
-    "logoPath": "img/logoToko2.png",
-    "lokasi": "Bandung"
   }
+  // {
+  //   "id": 2,
+  //   "namaToko": "Otomax Shop",
+  //   "pemilikId": 2,
+  //   "deskripsi": "Toko perlengkapan otomotif lengkap dan terpercaya.",
+  //   "logoPath": "img/logoToko2.png",
+  //   "lokasi": "Bandung"
+  // }
 ]

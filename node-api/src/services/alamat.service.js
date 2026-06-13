@@ -10,6 +10,10 @@ exports.getUserAlamat = async (userId) => {
             id,
             user_id,
             alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
             nama_penerima,
             nomor_penerima,
             is_default,
@@ -35,6 +39,10 @@ exports.getAlamatById = async (alamatId) => {
             id,
             user_id,
             alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
             nama_penerima,
             nomor_penerima,
             is_default,
@@ -62,7 +70,16 @@ exports.createAlamat = async (userId, data) => {
         await connection.query("SET time_zone = '+07:00'");
         await connection.beginTransaction();
 
-        const { alamat, nama_penerima, nomor_penerima, is_default } = data;
+        const {
+            alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
+            nama_penerima,
+            nomor_penerima,
+            is_default,
+        } = data;
 
         // Validate required fields
         if (!alamat || !nama_penerima || !nomor_penerima) {
@@ -97,11 +114,15 @@ exports.createAlamat = async (userId, data) => {
         // Insert new alamat
         const [result] = await connection.query(
             `INSERT INTO alamats 
-            (user_id, alamat, nama_penerima, nomor_penerima, is_default, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            (user_id, alamat, provinsi, kota, kecamatan, kode_wilayah, nama_penerima, nomor_penerima, is_default, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 userId,
                 alamat,
+                provinsi || null,
+                kota || null,
+                kecamatan || null,
+                kode_wilayah || null,
                 nama_penerima,
                 nomor_penerima,
                 isDefaultValue,
@@ -150,7 +171,16 @@ exports.updateAlamat = async (alamatId, userId, data) => {
             throw new Error("Anda tidak memiliki akses ke alamat ini");
         }
 
-        const { alamat, nama_penerima, nomor_penerima, is_default } = data;
+        const {
+            alamat,
+            provinsi,
+            kota,
+            kecamatan,
+            kode_wilayah,
+            nama_penerima,
+            nomor_penerima,
+            is_default,
+        } = data;
 
         // Validate required fields
         if (!alamat || !nama_penerima || !nomor_penerima) {
@@ -188,6 +218,10 @@ exports.updateAlamat = async (alamatId, userId, data) => {
         const [result] = await connection.query(
             `UPDATE alamats 
             SET alamat = ?, 
+                provinsi = ?,
+                kota = ?,
+                kecamatan = ?,
+                kode_wilayah = ?,
                 nama_penerima = ?, 
                 nomor_penerima = ?, 
                 is_default = ?,
@@ -195,6 +229,10 @@ exports.updateAlamat = async (alamatId, userId, data) => {
             WHERE id = ?`,
             [
                 alamat,
+                provinsi || null,
+                kota || null,
+                kecamatan || null,
+                kode_wilayah || null,
                 nama_penerima,
                 nomor_penerima,
                 isDefaultValue,

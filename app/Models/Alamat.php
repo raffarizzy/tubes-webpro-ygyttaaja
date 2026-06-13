@@ -9,6 +9,10 @@ class Alamat extends Model
     protected $fillable = [
         'user_id',
         'alamat',
+        'provinsi',
+        'kota',
+        'kecamatan',
+        'kode_wilayah',
         'is_default', // UBAH DARI isDefault
         'nama_penerima',
         'nomor_penerima'

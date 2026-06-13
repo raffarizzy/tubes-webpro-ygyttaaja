@@ -46,10 +46,26 @@ class TokoController extends Controller
             }
 
             $toko = $tokoResponse->json()['data'];
+            $toko = (object) $toko;
 
-            $toko = (object) $tokoData;
+            // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
+            $toko->products = Product::where('toko_id', $toko->id)->get();
 
-            return view('profil_toko', compact('toko'));
+            // Ambil pesanan masuk
+            $productIds = $toko->products->pluck('id');
+            $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->with(['order.user', 'order.alamat'])
+                ->latest()
+                ->get();
+
+            // Statistik Tambahan
+            $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->whereHas('order', function($q) { $q->where('status', 'paid'); })
+                ->count();
+            
+            $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -61,7 +77,20 @@ class TokoController extends Controller
                 return redirect()->route('toko.create');
             }
 
-            return view('profil_toko', compact('toko'));
+            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $productIds = $toko->products->pluck('id');
+            $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->with(['order.user', 'order.alamat'])
+                ->latest()
+                ->get();
+
+            $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->whereHas('order', function($q) { $q->where('status', 'paid'); })
+                ->count();
+            
+            $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
         }
     }
 
@@ -80,7 +109,7 @@ class TokoController extends Controller
                 $result = $response->json();
                 
                 if ($result['data']['hasToko']) {
-                    return redirect()->route('toko.index')
+                    return redirect()->route('profil_toko')
                         ->with('error', 'Anda sudah memiliki toko');
                 }
             }
@@ -312,6 +341,102 @@ class TokoController extends Controller
         } catch (\Exception $e) {
             Log::error('Error getting toko from API: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Accept an order (paid -> processing)
+     */
+    public function acceptOrder($orderId)
+    {
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            // Verifikasi bahwa order ini berisi produk dari toko user ini
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if ($order->status !== 'paid') {
+                return back()->with('error', 'Hanya pesanan yang sudah dibayar yang dapat diterima.');
+            }
+
+            $order->update(['status' => 'processing']);
+            return back()->with('success', 'Pesanan diterima dan sedang diproses.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menerima pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject/Cancel an order
+     */
+    public function rejectOrder($orderId)
+    {
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if (!in_array($order->status, ['paid', 'processing'])) {
+                return back()->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+            }
+
+            $order->update(['status' => 'cancelled']);
+            return back()->with('success', 'Pesanan berhasil dibatalkan.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Ship an order (processing -> shipped)
+     */
+    public function shipOrder(Request $request, $orderId)
+    {
+        $request->validate([
+            'nomor_resi' => 'required|string|max:100'
+        ]);
+
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if ($order->status !== 'processing') {
+                return back()->with('error', 'Hanya pesanan yang sedang diproses yang dapat dikirim.');
+            }
+
+            $order->update([
+                'status' => 'shipped',
+                'nomor_resi' => $request->nomor_resi
+            ]);
+
+            return back()->with('success', 'Pesanan telah dikirim dengan nomor resi: ' . $request->nomor_resi);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim pesanan: ' . $e->getMessage());
         }
     }
 }

@@ -59,6 +59,26 @@
                           required
                         />
                       </div>
+                      <div class="row g-2 mb-2">
+                        <div class="col-md-4">
+                          <label for="provinsiSelect" class="form-label small mb-1">Provinsi</label>
+                          <select class="form-select form-select-sm" id="provinsiSelect" required>
+                            <option value="">Pilih Provinsi</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label for="kotaSelect" class="form-label small mb-1">Kota/Kabupaten</label>
+                          <select class="form-select form-select-sm" id="kotaSelect" required disabled>
+                            <option value="">Pilih Kota</option>
+                          </select>
+                        </div>
+                        <div class="col-md-4">
+                          <label for="kecamatanSelect" class="form-label small mb-1">Kecamatan</label>
+                          <select class="form-select form-select-sm" id="kecamatanSelect" required disabled>
+                            <option value="">Pilih Kecamatan</option>
+                          </select>
+                        </div>
+                      </div>
                       <div class="mb-2">
                         <label for="alamatInput" class="form-label small mb-1"
                           >Alamat Lengkap</label
@@ -67,7 +87,7 @@
                           class="form-control form-control-sm"
                           id="alamatInput"
                           rows="2"
-                          placeholder="Masukkan alamat lengkap"
+                          placeholder="Nama jalan, No. Rumah, RT/RW"
                           required
                         ></textarea>
                       </div>

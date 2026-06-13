@@ -12,6 +12,7 @@ exports.getUserOrders = async (userId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -49,6 +50,7 @@ exports.getUserOrders = async (userId) => {
             alamat_id: order.alamat_id,
             total_harga: order.total_harga,
             status: order.status,
+            payment_url: order.payment_url,
             created_at: order.created_at,
             updated_at: order.updated_at,
             items: itemRows.map((item) => ({
@@ -87,6 +89,7 @@ exports.getOrderById = async (orderId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -127,6 +130,7 @@ exports.getOrderById = async (orderId) => {
         alamat_id: order.alamat_id,
         total_harga: order.total_harga,
         status: order.status,
+        payment_url: order.payment_url,
         created_at: order.created_at,
         updated_at: order.updated_at,
         items: itemRows.map((item) => ({
