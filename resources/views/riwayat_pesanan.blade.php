@@ -71,7 +71,7 @@
                                 {{ $pesanan->created_at ? \Carbon\Carbon::parse($pesanan->created_at)->timezone('Asia/Jakarta')->locale('id')->isoFormat('D MMMM YYYY, HH:mm') : 'N/A' }}
                             </small>
                         </div>
-                        <span class="badge {{ $status['class'] }}">{{ $status['text'] }}</span>
+                        <span class="badge {{ $status['class'] }} fs-6">{{ $status['text'] }}</span>
                     </div>
                     
                     <div class="card-body">
@@ -117,13 +117,31 @@
                         <!-- Action Buttons -->
                         <div class="mt-3 d-flex justify-content-end gap-2">
                             @if(!in_array($pesanan->status, ['pending', 'cancelled']))
-                                <button type="button" class="btn btn-outline-warning btn-sm btn-report" data-order-id="{{ $pesanan->id }}">
-                                    Laporkan Masalah
+                                <button 
+                                    type="button" 
+                                    class="btn btn-sm btn-report"
+                                    style="
+                                        --bs-btn-color: #122c4f;
+                                        --bs-btn-border-color: #122c4f;
+                                        --bs-btn-hover-color: #122c4f;
+                                        --bs-btn-hover-bg: #F7F7F7;
+                                        --bs-btn-hover-border-color: #122c4f;
+                                    " 
+                                    data-order-id="{{ $pesanan->id }}">
+                                        Laporkan Masalah
                                 </button>
                             @endif
 
                             @if($pesanan->status === 'shipped')
-                                <button type="button" class="btn btn-info btn-sm text-white btn-lacak" 
+                                <button type="button" class="btn btn-sm btn-lacak"
+                                        style="
+                                            --bs-btn-color: #ffffff;
+                                            --bs-btn-bg: #122c4f;
+                                            --bs-btn-border-color: #122c4f;
+                                            --bs-btn-hover-color: #ffffff;
+                                            --bs-btn-hover-bg: #0D2033;
+                                            --bs-btn-hover-border-color: #122c4f;
+                                        "  
                                         data-resi="{{ $pesanan->nomor_resi }}" 
                                         data-courier="{{ $pesanan->courier_code }}">
                                     Lacak Pesanan
