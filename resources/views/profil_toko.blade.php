@@ -544,13 +544,14 @@
                                                     'paid' => 'bg-success-subtle text-success border border-success',
                                                     'processing' => 'bg-primary-subtle text-primary border border-primary',
                                                     'shipped' => 'bg-info-subtle text-info border border-info',
+                                                    'finished' => 'bg-success text-white',
                                                     'cancelled' => 'bg-danger-subtle text-danger',
                                                     default => 'bg-secondary-subtle text-secondary'
                                                 };
                                             @endphp
                                             <span class="badge {{ $statusClass }} rounded-pill px-3 py-2 text-capitalize">
                                                 <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem"></i>
-                                                {{ $item->order->status }}
+                                                {{ $item->order->status === 'finished' ? 'Selesai' : $item->order->status }}
                                             </span>
                                         </td>
                                         <td class="pe-4 text-end">

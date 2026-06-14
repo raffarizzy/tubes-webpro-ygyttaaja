@@ -362,6 +362,48 @@ class OrderController extends Controller
     }
 
     /**
+     * FINISH ORDER - Update status to finished
+     */
+    public function finishOrder($id)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Panggil Node.js API untuk update status
+            $response = Http::timeout(30)
+                ->put("http://localhost:3001/api/orders/{$id}/status", [
+                    'status' => 'finished'
+                ]);
+
+            if ($response->successful()) {
+                Log::info('Order finished successfully', [
+                    'order_id' => $id,
+                    'user_id' => $user->id
+                ]);
+
+                return redirect()->route('riwayat.pesanan')
+                    ->with('success', 'Terima kasih! Pesanan telah selesai.');
+            }
+
+            throw new \Exception($response->json('message') ?? 'Gagal menyelesaikan pesanan');
+
+        } catch (\Exception $e) {
+            Log::error('Order finish failed', [
+                'order_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Helper: Convert array to object recursively
      */
     private function convertToObject($data)

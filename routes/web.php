@@ -87,6 +87,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/riwayat-pesanan', [OrderController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
+    Route::post('/orders/{id}/finish', [OrderController::class, 'finishOrder'])->name('orders.finish');
     Route::get('/ratings', [RatingController::class, 'index'])->name('ratings.index');
     Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
     Route::delete('/ratings/{id}', [RatingController::class, 'destroy'])->name('ratings.destroy');

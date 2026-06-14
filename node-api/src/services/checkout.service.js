@@ -298,11 +298,11 @@ exports.updateOrderStatus = async (orderId, status, paymentUrl = null) => {
         // SET TIMEZONE
         await connection.query("SET time_zone = '+07:00'");
 
-        const validStatuses = ["pending", "paid", "processing", "shipped", "cancelled"];
+        const validStatuses = ["pending", "paid", "processing", "shipped", "finished", "cancelled"];
 
         if (!validStatuses.includes(status)) {
             throw new Error(
-                "Status tidak valid. Gunakan: pending, paid, processing, shipped, atau cancelled"
+                "Status tidak valid. Gunakan: pending, paid, processing, shipped, finished, atau cancelled"
             );
         }
 
