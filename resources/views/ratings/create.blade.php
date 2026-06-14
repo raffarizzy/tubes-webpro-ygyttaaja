@@ -89,7 +89,7 @@
                 <div class="card-body p-4 p-md-5">
                     {{-- Product Info --}}
                     <div class="product-preview shadow-sm">
-                        <img src="{{ $product->image_path ? Storage::url($product->image_path) : asset('img/no-image.png') }}" alt="{{ $product->nama }}">
+                        <img src="{{ $product->imagePath ? asset('storage/' . $product->imagePath) : asset('img/no-image.png') }}" alt="{{ $product->nama }}" onerror="this.src='{{ asset('img/no-image.png') }}'">
                         <div>
                             <h6 class="mb-1 fw-bold">{{ $product->nama }}</h6>
                             <p class="text-muted small mb-0 text-truncate" style="max-width: 200px;">{{ $product->deskripsi }}</p>

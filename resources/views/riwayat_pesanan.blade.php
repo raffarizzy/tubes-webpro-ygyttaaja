@@ -110,7 +110,10 @@
                         <div class="mb-3">
                             @foreach($pesanan->items as $item)
                                 <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                                    <img src="{{ $item->product && $item->product->image_path ? Storage::url($item->product->image_path) : '' }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.style.display='none'">
+                                    @php
+                                        $imagePath = ($item->product && $item->product->image_path) ? $item->product->image_path : null;
+                                    @endphp
+                                    <img src="{{ $imagePath ? asset('storage/' . $imagePath) : asset('img/no-image.png') }}" class="rounded me-3" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.src='{{ asset('img/no-image.png') }}'">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-0 fw-semibold">{{ $item->nama_produk }}</h6>
                                         <div class="d-flex justify-content-between">
