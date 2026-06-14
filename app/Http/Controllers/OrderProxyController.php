@@ -8,7 +8,12 @@ use Illuminate\Support\Facades\Log;
 
 class OrderProxyController extends Controller
 {
-    private $nodeApiUrl = 'http://localhost:3001/api/orders';
+    private $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url') . '/api/orders';
+    }
 
     /**
      * Create order via Node.js API

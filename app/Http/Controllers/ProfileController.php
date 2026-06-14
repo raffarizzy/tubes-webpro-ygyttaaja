@@ -22,7 +22,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         // ambil profile dari Node.js
-        $profile = Http::get('http://localhost:3001/api/profile/'.$user->id)->json();
+        $profile = Http::get(config('services.node_api.url') . '/api/profile/'.$user->id)->json();
 
         return view('profile.edit', [
             'user'    => $user,
@@ -73,7 +73,7 @@ class ProfileController extends Controller
 
             // 4. SYNC KE NODE.JS
             $response = Http::patch(
-                "http://localhost:3001/api/profile/{$user->id}",
+                config('services.node_api.url') . "/api/profile/{$user->id}",
                 ['pfpPath' => $avatarUrl]
             );
 
@@ -142,7 +142,7 @@ class ProfileController extends Controller
 
             // 4. UPDATE PROFILE (NODE)
             $response = Http::patch(
-                'http://localhost:3001/api/profile/' . $user->id,
+                config('services.node_api.url') . '/api/profile/' . $user->id,
                 $request->only(['phone', 'birthDate', 'gender'])
             );
 

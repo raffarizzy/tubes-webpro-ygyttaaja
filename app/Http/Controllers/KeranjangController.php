@@ -24,7 +24,8 @@ class KeranjangController extends Controller
 
         // Fetch cart data from Node.js API
         try {
-            $response = Http::get("http://localhost:3001/api/cart/{$user->id}");
+            $apiUrl = config('services.node_api.url') . "/api/cart/{$user->id}";
+            $response = Http::get($apiUrl);
             $cartItems = $response->successful() ? $response->json('data') : [];
         } catch (\Exception $e) {
             $cartItems = [];
@@ -52,7 +53,8 @@ class KeranjangController extends Controller
 
         try {
             // Fetch from Node.js API
-            $response = Http::get("http://localhost:3001/api/cart/{$user->id}");
+            $apiUrl = config('services.node_api.url') . "/api/cart/{$user->id}";
+            $response = Http::get($apiUrl);
 
             if ($response->successful()) {
                 $cartItems = $response->json('data');
@@ -99,7 +101,8 @@ class KeranjangController extends Controller
             $user = Auth::user();
 
             // Call Node.js API to clear cart
-            $response = Http::delete("http://localhost:3001/api/cart/{$user->id}/clear");
+            $apiUrl = config('services.node_api.url') . "/api/cart/{$user->id}/clear";
+            $response = Http::delete($apiUrl);
 
             if ($response->successful()) {
                 return response()->json([

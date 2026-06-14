@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 class AlamatController extends Controller
 {
-    private $nodeApiUrl = 'http://localhost:3001/api';
+    private $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url') . '/api';
+    }
 
     /**
      * GET /alamat

@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Http;
 
 class BarangKeranjangController extends Controller
 {
+    private $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url') . '/api';
+    }
+
     /**
      * Add item to cart
      */
@@ -27,7 +34,7 @@ class BarangKeranjangController extends Controller
             $user = Auth::user();
 
             // Call Node.js API to add item
-            $response = Http::post('http://localhost:3001/api/cart/item', [
+            $response = Http::post("{$this->nodeApiUrl}/cart/item", [
                 'user_id' => $user->id,
                 'product_id' => $validated['product_id'],
                 'jumlah' => $validated['jumlah']
@@ -66,7 +73,7 @@ class BarangKeranjangController extends Controller
             ]);
 
             // Call Node.js API to update item
-            $response = Http::put("http://localhost:3001/api/cart/item/{$id}", [
+            $response = Http::put("{$this->nodeApiUrl}/cart/item/{$id}", [
                 'jumlah' => $validated['jumlah']
             ]);
 
@@ -99,7 +106,7 @@ class BarangKeranjangController extends Controller
     {
         try {
             // Call Node.js API to remove item
-            $response = Http::delete("http://localhost:3001/api/cart/item/{$id}");
+            $response = Http::delete("{$this->nodeApiUrl}/cart/item/{$id}");
 
             if ($response->successful()) {
                 return response()->json([

@@ -10,7 +10,12 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    private $nodeApiUrl = 'http://localhost:3001/api';
+    private $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url') . '/api';
+    }
 
     /**
      * SIMPAN ORDER (CHECKOUT) - Consume Node.js API
@@ -376,7 +381,7 @@ class OrderController extends Controller
 
             // Panggil Node.js API untuk update status
             $response = Http::timeout(30)
-                ->put("http://localhost:3001/api/orders/{$id}/status", [
+                ->put("{$this->nodeApiUrl}/orders/{$id}/status", [
                     'status' => 'finished'
                 ]);
 

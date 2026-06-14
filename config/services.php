@@ -44,4 +44,8 @@ return [
         ],
     ],
 
+    'node_api' => [
+        'url' => env('NODE_API_URL', 'http://localhost:3001'),
+    ],
+
 ];

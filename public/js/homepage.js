@@ -22,9 +22,12 @@ let filterState = {
 // Load data from Laravel
 async function loadData() {
     try {
-        // Fetch dari Node.js API
-        const API_BASE_URL = "http://localhost:3001/api";
-        const response = await fetch(`${API_BASE_URL}/products`);
+        // Gunakan URL API yang sesuai dengan environment
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? "http://localhost:3001/api" 
+            : "https://api.medcom.web.id/api";
+
+        const response = await fetch(`${API_URL}/products`);
         const result = await response.json();
 
         // Handle API response

@@ -9,7 +9,12 @@ use Illuminate\Support\Facades\Log;
 
 class RatingController extends Controller
 {
-    private string $nodeApiUrl = 'http://localhost:3001';
+    private string $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url');
+    }
 
     /**
      * Display ratings page (Riwayat Ulasan)

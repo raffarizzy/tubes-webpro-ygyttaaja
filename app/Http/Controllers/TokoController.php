@@ -12,7 +12,12 @@ use Illuminate\Support\Facades\Log;
 class TokoController extends Controller
 {
     // Base URL Node.js API
-    private $nodeApiUrl = 'http://localhost:3001/api/toko';
+    private $nodeApiUrl;
+
+    public function __construct()
+    {
+        $this->nodeApiUrl = config('services.node_api.url') . '/api/toko';
+    }
 
     /**
      * Display toko profile or redirect to create

@@ -13,7 +13,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $response = Http::get('http://localhost:3001/api/products');
+        $response = Http::get(config('services.node_api.url') . '/api/products');
         $products = $response->json('data') ?? [];
         return view('products.index', compact('products'));
     }
@@ -25,7 +25,7 @@ class ProductController extends Controller
     {
         try {
             // Ambil produk dari Node.js API
-            $response = Http::timeout(5)->get("http://localhost:3001/api/products/{$id}");
+            $response = Http::timeout(5)->get(config('services.node_api.url') . "/api/products/{$id}");
 
             if (!$response->successful()) {
                 // Fallback ke Eloquent kalo API gagal
@@ -137,7 +137,7 @@ class ProductController extends Controller
             ], 400);
         }
 
-        $response = Http::post('http://localhost:3001/api/products', [
+        $response = Http::post(config('services.node_api.url') . '/api/products', [
             'toko_id' => $tokoId,
             'category_id' => $request->category_id,
             'nama' => $request->nama,
@@ -176,7 +176,7 @@ class ProductController extends Controller
             $data['imagePath'] = $imagePath;
         }
 
-        $response = Http::patch("http://localhost:3001/api/products/{$id}", $data);
+        $response = Http::patch(config('services.node_api.url') . "/api/products/{$id}", $data);
 
         return $response->successful()
             ? response()->json(['success' => true])
@@ -188,7 +188,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $response = Http::delete("http://localhost:3001/api/products/{$id}");
+        $response = Http::delete(config('services.node_api.url') . "/api/products/{$id}");
 
         return $response->successful()
             ? response()->json(['success' => true])

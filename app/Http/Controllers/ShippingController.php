@@ -11,12 +11,13 @@ class ShippingController extends Controller
 {
     private $apiKey;
     private $originId;
-    private $nodeApiUrl = 'http://localhost:3001/api';
+    private $nodeApiUrl;
 
     public function __construct()
     {
         $this->apiKey = config('services.klikresi.key');
         $this->originId = config('services.klikresi.origin_id');
+        $this->nodeApiUrl = config('services.node_api.url') . '/api';
     }
 
     /**
