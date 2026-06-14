@@ -21,6 +21,16 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Fix cPanel Application URL Prefix
+app.use((req, res, next) => {
+    const prefix = '/nodeApi';
+    if (req.url.startsWith(prefix)) {
+        req.url = req.url.replace(prefix, '');
+        if (req.url === '') req.url = '/';
+    }
+    next();
+});
+
 // =====================================================
 // Test Database Connection
 // =====================================================
