@@ -11,6 +11,12 @@ class Order extends Model
         'alamat_id',
         'total_harga',
         'status',
+        'nomor_resi',
+        'payment_url',
+        'courier_code',
+        'courier_name',
+        'service_name',
+        'shipping_cost',
     ];
 
     public function items()

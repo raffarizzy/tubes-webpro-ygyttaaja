@@ -21,12 +21,13 @@ function openTambahModal() {
     ).show();
 }
 
-function openEditModal(id, nama, harga, stok, imagePath) {
+function openEditModal(id, nama, harga, stok, imagePath, deskripsi) {
     // Deklarasi variabel dengan getElementById
     const editId = document.getElementById('editId');
     const editNama = document.getElementById('editNama');
     const editHarga = document.getElementById('editHarga');
     const editStok = document.getElementById('editStok');
+    const editDeskripsi = document.getElementById('editDeskripsi');
     const previewEditGambar = document.getElementById('previewEditGambar');
     const modalEdit = document.getElementById('modalEdit');
     
@@ -35,6 +36,7 @@ function openEditModal(id, nama, harga, stok, imagePath) {
     editNama.value = nama;
     editHarga.value = harga;
     editStok.value = stok;
+    if (editDeskripsi) editDeskripsi.value = deskripsi || '';
 
     // Set preview gambar
     if (imagePath) {

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Rating & Ulasan Produk - SpareHub')
+@section('title', 'Rating & Ulasan Produk - Medcom')
 
 @push('styles')
 <style>

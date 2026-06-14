@@ -34,6 +34,10 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|integer',
             'items.*.jumlah' => 'required|integer|min:1',
+            'courier_code' => 'required|string',
+            'courier_name' => 'required|string',
+            'service_name' => 'required|string',
+            'shipping_cost' => 'required|integer',
         ]);
 
         try {
@@ -45,6 +49,10 @@ class OrderController extends Controller
                 'user_id' => $user->id,
                 'alamat_id' => $request->alamat_id,
                 'items' => $request->items,
+                'courier_code' => $request->courier_code,
+                'courier_name' => $request->courier_name,
+                'service_name' => $request->service_name,
+                'shipping_cost' => $request->shipping_cost,
             ]);
 
             if ($response->successful()) {
@@ -354,6 +362,48 @@ class OrderController extends Controller
     }
 
     /**
+     * FINISH ORDER - Update status to finished
+     */
+    public function finishOrder($id)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+        }
+
+        try {
+            /** @var User $user */
+            $user = Auth::user();
+
+            // Panggil Node.js API untuk update status
+            $response = Http::timeout(30)
+                ->put("http://localhost:3001/api/orders/{$id}/status", [
+                    'status' => 'finished'
+                ]);
+
+            if ($response->successful()) {
+                Log::info('Order finished successfully', [
+                    'order_id' => $id,
+                    'user_id' => $user->id
+                ]);
+
+                return redirect()->route('riwayat.pesanan')
+                    ->with('success', 'Terima kasih! Pesanan telah selesai.');
+            }
+
+            throw new \Exception($response->json('message') ?? 'Gagal menyelesaikan pesanan');
+
+        } catch (\Exception $e) {
+            Log::error('Order finish failed', [
+                'order_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()->back()
+                ->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Helper: Convert array to object recursively
      */
     private function convertToObject($data)
@@ -367,6 +417,9 @@ class OrderController extends Controller
                     $itemObj = (object) $item;
                     if (isset($item['product']) && is_array($item['product'])) {
                         $itemObj->product = (object) $item['product'];
+                    }
+                    if (isset($item['rating_id'])) {
+                        $itemObj->rating_id = $item['rating_id'];
                     }
                     return $itemObj;
                 });

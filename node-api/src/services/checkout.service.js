@@ -4,7 +4,7 @@ const { getWIBTimestamp } = require("../utils/dateHelper");
 /**
  * Create new order with items
  */
-exports.createOrder = async (userId, alamatId, items) => {
+exports.createOrder = async (userId, alamatId, items, courierCode = null, courierName = null, serviceName = null, shippingCost = 0) => {
     const connection = await db.getConnection();
 
     try {
@@ -49,13 +49,16 @@ exports.createOrder = async (userId, alamatId, items) => {
             });
         }
 
+        // Grand Total including shipping
+        const grandTotal = totalHarga + shippingCost;
+
         // Create order with WIB timestamp
         const now = getWIBTimestamp();
         console.log("Creating order at WIB:", now);
 
         const [orderResult] = await connection.query(
-            "INSERT INTO orders (user_id, alamat_id, total_harga, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-            [userId, alamatId, totalHarga, "pending", now, now]
+            "INSERT INTO orders (user_id, alamat_id, total_harga, courier_code, courier_name, service_name, shipping_cost, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            [userId, alamatId, grandTotal, courierCode, courierName, serviceName, shippingCost, "pending", now, now]
         );
 
         const orderId = orderResult.insertId;
@@ -122,6 +125,12 @@ exports.getOrderById = async (orderId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
+      o.nomor_resi,
+      o.courier_code,
+      o.courier_name,
+      o.service_name,
+      o.shipping_cost,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -162,6 +171,12 @@ exports.getOrderById = async (orderId) => {
         alamat_id: order.alamat_id,
         total_harga: order.total_harga,
         status: order.status,
+        payment_url: order.payment_url,
+        nomor_resi: order.nomor_resi,
+        courier_code: order.courier_code,
+        courier_name: order.courier_name,
+        service_name: order.service_name,
+        shipping_cost: order.shipping_cost,
         created_at: order.created_at,
         updated_at: order.updated_at,
         items: itemRows.map((item) => ({
@@ -197,6 +212,12 @@ exports.getOrdersByUserId = async (userId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
+      o.nomor_resi,
+      o.courier_code,
+      o.courier_name,
+      o.service_name,
+      o.shipping_cost,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -234,6 +255,12 @@ exports.getOrdersByUserId = async (userId) => {
             alamat_id: order.alamat_id,
             total_harga: order.total_harga,
             status: order.status,
+            payment_url: order.payment_url,
+            nomor_resi: order.nomor_resi,
+            courier_code: order.courier_code,
+            courier_name: order.courier_name,
+            service_name: order.service_name,
+            shipping_cost: order.shipping_cost,
             created_at: order.created_at,
             updated_at: order.updated_at,
             items: itemRows.map((item) => ({
@@ -264,18 +291,18 @@ exports.getOrdersByUserId = async (userId) => {
 /**
  * Update order status
  */
-exports.updateOrderStatus = async (orderId, status) => {
+exports.updateOrderStatus = async (orderId, status, paymentUrl = null) => {
     const connection = await db.getConnection();
 
     try {
         // SET TIMEZONE
         await connection.query("SET time_zone = '+07:00'");
 
-        const validStatuses = ["pending", "paid", "cancelled"];
+        const validStatuses = ["pending", "paid", "processing", "shipped", "finished", "cancelled"];
 
         if (!validStatuses.includes(status)) {
             throw new Error(
-                "Status tidak valid. Gunakan: pending, paid, atau cancelled"
+                "[MEDCOM-API-v2] Status tidak valid. Gunakan: pending, paid, processing, shipped, finished, atau cancelled"
             );
         }
 
@@ -293,16 +320,24 @@ exports.updateOrderStatus = async (orderId, status) => {
             `Updating order ${orderId} status from ${orderRows[0].status} to ${status}`
         );
 
-        const [result] = await connection.query(
-            "UPDATE orders SET status = ?, updated_at = ? WHERE id = ?",
-            [status, getWIBTimestamp(), orderId]
-        );
+        let query = "UPDATE orders SET status = ?, updated_at = ?";
+        let params = [status, getWIBTimestamp()];
+
+        if (paymentUrl) {
+            query += ", payment_url = ?";
+            params.push(paymentUrl);
+        }
+
+        query += " WHERE id = ?";
+        params.push(orderId);
+
+        const [result] = await connection.query(query, params);
 
         if (result.affectedRows === 0) {
             throw new Error("Gagal memperbarui status order");
         }
 
-        return { id: orderId, status };
+        return { id: orderId, status, payment_url: paymentUrl };
     } finally {
         connection.release();
     }

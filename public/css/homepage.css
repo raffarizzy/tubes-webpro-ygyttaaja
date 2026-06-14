@@ -79,65 +79,148 @@ body {
     padding: 0 20px;
 }
 
-/* Card Produk */
+/* Card Produk Modern */
 .card-produk {
     background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    padding: 20px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    padding: 15px;
+    text-align: left; /* Align left for modern look */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    border: 1px solid rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .card-produk:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(18, 44, 79, 0.12);
+    border-color: rgba(18, 44, 79, 0.1);
+}
+
+.card-produk .img-container {
+    width: 100%;
+    height: 200px;
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
 }
 
 .card-produk img {
     width: 100%;
-    height: 200px;
-    object-fit: contain;
-    border-radius: 10px;
-    margin-bottom: 15px;
+    height: 100%;
+    object-fit: cover; /* Use cover for more professional look */
+    transition: transform 0.5s ease;
+}
+
+.card-produk:hover img {
+    transform: scale(1.08);
 }
 
 .card-produk h3 {
-    margin: 10px 0 5px 0;
+    margin: 0 0 8px 0;
     color: #122C4F;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.4;
+    height: 44px; /* Fix height for 2 lines */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.harga-container {
+    margin: 8px 0;
+    display: flex;
+    flex-direction: column;
 }
 
 .harga {
-    color: #0066cc;
-    font-weight: bold;
+    color: #122C4F;
+    font-weight: 800;
     font-size: 18px;
-    margin: 10px 0;
+    margin: 0;
+}
+
+.harga-coret {
+    font-size: 12px;
+    color: #adb5bd;
+    text-decoration: line-through;
+    margin-bottom: 2px;
 }
 
 .deskripsi {
-    color: #555;
-    font-size: 14px;
-    margin: 10px 0;
+    color: #6c757d;
+    font-size: 13px;
+    margin: 8px 0 15px 0;
     line-height: 1.5;
-    min-height: 60px;
+    height: 39px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex-grow: 1;
 }
 
 .btn-beli {
     background-color: #122C4F;
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 12px 20px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    margin-top: 10px;
+    font-weight: 600;
+    transition: all 0.2s;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
 }
 
 .btn-beli:hover {
-    background-color: #0f2442;
+    background-color: #0d2033;
+    box-shadow: 0 4px 12px rgba(18, 44, 79, 0.2);
+}
+
+.badge-diskon {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #fb7185;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 1;
+}
+
+.toko-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.toko-info i {
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.toko-info span {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
 }
 
 /* Footer */

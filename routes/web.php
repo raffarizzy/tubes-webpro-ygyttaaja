@@ -87,7 +87,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/riwayat-pesanan', [OrderController::class, 'riwayatPesanan'])->name('riwayat.pesanan');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.detail');
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
+    Route::post('/orders/{id}/finish', [OrderController::class, 'finishOrder'])->name('orders.finish');
     Route::get('/ratings', [RatingController::class, 'index'])->name('ratings.index');
+    Route::get('/ratings/create/{productId}', [RatingController::class, 'createRating'])->name('ratings.create');
     Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
     Route::delete('/ratings/{id}', [RatingController::class, 'destroy'])->name('ratings.destroy');
     //sblmaneh2
@@ -122,12 +124,30 @@ Route::middleware('auth')->group(function () {
     Route::post('/toko', [TokoController::class, 'store'])->name('toko.store');
     Route::put('/toko/{id}', [TokoController::class, 'update'])->name('toko.update');
     
+    // Alur Pesanan Toko
+    Route::post('/toko/orders/{id}/accept', [TokoController::class, 'acceptOrder'])->name('toko.order.accept');
+    Route::post('/toko/orders/{id}/reject', [TokoController::class, 'rejectOrder'])->name('toko.order.reject');
+    Route::post('/toko/orders/{id}/ship', [TokoController::class, 'shipOrder'])->name('toko.order.ship');
+    
     // ============================================
     // PRODUCT MANAGEMENT (Oleh Penjual)
     // ============================================
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
     Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
+
+    // ============================================
+    // WILAYAH (PROVINSI, KOTA, KECAMATAN)
+    // ============================================
+    Route::get('/api/wilayah/provinsi', [\App\Http\Controllers\WilayahController::class, 'getProvinces']);
+    Route::get('/api/wilayah/kota/{provinsi_kode}', [\App\Http\Controllers\WilayahController::class, 'getCities']);
+    Route::get('/api/wilayah/kecamatan/{kota_kode}', [\App\Http\Controllers\WilayahController::class, 'getDistricts']);
+
+    // ============================================
+    // SHIPPING (KLIKRESI)
+    // ============================================
+    Route::post('/api/shipping/rates', [\App\Http\Controllers\ShippingController::class, 'getRates'])->name('shipping.rates');
+    Route::get('/api/shipping/track/{tracking_number}/{courier_code}', [\App\Http\Controllers\ShippingController::class, 'trackOrder'])->name('shipping.track');
 });
 
 require __DIR__.'/auth.php';

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Keranjang - SpareHub')
+@section('title', 'Keranjang - Medcom')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/keranjang.css') }}" />

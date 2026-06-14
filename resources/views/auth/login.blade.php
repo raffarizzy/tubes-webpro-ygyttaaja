@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Login - SpareHub</title>
+    <title>Login - Medcom</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -25,7 +25,7 @@
              alt="Logo"
              width="70"
              class="mb-2">
-        <h4 class="fw-bold text-primary">SpareHub</h4>
+        <h4 class="fw-bold text-primary">Medcom</h4>
         <p class="text-muted small">Login ke akun Anda</p>
     </div>
 
@@ -101,7 +101,7 @@
             </label>
         </div>
 
-        <button class="btn btn-primary w-100 mb-3">
+        <button class="btn btn-primary w-100 mb-3" name="loginBtn">
             Login
         </button>
     </form>

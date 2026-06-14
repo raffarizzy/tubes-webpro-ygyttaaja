@@ -106,12 +106,27 @@ class ProductController extends Controller
             'harga' => 'required|numeric',
             'stok' => 'required|integer',
             'deskripsi' => 'required|string',
-            'image' => 'required|image|mimes:jpg,jpeg,png'
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp'
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('produk', 'public');
+            $image = $request->file('image');
+            $filename = hexdec(uniqid()) . '.webp';
+            $imagePath = 'produk/' . $filename;
+
+            // Optimasi Gambar: Resize & Convert ke WebP (v4 Syntax)
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->decode($image);
+            
+            // Resize ke lebar max 1000px, tinggi otomatis proporsional
+            $img->scale(width: 1000);
+
+            // Simpan ke storage
+            \Illuminate\Support\Facades\Storage::disk('public')->put(
+                $imagePath, 
+                (string) $img->encodeUsingFileExtension('webp', quality: 75)
+            );
         }
 
         $tokoId = auth()->user()->toko->id ?? null;
@@ -148,7 +163,17 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $data['imagePath'] = $request->file('image')->store('produk', 'public');
+            $image = $request->file('image');
+            $filename = hexdec(uniqid()) . '.webp';
+            $imagePath = 'produk/' . $filename;
+
+            // Optimasi Gambar (v4 Syntax)
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->decode($image);
+            $img->scale(width: 1000);
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put($imagePath, (string) $img->encodeUsingFileExtension('webp', quality: 75));
+            $data['imagePath'] = $imagePath;
         }
 
         $response = Http::patch("http://localhost:3001/api/products/{$id}", $data);

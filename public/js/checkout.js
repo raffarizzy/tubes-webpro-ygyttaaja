@@ -30,9 +30,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    renderAllItems(checkoutData);
-    updateOrderDetails(checkoutData);
-
     function renderAllItems(items) {
         itemContainer.innerHTML = "";
 
@@ -77,7 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    function updateOrderDetails(items) {
+    window.updateOrderDetails = function (items) {
         let totalHargaAsli = 0;
         let totalHargaSetelahDiskon = 0;
         let totalDiskon = 0;
@@ -106,24 +103,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
         totalDiskon = totalHargaAsli - totalHargaSetelahDiskon;
 
-        orderPrice.textContent = formatRupiah(totalHargaAsli);
+        orderPrice.textContent = window.formatRupiah(totalHargaAsli);
 
-        const biayaPengiriman = 0;
+        const shippingInput = document.getElementById("shippingCostInput");
+        const biayaPengiriman = shippingInput ? parseInt(shippingInput.value) : 0;
+
         orderDelivery.textContent =
-            biayaPengiriman === 0 ? "Gratis" : formatRupiah(biayaPengiriman);
+            biayaPengiriman === 0 ? "Gratis" : window.formatRupiah(biayaPengiriman);
         orderDelivery.className =
             biayaPengiriman === 0
                 ? "text-end text-success fw-bold"
                 : "text-end fw-bold";
 
         orderDiscount.textContent =
-            totalDiskon > 0 ? `- ${formatRupiah(totalDiskon)}` : "- Rp 0";
+            totalDiskon > 0 ? `- ${window.formatRupiah(totalDiskon)}` : "- Rp 0";
 
         const totalAkhir = totalHargaSetelahDiskon + biayaPengiriman;
-        orderTotal.textContent = formatRupiah(totalAkhir);
+        orderTotal.textContent = window.formatRupiah(totalAkhir);
     }
 
-    function formatRupiah(angka) {
+    window.formatRupiah = function (angka) {
         const num = typeof angka === "string" ? parseFloat(angka) : angka;
         return num.toLocaleString("id-ID", {
             style: "currency",
@@ -131,6 +130,9 @@ document.addEventListener("DOMContentLoaded", function () {
             minimumFractionDigits: 0,
         });
     }
+
+    renderAllItems(checkoutData);
+    window.updateOrderDetails(checkoutData);
 });
 
 // ============= PAYMENT METHODS MANAGEMENT =============
@@ -255,10 +257,74 @@ document.addEventListener("DOMContentLoaded", function () {
     const payButton = document.getElementById("payNowBtn");
     const paymentHint = document.getElementById("paymentHint");
 
+    const provinsiSelect = document.getElementById("provinsiSelect");
+    const kotaSelect = document.getElementById("kotaSelect");
+    const kecamatanSelect = document.getElementById("kecamatanSelect");
+
     let selectedAddress = null;
     let selectedPayment = null;
     let alamatList = [];
     let editIndex = null;
+
+    // --- Wilayah Cascading Logic ---
+    async function fetchWilayah(url) {
+        try {
+            const response = await fetch(url);
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching wilayah:", error);
+            return [];
+        }
+    }
+
+    async function loadProvinces() {
+        const provinces = await fetchWilayah("/api/wilayah/provinsi");
+        provinsiSelect.innerHTML = '<option value="">Pilih Provinsi</option>';
+        provinces.forEach((p) => {
+            const option = document.createElement("option");
+            option.value = p.kode;
+            option.textContent = p.nama;
+            provinsiSelect.appendChild(option);
+        });
+    }
+
+    provinsiSelect.addEventListener("change", async function () {
+        const provinceCode = this.value;
+        kotaSelect.innerHTML = '<option value="">Pilih Kota</option>';
+        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+        kecamatanSelect.disabled = true;
+
+        if (provinceCode) {
+            const cities = await fetchWilayah(`/api/wilayah/kota/${provinceCode}`);
+            cities.forEach((c) => {
+                const option = document.createElement("option");
+                option.value = c.kode;
+                option.textContent = c.nama;
+                kotaSelect.appendChild(option);
+            });
+            kotaSelect.disabled = false;
+        } else {
+            kotaSelect.disabled = true;
+        }
+    });
+
+    kotaSelect.addEventListener("change", async function () {
+        const cityCode = this.value;
+        kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+
+        if (cityCode) {
+            const districts = await fetchWilayah(`/api/wilayah/kecamatan/${cityCode}`);
+            districts.forEach((d) => {
+                const option = document.createElement("option");
+                option.value = d.kode;
+                option.textContent = d.nama;
+                kecamatanSelect.appendChild(option);
+            });
+            kecamatanSelect.disabled = false;
+        } else {
+            kecamatanSelect.disabled = true;
+        }
+    });
 
     // Helper function untuk mendapatkan CSRF token
     function getCsrfToken() {
@@ -357,7 +423,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 alamat.alamat,
                 alamat.nomor_penerima,
                 alamat.id,
-                alamat.is_default
+                alamat.is_default,
+                alamat.provinsi,
+                alamat.kota,
+                alamat.kecamatan
             );
         });
 
@@ -370,23 +439,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // Buat card alamat
-    function buatAddressCard(nama, alamat, nomor, id, isDefault = false) {
+    function buatAddressCard(nama, alamat, nomor, id, isDefault = false, provinsi = '', kota = '', kecamatan = '') {
         const col = document.createElement("div");
         col.className = "col-md-6 col-xl-4 address-card";
 
         const isDefaultBool =
             isDefault === 1 || isDefault === true || isDefault === "1";
 
-        console.log(
-            `Card ${id}: isDefault =`,
-            isDefault,
-            "converted to:",
-            isDefaultBool
-        );
-
         const defaultBadge = isDefaultBool
             ? '<span class="badge bg-success ms-2"><i class="bi bi-star-fill"></i> Default</span>'
             : "";
+        
+        const regionText = [kecamatan, kota, provinsi].filter(Boolean).join(', ');
 
         col.innerHTML = `
       <div class="card border-2 h-100 card-selectable" data-id="${id}">
@@ -397,7 +461,10 @@ document.addEventListener("DOMContentLoaded", function () {
               <i class="bi bi-pencil"></i> Edit
             </span>
           </div>
-          <p class="text-muted small mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${alamat}</p>
+          <div class="text-muted small mb-2">
+            <p class="mb-1 text-dark fw-medium">${alamat}</p>
+            <p class="mb-0 italic"><i class="bi bi-geo-alt"></i> ${regionText || '-'}</p>
+          </div>
           <p class="text-muted small mb-0"><i class="bi bi-telephone"></i> ${nomor}</p>
         </div>
       </div>
@@ -409,6 +476,13 @@ document.addEventListener("DOMContentLoaded", function () {
         if (isDefaultBool) {
             card.classList.add("selected");
             selectedAddress = { id, nama, alamat, nomor };
+
+            // Trigger shipping rates for default address
+            const alamatData = alamatList.find(a => a.id == id);
+            if (alamatData && alamatData.kode_wilayah) {
+                loadShippingRates(alamatData.kode_wilayah);
+            }
+
             updatePayButtonState();
             console.log(`Auto-selected default address: ${id}`);
         }
@@ -421,6 +495,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 .forEach((c) => c.classList.remove("selected"));
             card.classList.add("selected");
             selectedAddress = { id, nama, alamat, nomor };
+
+            // Trigger shipping rates calculation
+            const alamatData = alamatList.find(a => a.id == id);
+            if (alamatData && alamatData.kode_wilayah) {
+                loadShippingRates(alamatData.kode_wilayah);
+            }
+
             updatePayButtonState();
         });
 
@@ -445,6 +526,7 @@ document.addEventListener("DOMContentLoaded", function () {
         deleteAddressBtn.classList.add("d-none");
 
         resetForm();
+        loadProvinces();
 
         addAddressForm.scrollIntoView({ behavior: "smooth", block: "center" });
     });
@@ -457,14 +539,22 @@ document.addEventListener("DOMContentLoaded", function () {
         const isDefaultCheckbox = document.getElementById("defaultCheckbox");
         const isDefault = isDefaultCheckbox ? isDefaultCheckbox.checked : false;
 
-        console.log("Form values:");
-        console.log("- Nama:", nama);
-        console.log("- Alamat:", alamat);
-        console.log("- Nomor:", nomor);
-        console.log("- isDefault final:", isDefault);
+        const getSelectedText = (selectEl) => {
+            if (!selectEl || selectEl.selectedIndex === -1) return "";
+            const option = selectEl.options[selectEl.selectedIndex];
+            if (!option || option.value === "") return "";
+            return option.text;
+        };
 
-        if (!nama || !alamat || !nomor) {
-            alert("Lengkapi semua data alamat!");
+        const provinsi = getSelectedText(provinsiSelect);
+        const kota = getSelectedText(kotaSelect);
+        const kecamatan = getSelectedText(kecamatanSelect);
+        const kode_wilayah = kecamatanSelect.value || kotaSelect.value || provinsiSelect.value || "";
+
+        console.log("Saving Alamat - Cleaned Data:", { provinsi, kota, kecamatan, kode_wilayah });
+
+        if (!nama || !alamat || !nomor || !provinsi || !kota || !kecamatan) {
+            alert("Lengkapi semua data alamat termasuk wilayah (Provinsi, Kota, dan Kecamatan)!");
             return;
         }
 
@@ -472,6 +562,10 @@ document.addEventListener("DOMContentLoaded", function () {
             nama_penerima: nama,
             alamat: alamat,
             nomor_penerima: nomor,
+            provinsi: provinsi,
+            kota: kota,
+            kecamatan: kecamatan,
+            kode_wilayah: kode_wilayah,
             is_default: isDefault ? 1 : 0,
         };
 
@@ -599,7 +693,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Tampilkan form edit
-    function tampilkanFormEdit(data) {
+    async function tampilkanFormEdit(data) {
         console.log("Editing alamat:", data);
 
         addAddressForm.classList.remove("d-none");
@@ -608,6 +702,40 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("namaInput").value = data.nama_penerima;
         document.getElementById("alamatInput").value = data.alamat;
         document.getElementById("nomorInput").value = data.nomor_penerima;
+
+        // Repopulate regions
+        await loadProvinces();
+        if (data.kode_wilayah) {
+            const provinceCode = data.kode_wilayah.substring(0, 2);
+            const cityCode = data.kode_wilayah.substring(0, 5);
+            const districtCode = data.kode_wilayah;
+
+            provinsiSelect.value = provinceCode;
+            
+            // Load cities
+            const cities = await fetchWilayah(`/api/wilayah/kota/${provinceCode}`);
+            kotaSelect.innerHTML = '<option value="">Pilih Kota</option>';
+            cities.forEach((c) => {
+                const option = document.createElement("option");
+                option.value = c.kode;
+                option.textContent = c.nama;
+                kotaSelect.appendChild(option);
+            });
+            kotaSelect.value = cityCode;
+            kotaSelect.disabled = false;
+
+            // Load districts
+            const districts = await fetchWilayah(`/api/wilayah/kecamatan/${cityCode}`);
+            kecamatanSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            districts.forEach((d) => {
+                const option = document.createElement("option");
+                option.value = d.kode;
+                option.textContent = d.nama;
+                kecamatanSelect.appendChild(option);
+            });
+            kecamatanSelect.value = districtCode;
+            kecamatanSelect.disabled = false;
+        }
 
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
@@ -641,8 +769,9 @@ document.addEventListener("DOMContentLoaded", function () {
     window.updatePayButtonState = function () {
         const paymentSelected =
             document.querySelector(".payment-method-card.selected") !== null;
+        const courierSelected = document.getElementById("selected-courier-code")?.value !== "";
 
-        if (selectedAddress && paymentSelected) {
+        if (selectedAddress && paymentSelected && courierSelected) {
             payButton.disabled = false;
             payButton.classList.remove("disabled");
             paymentHint.textContent = "Siap untuk melanjutkan pembayaran";
@@ -652,12 +781,11 @@ document.addEventListener("DOMContentLoaded", function () {
             payButton.disabled = true;
             payButton.classList.add("disabled");
 
-            if (!selectedAddress && !paymentSelected) {
-                paymentHint.textContent =
-                    "Pilih alamat dan metode pembayaran untuk melanjutkan";
-            } else if (!selectedAddress) {
+            if (!selectedAddress) {
                 paymentHint.textContent = "Pilih alamat pengiriman";
-            } else {
+            } else if (!courierSelected) {
+                paymentHint.textContent = "Pilih metode pengiriman";
+            } else if (!paymentSelected) {
                 paymentHint.textContent = "Pilih metode pembayaran";
             }
             paymentHint.classList.remove("text-success");
@@ -665,37 +793,149 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     };
 
+    // --- Shipping (KlikResi) Logic ---
+    async function loadShippingRates(destinationId) {
+        const container = document.getElementById("shippingOptionsContainer");
+        container.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <p class="text-muted small mt-2 mb-0">Menghitung ongkir...</p>
+            </div>
+        `;
+
+        try {
+            // Fetch checkoutData directly from localStorage to avoid scope issues
+            const currentCheckoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
+            
+            if (currentCheckoutData.length === 0) {
+                throw new Error("Data checkout tidak ditemukan");
+            }
+
+            const response = await fetch("/api/shipping/rates", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": getCsrfToken(),
+                },
+                body: JSON.stringify({ 
+                    destination_id: destinationId,
+                    items: currentCheckoutData 
+                }),
+            });
+
+            const result = await response.json();
+            if (!result.success) throw new Error(result.message);
+
+            renderShippingOptions(result.data, result.weight);
+        } catch (error) {
+            console.error("Shipping rates error:", error);
+            container.innerHTML = `
+                <div class="alert alert-danger small py-2">
+                    <i class="bi bi-exclamation-triangle"></i> Gagal memuat ongkir: ${error.message}
+                </div>
+            `;
+        }
+    }
+
+    function renderShippingOptions(rawResponse, weight) {
+        const container = document.getElementById("shippingOptionsContainer");
+        container.innerHTML = "";
+
+        // Based on user example, the data is in rawResponse.data.pricing
+        const pricing = rawResponse.data?.pricing || [];
+
+        if (pricing.length === 0) {
+            container.innerHTML = '<p class="text-muted small text-center">Tidak ada kurir tersedia untuk wilayah ini.</p>';
+            return;
+        }
+
+        const listGroup = document.createElement("div");
+        listGroup.className = "list-group list-group-flush border rounded";
+
+        pricing.forEach((rate) => {
+            const item = document.createElement("button");
+            item.type = "button";
+            item.className = "list-group-item list-group-item-action p-3 d-flex justify-content-between align-items-center shipping-item";
+            item.dataset.courierCode = rate.courier_code;
+            item.dataset.courierName = rate.courier_name;
+            item.dataset.serviceName = rate.service;
+            item.dataset.cost = rate.price;
+
+            item.innerHTML = `
+                <div>
+                    <div class="fw-bold small">${rate.courier_name} - ${rate.service}</div>
+                    <div class="text-muted" style="font-size: 0.7rem;">
+                        Estimasi: ${rate.duration || '-'} (${weight}kg)
+                    </div>
+                </div>
+                <div class="fw-bold text-primary">Rp ${rate.price.toLocaleString("id-ID")}</div>
+            `;
+
+            item.addEventListener("click", function() {
+                selectShipping(this);
+            });
+
+            listGroup.appendChild(item);
+        });
+
+        container.appendChild(listGroup);
+    }
+
+    function selectShipping(element) {
+        // Unselect all
+        document.querySelectorAll(".shipping-item").forEach(el => el.classList.remove("active", "bg-primary-subtle"));
+        
+        // Select this one
+        element.classList.add("active", "bg-primary-subtle");
+
+        // Set hidden inputs
+        document.getElementById("courierCodeInput").value = element.dataset.courierCode;
+        document.getElementById("courierNameInput").value = element.dataset.courierName;
+        document.getElementById("serviceNameInput").value = element.dataset.serviceName;
+        document.getElementById("shippingCostInput").value = element.dataset.cost;
+
+        // Update UI Summary
+        const cost = parseInt(element.dataset.cost);
+        const orderDelivery = document.getElementById("orderDelivery");
+        orderDelivery.textContent = formatRupiah(cost);
+        orderDelivery.classList.remove("text-success");
+        orderDelivery.classList.add("fw-bold");
+
+        // Re-calculate Total
+        const currentCheckoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
+        updateOrderDetails(currentCheckoutData);
+        updatePayButtonState();
+    }
+
     // Pay button handler
     payButton.addEventListener("click", async () => {
-        const paymentSelected = document.querySelector(
-            ".payment-method-card.selected"
-        );
+        const paymentSelected = document.querySelector(".payment-method-card.selected");
+        const courierCode = document.getElementById("courierCodeInput").value;
+        const shippingCost = parseInt(document.getElementById("shippingCostInput").value);
 
-        if (!selectedAddress || !paymentSelected) {
-            alert("Pilih alamat dan metode pembayaran terlebih dahulu!");
+        if (!selectedAddress || !paymentSelected || !courierCode) {
+            alert("Lengkapi alamat, pengiriman, dan metode pembayaran!");
             return;
         }
 
         payButton.disabled = true;
-        payButton.innerHTML =
-            '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
+        payButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memproses...';
 
         try {
-            const checkoutData =
-                JSON.parse(localStorage.getItem("checkoutData")) || [];
-
-            if (checkoutData.length === 0) {
+            const currentCheckoutData = JSON.parse(localStorage.getItem("checkoutData")) || [];
+            
+            if (currentCheckoutData.length === 0) {
                 throw new Error("Tidak ada produk untuk checkout");
             }
 
-            console.log("Checkout data:", checkoutData);
-
-            const items = checkoutData.map((item) => ({
+            const items = currentCheckoutData.map((item) => ({
                 product_id: item.productId || item.id,
                 jumlah: item.jumlah,
             }));
 
-            console.log("Items to send:", items);
+            // Calculate total price with shipping
+            const totalText = document.getElementById("orderTotal").textContent;
+            const total = parseInt(totalText.replace(/[^0-9]/g, ""));
 
             // Kirim ke API untuk create order
             const orderResponse = await fetch("/api/orders", {
@@ -703,57 +943,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": getCsrfToken(),
-                    "X-Requested-With": "XMLHttpRequest",
                 },
-                credentials: "same-origin",
                 body: JSON.stringify({
                     alamat_id: selectedAddress.id,
                     items: items,
+                    courier_code: courierCode,
+                    courier_name: document.getElementById("courierNameInput").value,
+                    service_name: document.getElementById("serviceNameInput").value,
+                    shipping_cost: shippingCost,
                 }),
             });
 
-            console.log("Order response status:", orderResponse.status);
-
-            if (!orderResponse.ok) {
-                const errorData = await orderResponse.json();
-                throw new Error(
-                    errorData.message || `HTTP ${orderResponse.status}`
-                );
-            }
-
+            if (!orderResponse.ok) throw new Error("Gagal membuat order");
             const orderResult = await orderResponse.json();
-            console.log("Order created:", orderResult);
-
-            if (
-                !orderResult.data ||
-                !orderResult.data.order ||
-                !orderResult.data.order.id
-            ) {
-                console.error("Invalid response structure:", orderResult);
-                throw new Error("Order ID tidak ditemukan dalam response");
-            }
-
             const orderId = orderResult.data.order.id;
-            console.log("Order ID:", orderId);
 
             // Proses pembayaran dengan Xendit
-            const totalText = document.getElementById("orderTotal").textContent;
-            const total = parseInt(totalText.replace(/[^0-9]/g, ""));
-
-            console.log("Payment request:", {
-                order_id: orderId,
-                alamat_id: selectedAddress.id,
-                total: total,
-            });
-
             const paymentResponse = await fetch("/checkout/pay", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": getCsrfToken(),
-                    "X-Requested-With": "XMLHttpRequest",
                 },
-                credentials: "same-origin",
                 body: JSON.stringify({
                     order_id: orderId,
                     alamat_id: selectedAddress.id,
@@ -761,43 +972,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 }),
             });
 
-            console.log("Payment response status:", paymentResponse.status);
-
-            if (!paymentResponse.ok) {
-                const errorText = await paymentResponse.text();
-                console.error("Payment error response:", errorText);
-                throw new Error(
-                    `Payment failed: HTTP ${paymentResponse.status}`
-                );
-            }
-
+            if (!paymentResponse.ok) throw new Error("Gagal memproses pembayaran");
             const paymentData = await paymentResponse.json();
-            console.log("Payment data:", paymentData);
 
             if (paymentData.invoice_url) {
                 localStorage.removeItem("checkoutData");
-
-                showNotification(
-                    "Order berhasil dibuat! Mengarahkan ke pembayaran...",
-                    "success"
-                );
-
-                setTimeout(() => {
-                    window.location.href = paymentData.invoice_url;
-                }, 1500);
-            } else {
-                throw new Error("Invoice URL tidak ditemukan");
+                showNotification("Order berhasil dibuat!", "success");
+                setTimeout(() => window.location.href = paymentData.invoice_url, 1500);
             }
         } catch (err) {
-            console.error("Payment error:", err);
-            showNotification(
-                `Gagal memproses pembayaran: ${err.message}`,
-                "danger"
-            );
-
+            console.error(err);
+            showNotification(err.message, "danger");
             payButton.disabled = false;
-            payButton.innerHTML =
-                '<i class="bi bi-credit-card"></i> Bayar Sekarang';
+            payButton.innerHTML = '<i class="bi bi-credit-card"></i> Bayar Sekarang';
         }
     });
 

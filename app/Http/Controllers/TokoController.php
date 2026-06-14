@@ -46,10 +46,26 @@ class TokoController extends Controller
             }
 
             $toko = $tokoResponse->json()['data'];
+            $toko = (object) $toko;
 
-            $toko = (object) $tokoData;
+            // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
+            $toko->products = Product::where('toko_id', $toko->id)->get();
 
-            return view('profil_toko', compact('toko'));
+            // Ambil pesanan masuk
+            $productIds = $toko->products->pluck('id');
+            $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->with(['order.user', 'order.alamat'])
+                ->orderBy('id', 'desc')
+                ->get();
+
+            // Statistik Tambahan
+            $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->whereHas('order', function($q) { $q->where('status', 'paid'); })
+                ->count();
+            
+            $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -61,7 +77,20 @@ class TokoController extends Controller
                 return redirect()->route('toko.create');
             }
 
-            return view('profil_toko', compact('toko'));
+            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $productIds = $toko->products->pluck('id');
+            $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->with(['order.user', 'order.alamat'])
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->whereHas('order', function($q) { $q->where('status', 'paid'); })
+                ->count();
+            
+            $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
         }
     }
 
@@ -80,7 +109,7 @@ class TokoController extends Controller
                 $result = $response->json();
                 
                 if ($result['data']['hasToko']) {
-                    return redirect()->route('toko.index')
+                    return redirect()->route('profil_toko')
                         ->with('error', 'Anda sudah memiliki toko');
                 }
             }
@@ -117,9 +146,22 @@ class TokoController extends Controller
                 }
             }
 
-            // 2. Upload logo ke storage Laravel
-            $logoPath = $request->file('logo')->store('toko', 'public');
-            $logoUrl = Storage::url($logoPath);
+            // 2. Upload logo ke storage Laravel dengan optimasi
+            $logo = $request->file('logo');
+            $filename = hexdec(uniqid()) . '.webp';
+            $logoPath = 'toko/' . $filename;
+
+            // Optimasi Logo: Resize & Convert ke WebP (v4 Syntax)
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->decode($logo);
+            $img->scale(width: 500); // Logo cukup 500px
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put(
+                $logoPath, 
+                (string) $img->encodeUsingFileExtension('webp', quality: 75)
+            );
+
+            $logoUrl = \Illuminate\Support\Facades\Storage::url($logoPath);
 
             // 3. Kirim ke Node.js API DULU
             $response = Http::withHeaders([
@@ -185,11 +227,19 @@ class TokoController extends Controller
             if ($request->hasFile('logo')) {
                 // Hapus logo lama
                 if ($toko->logo_path) {
-                    Storage::disk('public')->delete($toko->logo_path);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($toko->logo_path);
                 }
 
-                // Upload logo baru
-                $logoPath = $request->file('logo')->store('toko', 'public');
+                // Upload logo baru dengan optimasi
+                $logo = $request->file('logo');
+                $filename = hexdec(uniqid()) . '.webp';
+                $logoPath = 'toko/' . $filename;
+
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $img = $manager->decode($logo);
+                $img->scale(width: 500);
+
+                \Illuminate\Support\Facades\Storage::disk('public')->put($logoPath, (string) $img->encodeUsingFileExtension('webp', quality: 75));
             }
 
             // Update database Laravel
@@ -312,6 +362,102 @@ class TokoController extends Controller
         } catch (\Exception $e) {
             Log::error('Error getting toko from API: ' . $e->getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Accept an order (paid -> processing)
+     */
+    public function acceptOrder($orderId)
+    {
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            // Verifikasi bahwa order ini berisi produk dari toko user ini
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if ($order->status !== 'paid') {
+                return back()->with('error', 'Hanya pesanan yang sudah dibayar yang dapat diterima.');
+            }
+
+            $order->update(['status' => 'processing']);
+            return back()->with('success', 'Pesanan diterima dan sedang diproses.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menerima pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject/Cancel an order
+     */
+    public function rejectOrder($orderId)
+    {
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if (!in_array($order->status, ['paid', 'processing'])) {
+                return back()->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+            }
+
+            $order->update(['status' => 'cancelled']);
+            return back()->with('success', 'Pesanan berhasil dibatalkan.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Ship an order (processing -> shipped)
+     */
+    public function shipOrder(Request $request, $orderId)
+    {
+        $request->validate([
+            'nomor_resi' => 'required|string|max:100'
+        ]);
+
+        try {
+            $order = \App\Models\Order::findOrFail($orderId);
+            
+            $toko = Toko::where('user_id', auth()->id())->first();
+            $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
+                $q->where('toko_id', $toko->id);
+            })->exists();
+
+            if (!$ownsProduct) {
+                return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+            }
+
+            if ($order->status !== 'processing') {
+                return back()->with('error', 'Hanya pesanan yang sedang diproses yang dapat dikirim.');
+            }
+
+            $order->update([
+                'status' => 'shipped',
+                'nomor_resi' => $request->nomor_resi
+            ]);
+
+            return back()->with('success', 'Pesanan telah dikirim dengan nomor resi: ' . $request->nomor_resi);
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim pesanan: ' . $e->getMessage());
         }
     }
 }

@@ -15,7 +15,7 @@ describe('TC-BB-F02 — Login Password (Boundary Value Analysis)', () => {
     cy.visit('/login')
     cy.get('input[name="email"]').type('tester@sparehub.com')
     cy.get('input[name="password"]').type('Pass123')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.url().should('include', '/login')
     cy.get('body').should('satisfy', ($body) => {
       return $body.text().match(/credentials|not match|password/i)
@@ -26,7 +26,7 @@ describe('TC-BB-F02 — Login Password (Boundary Value Analysis)', () => {
     cy.visit('/login')
     cy.get('input[name="email"]').type('tester@sparehub.com')
     cy.get('input[name="password"]').type('Pass123!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.url().should('eq', Cypress.config().baseUrl + '/')
   })
 
@@ -34,14 +34,14 @@ describe('TC-BB-F02 — Login Password (Boundary Value Analysis)', () => {
     cy.visit('/login')
     cy.get('input[name="email"]').type('tester@sparehub.com')
     cy.get('input[name="password"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.url().should('eq', Cypress.config().baseUrl + '/')
   })
 
   it('Step 5 — Password kosong, email valid: error "password is required"', () => {
     cy.visit('/login')
     cy.get('input[name="email"]').type('tester@sparehub.com')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.get('body').should('satisfy', ($body) => {
       return $body.text().match(/password.*required|password.*wajib/i)
     })
@@ -50,7 +50,7 @@ describe('TC-BB-F02 — Login Password (Boundary Value Analysis)', () => {
   it('Step 6 — Email kosong, password valid: error "email is required"', () => {
     cy.visit('/login')
     cy.get('input[name="password"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.get('body').should('satisfy', ($body) => {
       return $body.text().match(/email.*required|email.*wajib/i)
     })

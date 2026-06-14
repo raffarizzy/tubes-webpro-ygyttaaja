@@ -19,19 +19,21 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="daftarBtn"]').click()
     cy.url().should('eq', Cypress.config().baseUrl + '/')
   })
 
-  it('Step 3 — Email kosong: error "The email field is required"', () => {
+  it('Step 3 — Email kosong: validasi browser muncul', () => {
     cy.visit('/register')
     cy.get('input[name="name"]').type('BudiTest')
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
-    cy.get('body').should('satisfy', ($body) => {
-      return $body.text().match(/email.*required|email.*wajib/i)
+    cy.get('button[name="daftarBtn"]').click()
+    
+    // Mengecek validasi HTML5 "required" pada input email
+    cy.get('input[name="email"]').then(($input) => {
+      expect($input[0].validationMessage).to.not.be.empty
     })
   })
 
@@ -42,7 +44,7 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="daftarBtn"]').click()
     cy.get('body').should('satisfy', ($body) => {
       return $body.text().match(/already been taken|sudah terdaftar/i)
     })
@@ -55,21 +57,23 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password456!')
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="daftarBtn"]').click()
     cy.get('body').should('satisfy', ($body) => {
       return $body.text().match(/confirmation does not match|tidak cocok/i)
     })
   })
 
-  it('Step 6 — Nama kosong: error "The name field is required"', () => {
+  it('Step 6 — Nama kosong: validasi browser muncul', () => {
     cy.visit('/register')
     cy.get('input[name="email"]').type('budi3@gmail.com')
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
-    cy.get('button[type="submit"]').click()
-    cy.get('body').should('satisfy', ($body) => {
-      return $body.text().match(/name.*required|nama.*wajib/i)
+    cy.get('button[name="daftarBtn"]').click()
+    
+    // Mengecek validasi HTML5 "required" pada input nama
+    cy.get('input[name="name"]').then(($input) => {
+      expect($input[0].validationMessage).to.not.be.empty
     })
   })
 })

@@ -17,6 +17,7 @@ class Product extends Model
         'diskon',
         'stok',
         'imagePath',
+        'berat',
     ];
 
     /* ================= RELATION ================= */

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Home Page - SpareHub')
+@section('title', 'Home Page - Medcom')
 
 @push('styles')
     <link rel="stylesheet" href="{{ asset('css/homepage.css') }}">
@@ -9,7 +9,7 @@
 @section('content')
     <!-- Hero -->
     <section class="hero">
-        <h1>Selamat Datang di <span>SpareHub</span></h1>
+        <h1>Selamat Datang di <span>Medcom</span></h1>
         <p>Tempat terbaik untuk mencari suku cadang kendaraan Anda!</p>
         <button id="scroll-produk">Jelajahi Produk</button>
     </section>
@@ -69,7 +69,7 @@
 
     <!-- Produk -->
     <section class="produk">
-        <h2>Produk Unggulan</h2>
+        <h2>Produk Yang Tersedia</h2>
         <!-- Produk akan dimuat dari JS -->
         <div id="produk-container"></div>
 

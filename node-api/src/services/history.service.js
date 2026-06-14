@@ -12,6 +12,12 @@ exports.getUserOrders = async (userId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
+      o.nomor_resi,
+      o.courier_code,
+      o.courier_name,
+      o.service_name,
+      o.shipping_cost,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -36,11 +42,12 @@ exports.getUserOrders = async (userId) => {
         oi.qty,
         oi.subtotal,
         p.imagePath as product_image,
-        p.deskripsi as product_deskripsi
+        p.deskripsi as product_deskripsi,
+        (SELECT id FROM ratings WHERE user_id = ? AND product_id = oi.product_id) as rating_id
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = ?`,
-            [order.id]
+            [userId, order.id]
         );
 
         orders.push({
@@ -49,6 +56,12 @@ exports.getUserOrders = async (userId) => {
             alamat_id: order.alamat_id,
             total_harga: order.total_harga,
             status: order.status,
+            payment_url: order.payment_url,
+            nomor_resi: order.nomor_resi,
+            courier_code: order.courier_code,
+            courier_name: order.courier_name,
+            service_name: order.service_name,
+            shipping_cost: order.shipping_cost,
             created_at: order.created_at,
             updated_at: order.updated_at,
             items: itemRows.map((item) => ({
@@ -58,6 +71,7 @@ exports.getUserOrders = async (userId) => {
                 harga: item.harga,
                 qty: item.qty,
                 subtotal: item.subtotal,
+                rating_id: item.rating_id,
                 product: {
                     image_path: item.product_image,
                     deskripsi: item.product_deskripsi,
@@ -87,6 +101,12 @@ exports.getOrderById = async (orderId) => {
       o.alamat_id,
       o.total_harga,
       o.status,
+      o.payment_url,
+      o.nomor_resi,
+      o.courier_code,
+      o.courier_name,
+      o.service_name,
+      o.shipping_cost,
       o.created_at,
       o.updated_at,
       a.nama_penerima,
@@ -114,11 +134,12 @@ exports.getOrderById = async (orderId) => {
       oi.qty,
       oi.subtotal,
       p.imagePath as product_image,
-      p.deskripsi as product_deskripsi
+      p.deskripsi as product_deskripsi,
+      (SELECT id FROM ratings WHERE user_id = ? AND product_id = oi.product_id) as rating_id
     FROM order_items oi
     LEFT JOIN products p ON oi.product_id = p.id
     WHERE oi.order_id = ?`,
-        [orderId]
+        [order.user_id, orderId]
     );
 
     return {
@@ -127,6 +148,12 @@ exports.getOrderById = async (orderId) => {
         alamat_id: order.alamat_id,
         total_harga: order.total_harga,
         status: order.status,
+        payment_url: order.payment_url,
+        nomor_resi: order.nomor_resi,
+        courier_code: order.courier_code,
+        courier_name: order.courier_name,
+        service_name: order.service_name,
+        shipping_cost: order.shipping_cost,
         created_at: order.created_at,
         updated_at: order.updated_at,
         items: itemRows.map((item) => ({
@@ -136,6 +163,7 @@ exports.getOrderById = async (orderId) => {
             harga: item.harga,
             qty: item.qty,
             subtotal: item.subtotal,
+            rating_id: item.rating_id,
             product: {
                 image_path: item.product_image,
                 deskripsi: item.product_deskripsi,

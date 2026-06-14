@@ -184,18 +184,19 @@ class CheckoutController extends Controller
                 'invoice_url' => $invoice['invoice_url']
             ]);
 
-            // Update order status to 'paid' via Node.js API
+            // Update order status and save payment_url via Node.js API
             $statusResponse = Http::timeout(30)
                 ->put("{$this->nodeApiUrl}/orders/{$request->order_id}/status", [
-                    'status' => 'paid'
+                    'status' => 'pending',
+                    'payment_url' => $invoice['invoice_url']
                 ]);
 
             if (!$statusResponse->successful()) {
-                Log::error('Failed to update order status via Node.js API', [
+                Log::error('Failed to update order payment URL via Node.js API', [
                     'order_id' => $request->order_id,
                     'response' => $statusResponse->body()
                 ]);
-                throw new \Exception('Failed to update order status');
+                throw new \Exception('Failed to update order payment info');
             }
 
             // Save invoice data to session for tracking
@@ -205,10 +206,10 @@ class CheckoutController extends Controller
                 'last_order_id' => $request->order_id
             ]);
 
-            Log::info('Payment processed successfully', [
+            Log::info('Payment invoice created and saved', [
                 'order_id' => $request->order_id,
                 'invoice_id' => $invoice['id'],
-                'status' => 'paid'
+                'status' => 'pending'
             ]);
 
             return response()->json([

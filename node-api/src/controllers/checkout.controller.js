@@ -7,7 +7,7 @@ const response = require("../utils/response");
  */
 exports.createOrder = async (req, res) => {
     try {
-        const { user_id, alamat_id, items } = req.body;
+        const { user_id, alamat_id, items, courier_code, courier_name, service_name, shipping_cost } = req.body;
 
         // Validation
         if (!user_id) {
@@ -25,27 +25,14 @@ exports.createOrder = async (req, res) => {
             );
         }
 
-        // Validate each item
-        for (const item of items) {
-            if (!item.product_id || !item.jumlah) {
-                return response.validationError(
-                    res,
-                    "Setiap item harus memiliki product_id dan jumlah"
-                );
-            }
-
-            if (item.jumlah < 1) {
-                return response.validationError(res, "Jumlah minimal 1");
-            }
-        }
-
         console.log("Creating order:", {
             user_id,
             alamat_id,
             items_count: items.length,
+            courier: courier_code
         });
 
-        const order = await service.createOrder(user_id, alamat_id, items);
+        const order = await service.createOrder(user_id, alamat_id, items, courier_code, courier_name, service_name, shipping_cost);
 
         return response.success(res, { order }, "Order berhasil dibuat", 201);
     } catch (error) {
@@ -119,15 +106,15 @@ exports.getOrdersByUserId = async (req, res) => {
 exports.updateOrderStatus = async (req, res) => {
     try {
         const { orderId } = req.params;
-        const { status } = req.body;
+        const { status, payment_url } = req.body;
 
         if (!status) {
             return response.validationError(res, "Field status wajib diisi");
         }
 
-        console.log(`Updating order ${orderId} status to ${status}`);
+        console.log(`Updating order ${orderId} status to ${status}${payment_url ? ' with payment_url' : ''}`);
 
-        const result = await service.updateOrderStatus(orderId, status);
+        const result = await service.updateOrderStatus(orderId, status, payment_url);
 
         return response.success(
             res,

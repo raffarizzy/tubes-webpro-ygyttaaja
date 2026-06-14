@@ -38,11 +38,11 @@ class ProfileController extends Controller
         try {
             // 1. VALIDATION
             $request->validate([
-                'pfpPath' => 'required|image|mimes:jpg,jpeg,png'
+                'pfpPath' => 'required|image|mimes:jpg,jpeg,png,webp'
             ], [
                 'pfpPath.required' => 'Foto profil wajib diunggah.',
                 'pfpPath.image' => 'File harus berupa gambar.',
-                'pfpPath.mimes' => 'Format gambar harus JPG, JPEG, atau PNG.',
+                'pfpPath.mimes' => 'Format gambar harus JPG, JPEG, PNG, atau WebP.',
             ]);
 
             $user = $request->user();
@@ -50,11 +50,25 @@ class ProfileController extends Controller
             // 2. HAPUS FOTO LAMA
             if ($user->pfpPath && str_contains($user->pfpPath, asset('storage'))) {
                 $oldPath = str_replace(asset('storage') . '/', '', $user->pfpPath);
-                Storage::disk('public')->delete($oldPath);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
             }
 
-            // 3. SIMPAN FOTO BARU
-            $path = $request->file('pfpPath')->store('avatars', 'public');
+            // 3. SIMPAN FOTO BARU DENGAN OPTIMASI
+            $image = $request->file('pfpPath');
+            $filename = hexdec(uniqid()) . '.webp';
+            $path = 'avatars/' . $filename;
+
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->decode($image);
+            
+            // Resize PFP ke 300x300 (square crop)
+            $img->cover(300, 300);
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put(
+                $path, 
+                (string) $img->encodeUsingFileExtension('webp', quality: 80) // PFP kualitas agak tinggi dikit 80%
+            );
+
             $avatarUrl = asset('storage/' . $path);
 
             // 4. SYNC KE NODE.JS

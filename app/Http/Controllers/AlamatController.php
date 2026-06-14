@@ -73,6 +73,10 @@ class AlamatController extends Controller
 
         $validated = $request->validate([
             'alamat' => 'required|string',
+            'provinsi' => 'nullable|string',
+            'kota' => 'nullable|string',
+            'kecamatan' => 'nullable|string',
+            'kode_wilayah' => 'nullable|string',
             'nama_penerima' => 'required|string|max:255',
             'nomor_penerima' => 'required|string|max:20',
             'is_default' => 'nullable|boolean',
@@ -87,11 +91,17 @@ class AlamatController extends Controller
 
             $data = [
                 'user_id' => $user->id,
-                'alamat' => $validated['alamat'],
-                'nama_penerima' => $validated['nama_penerima'],
-                'nomor_penerima' => $validated['nomor_penerima'],
+                'alamat' => $request->input('alamat'),
+                'provinsi' => $request->input('provinsi') ?: null,
+                'kota' => $request->input('kota') ?: null,
+                'kecamatan' => $request->input('kecamatan') ?: null,
+                'kode_wilayah' => $request->input('kode_wilayah') ?: null,
+                'nama_penerima' => $request->input('nama_penerima'),
+                'nomor_penerima' => $request->input('nomor_penerima'),
                 'is_default' => $isDefault,
             ];
+
+            Log::debug('Data sent to Node.js:', $data);
 
             Log::info('Creating alamat', [
                 'user_id' => $user->id,
@@ -149,6 +159,10 @@ class AlamatController extends Controller
 
         $validated = $request->validate([
             'alamat' => 'required|string',
+            'provinsi' => 'nullable|string',
+            'kota' => 'nullable|string',
+            'kecamatan' => 'nullable|string',
+            'kode_wilayah' => 'nullable|string',
             'nama_penerima' => 'required|string|max:255',
             'nomor_penerima' => 'required|string|max:20',
             'is_default' => 'nullable|boolean',
@@ -163,11 +177,17 @@ class AlamatController extends Controller
 
             $data = [
                 'user_id' => $user->id,
-                'alamat' => $validated['alamat'],
-                'nama_penerima' => $validated['nama_penerima'],
-                'nomor_penerima' => $validated['nomor_penerima'],
+                'alamat' => $request->input('alamat'),
+                'provinsi' => $request->input('provinsi') ?: null,
+                'kota' => $request->input('kota') ?: null,
+                'kecamatan' => $request->input('kecamatan') ?: null,
+                'kode_wilayah' => $request->input('kode_wilayah') ?: null,
+                'nama_penerima' => $request->input('nama_penerima'),
+                'nomor_penerima' => $request->input('nomor_penerima'),
                 'is_default' => $isDefault,
             ];
+
+            Log::debug('Data sent to Node.js:', $data);
 
             Log::info('Updating alamat', [
                 'alamat_id' => $id,

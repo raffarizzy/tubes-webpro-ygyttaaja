@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Profil Pengguna - SpareHub')
+@section('title', 'Profil Pengguna - Medcom')
 @section('body-class', 'class="bg-light"')
 
 @push('bootstrap')
