@@ -158,7 +158,16 @@
                             @endif
                             
                             @if($pesanan->status === 'finished')
-                                <a href="{{ route('ratings.index') }}" class="btn btn-warning btn-sm"> Review </a>
+                                @php
+                                    $firstItem = $pesanan->items->first();
+                                    $productId = $firstItem ? $firstItem->product_id : null;
+                                    $hasReviewedAll = $pesanan->items->every(fn($item) => isset($item->rating_id) && $item->rating_id);
+                                @endphp
+                                @if($productId)
+                                    <a href="{{ route('ratings.create', $productId) }}" class="btn btn-warning btn-sm"> 
+                                        {{ $hasReviewedAll ? 'Lihat Review' : 'Review' }} 
+                                    </a>
+                                @endif
                             @endif
                             
                             @if($pesanan->status === 'pending')

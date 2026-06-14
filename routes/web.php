@@ -89,6 +89,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelForm'])->name('orders.cancel');
     Route::post('/orders/{id}/finish', [OrderController::class, 'finishOrder'])->name('orders.finish');
     Route::get('/ratings', [RatingController::class, 'index'])->name('ratings.index');
+    Route::get('/ratings/create/{productId}', [RatingController::class, 'createRating'])->name('ratings.create');
     Route::post('/ratings', [RatingController::class, 'store'])->name('ratings.store');
     Route::delete('/ratings/{id}', [RatingController::class, 'destroy'])->name('ratings.destroy');
     //sblmaneh2

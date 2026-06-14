@@ -42,11 +42,12 @@ exports.getUserOrders = async (userId) => {
         oi.qty,
         oi.subtotal,
         p.imagePath as product_image,
-        p.deskripsi as product_deskripsi
+        p.deskripsi as product_deskripsi,
+        (SELECT id FROM ratings WHERE user_id = ? AND product_id = oi.product_id) as rating_id
       FROM order_items oi
       LEFT JOIN products p ON oi.product_id = p.id
       WHERE oi.order_id = ?`,
-            [order.id]
+            [userId, order.id]
         );
 
         orders.push({
@@ -70,6 +71,7 @@ exports.getUserOrders = async (userId) => {
                 harga: item.harga,
                 qty: item.qty,
                 subtotal: item.subtotal,
+                rating_id: item.rating_id,
                 product: {
                     image_path: item.product_image,
                     deskripsi: item.product_deskripsi,
@@ -132,11 +134,12 @@ exports.getOrderById = async (orderId) => {
       oi.qty,
       oi.subtotal,
       p.imagePath as product_image,
-      p.deskripsi as product_deskripsi
+      p.deskripsi as product_deskripsi,
+      (SELECT id FROM ratings WHERE user_id = ? AND product_id = oi.product_id) as rating_id
     FROM order_items oi
     LEFT JOIN products p ON oi.product_id = p.id
     WHERE oi.order_id = ?`,
-        [orderId]
+        [order.user_id, orderId]
     );
 
     return {
@@ -160,6 +163,7 @@ exports.getOrderById = async (orderId) => {
             harga: item.harga,
             qty: item.qty,
             subtotal: item.subtotal,
+            rating_id: item.rating_id,
             product: {
                 image_path: item.product_image,
                 deskripsi: item.product_deskripsi,

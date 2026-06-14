@@ -418,6 +418,9 @@ class OrderController extends Controller
                     if (isset($item['product']) && is_array($item['product'])) {
                         $itemObj->product = (object) $item['product'];
                     }
+                    if (isset($item['rating_id'])) {
+                        $itemObj->rating_id = $item['rating_id'];
+                    }
                     return $itemObj;
                 });
             }

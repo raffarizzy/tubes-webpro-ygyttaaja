@@ -302,7 +302,7 @@ exports.updateOrderStatus = async (orderId, status, paymentUrl = null) => {
 
         if (!validStatuses.includes(status)) {
             throw new Error(
-                "Status tidak valid. Gunakan: pending, paid, processing, shipped, finished, atau cancelled"
+                "[MEDCOM-API-v2] Status tidak valid. Gunakan: pending, paid, processing, shipped, finished, atau cancelled"
             );
         }
 
