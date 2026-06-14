@@ -1,5 +1,5 @@
 // =====================================================
-// UNIFIED NAVBAR SYSTEM - SpareHub (LARAVEL VERSION)
+// UNIFIED NAVBAR SYSTEM - Medcom (LARAVEL VERSION)
 // Handles: User Auth Display, Cart Count, Active Menu, Logout
 // =====================================================
 

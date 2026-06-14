@@ -1,6 +1,6 @@
 # Test Cases — Raffa Rizky Febryan (103022330138)
 
-**Project:** SpareHub  
+**Project:** Medcom  
 **PIC:** Raffa Rizky Febryan  
 **Coverage Area:** Halaman Register, Toko, & Rating  
 
@@ -171,8 +171,8 @@ Verifikasi bahwa `ProductController::update()` dan `destroy()` mengelola produk 
 | # | Prerequisite                                                      |
 |---|-------------------------------------------------------------------|
 | 1 | Halaman registrasi dapat diakses di `/register`                   |
-| 2 | Email `raffa.test@sparehub.com` belum terdaftar                   |
-| 3 | Email `existing@sparehub.com` sudah terdaftar di database         |
+| 2 | Email `raffa.test@medcom.com` belum terdaftar                   |
+| 3 | Email `existing@medcom.com` sudah terdaftar di database         |
 
 ### Branch Map — `RegisteredUserController::store()`
 
@@ -201,11 +201,11 @@ store(Request $request)
 | 1    | B2           | Buka `/register`, isi semua field valid (nama, email baru, phone, password cocok), klik Register | Redirect ke `/`, user ter-login otomatis, profil muncul di navbar | -          | Not Executed              |
 | 2    | B1a          | Isi form dengan `name` kosong, klik Register                                           | Pesan error "The name field is required."                               | -              | Not Executed              |
 | 3    | B1b          | Isi `email` = `bukan-email`, klik Register                                             | Pesan error "The email field must be a valid email address."            | -              | Not Executed              |
-| 4    | B1c          | Isi `email` = `existing@sparehub.com` (sudah ada), klik Register                      | Pesan error "The email has already been taken."                         | -              | Not Executed              |
+| 4    | B1c          | Isi `email` = `existing@medcom.com` (sudah ada), klik Register                      | Pesan error "The email has already been taken."                         | -              | Not Executed              |
 | 5    | B1d          | Isi `phone` kosong, klik Register                                                      | Pesan error "The phone field is required."                              | -              | Not Executed              |
 | 6    | B1f          | Isi `password` = "Password123!", `password_confirmation` = "Password456!", klik Register | Pesan error "The password field confirmation does not match."         | -              | Not Executed              |
 | 7    | B1e          | Isi `password` = `short` (< 8 karakter, tidak memenuhi defaults), klik Register       | Pesan error validasi password (panjang minimum tidak terpenuhi)         | -              | Not Executed              |
-| 8    | B2           | Setelah registrasi sukses (step 1), verifikasi `pfpPath` default ter-set               | `pfpPath` user di database adalah URL avatar default SpareHub           | -              | Not Executed              |
+| 8    | B2           | Setelah registrasi sukses (step 1), verifikasi `pfpPath` default ter-set               | `pfpPath` user di database adalah URL avatar default Medcom           | -              | Not Executed              |
 
 ---
 

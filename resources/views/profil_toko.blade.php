@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Manajemen Toko - SpareHub')
+@section('title', 'Manajemen Toko - Medcom')
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">

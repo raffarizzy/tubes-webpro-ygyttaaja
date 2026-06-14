@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Register - SpareHub</title>
+    <title>Register - Medcom</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -25,7 +25,7 @@
              alt="Logo"
              width="70"
              class="mb-2">
-        <h4 class="fw-bold text-primary">SpareHub</h4>
+        <h4 class="fw-bold text-primary">Medcom</h4>
         <p class="text-muted small">Daftar akun baru</p>
     </div>
 

@@ -1,31 +1,31 @@
 {
   "riziq": {
     "name": "Riziq Rizwan",
-    "email": "riziq@sparehub.com",
+    "email": "riziq@medcom.com",
     "password": "Password123!"
   },
   "tester": {
     "name": "Tester User",
-    "email": "tester@sparehub.com",
+    "email": "tester@medcom.com",
     "password": "Password123!"
   },
   "existing": {
-    "email": "existing@sparehub.com",
+    "email": "existing@medcom.com",
     "password": "Password123!"
   },
   "raffa": {
     "name": "Raffa Rizky Febryan",
-    "email": "raffa.test@sparehub.com",
+    "email": "raffa.test@medcom.com",
     "password": "Password123!"
   },
   "userA": {
     "name": "User A",
-    "email": "usera@sparehub.com",
+    "email": "usera@medcom.com",
     "password": "Password123!"
   },
   "userB": {
     "name": "User B",
-    "email": "userb@sparehub.com",
+    "email": "userb@medcom.com",
     "password": "Password123!"
   }
 }

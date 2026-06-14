@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Profil Pengguna - SpareHub')
+@section('title', 'Profil Pengguna - Medcom')
 
 @section('content')
 
@@ -27,9 +27,9 @@
 {{-- RIWAYAT PESANAN --}}
 <div class="card shadow-sm mb-4 text-center">
     <div class="card-body">
-        <h3 class="fw-bold text-sparehub">Riwayat Pesanan</h3>
+        <h3 class="fw-bold text-medcom">Riwayat Pesanan</h3>
         <p class="text-muted mb-3">Lihat daftar pesanan yang pernah Anda lakukan</p>
-        <a href="{{ route('riwayat.pesanan') }}" class="btn bg-sparehub text-white px-4">
+        <a href="{{ route('riwayat.pesanan') }}" class="btn bg-medcom text-white px-4">
             Lihat Riwayat
         </a>
     </div>
@@ -58,7 +58,7 @@
                 <div class="avatar-wrapper">
                     <img
                         style="width:150px;height:150px"
-                        src="{{ auth()->user()->pfpPath ?? 'https://i.ibb.co.com/ZRkqGfJ3/default-avatar-sparehubtize.png' }}"
+                        src="{{ auth()->user()->pfpPath ?? 'https://i.ibb.co.com/ZRkqGfJ3/default-avatar-medcomtize.png' }}"
                         alt="Avatar"
                         class="bg-secondary rounded-circle mb-4"
                     >
@@ -75,7 +75,7 @@
 
                 <button
                     type="button"
-                    class="btn bg-sparehub text-white px-4"
+                    class="btn bg-medcom text-white px-4"
                     onclick="document.getElementById('pfpPathInput').click()"
                 >
                     Ubah Foto Profil
@@ -214,7 +214,7 @@
 
         {{-- SUBMIT --}}
         <div class="col-12 text-end mt-4">
-            <button class="btn text-white bg-sparehub px-4">
+            <button class="btn text-white bg-medcom px-4">
                 Simpan Perubahan
             </button>
         </div>

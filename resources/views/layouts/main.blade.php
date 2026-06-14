@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'SpareHub')</title>
+    <title>@yield('title', 'Medcom')</title>
 
-    <!-- Warna Utama SpareHub -->
+    <!-- Warna Utama Medcom -->
     <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     <!-- Boostrap -->
@@ -26,7 +26,7 @@
 <body class="@yield('body-class') d-flex flex-column min-vh-100">
     <!-- NAVBAR -->
     <nav>
-        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo SpareHub" style="cursor:pointer"
+        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo Medcom" style="cursor:pointer"
             onclick="window.location.href='/'" />
 
         <ul>
@@ -77,7 +77,7 @@
 
     <!-- FOOTER -->
     <footer>
-        <p>&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+        <p>&copy; 2025 Medcom. Semua hak dilindungi.</p>
     </footer>
 
     @stack('scripts')

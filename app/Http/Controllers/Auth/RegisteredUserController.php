@@ -41,7 +41,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
-            'pfpPath' => 'https://i.ibb.co.com/ZRkqGfJ3/default-avatar-sparehubtize.png'
+            'pfpPath' => 'https://i.ibb.co.com/ZRkqGfJ3/default-avatar-medcomtize.png'
         ]);
 
         event(new Registered($user));

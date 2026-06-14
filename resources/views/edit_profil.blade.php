@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Pengguna - SpareHub</title>
+    <title>Profil Pengguna - Medcom</title>
     <link rel="icon" href="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png">
 
     <!-- BOOTSTRAP -->
@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#122C4F;">
         <div class="container">
             <a href="login.html" class="navbar-brand">
-                <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo SpareHub" width="40">
+                <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo Medcom" width="40">
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
@@ -106,7 +106,7 @@
     </div>
 
     <footer class="text-white text-center py-3" style="background-color:#122C4F;">
-        <p class="m-0">&copy; 2025 SpareHub. Semua hak dilindungi.</p>
+        <p class="m-0">&copy; 2025 Medcom. Semua hak dilindungi.</p>
     </footer>
 
     <script src="../js/pengguna.js"></script>

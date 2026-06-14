@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Buka Toko - SpareHub')
+@section('title', 'Buka Toko - Medcom')
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -120,7 +120,7 @@
         </div>
         
         <h2 class="fw-bold mb-2" style="color: var(--primary-dark)">Mulai Berjualan</h2>
-        <p class="text-muted mb-4">Lengkapi data di bawah ini untuk membuka toko Anda di SpareHub.</p>
+        <p class="text-muted mb-4">Lengkapi data di bawah ini untuk membuka toko Anda di Medcom.</p>
 
         @if(session('error'))
             <div class="alert alert-danger rounded-3 border-0">

@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Checkout - SpareHub')
+@section('title', 'Checkout - Medcom')
 
 @section('body-class', 'class="bg-light"')
 
