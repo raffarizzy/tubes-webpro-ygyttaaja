@@ -146,9 +146,22 @@ class TokoController extends Controller
                 }
             }
 
-            // 2. Upload logo ke storage Laravel
-            $logoPath = $request->file('logo')->store('toko', 'public');
-            $logoUrl = Storage::url($logoPath);
+            // 2. Upload logo ke storage Laravel dengan optimasi
+            $logo = $request->file('logo');
+            $filename = hexdec(uniqid()) . '.webp';
+            $logoPath = 'toko/' . $filename;
+
+            // Optimasi Logo: Resize & Convert ke WebP (v4 Syntax)
+            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+            $img = $manager->decode($logo);
+            $img->scale(width: 500); // Logo cukup 500px
+
+            \Illuminate\Support\Facades\Storage::disk('public')->put(
+                $logoPath, 
+                (string) $img->encodeUsingFileExtension('webp', quality: 75)
+            );
+
+            $logoUrl = \Illuminate\Support\Facades\Storage::url($logoPath);
 
             // 3. Kirim ke Node.js API DULU
             $response = Http::withHeaders([
@@ -214,11 +227,19 @@ class TokoController extends Controller
             if ($request->hasFile('logo')) {
                 // Hapus logo lama
                 if ($toko->logo_path) {
-                    Storage::disk('public')->delete($toko->logo_path);
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($toko->logo_path);
                 }
 
-                // Upload logo baru
-                $logoPath = $request->file('logo')->store('toko', 'public');
+                // Upload logo baru dengan optimasi
+                $logo = $request->file('logo');
+                $filename = hexdec(uniqid()) . '.webp';
+                $logoPath = 'toko/' . $filename;
+
+                $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $img = $manager->decode($logo);
+                $img->scale(width: 500);
+
+                \Illuminate\Support\Facades\Storage::disk('public')->put($logoPath, (string) $img->encodeUsingFileExtension('webp', quality: 75));
             }
 
             // Update database Laravel
