@@ -294,14 +294,15 @@
 
                     if (!result.success) throw new Error(result.message);
 
-                    const data = result.data.data;
-                    const history = data.history || [];
+                    const data = result.data.data; // Access nested data from result
+                    const histories = data.histories || [];
+                    const lastStatus = data.status || 'N/A';
 
-                    let historyHtml = history.map(h => `
+                    let historyHtml = histories.map(h => `
                         <div class="d-flex mb-3 border-start border-primary border-3 ps-3">
                             <div>
-                                <div class="fw-bold small">${h.description}</div>
-                                <div class="text-muted small">${h.date}</div>
+                                <div class="fw-bold small">${h.message}</div>
+                                <div class="text-muted small">${new Date(h.date).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</div>
                             </div>
                         </div>
                     `).join('');
@@ -310,13 +311,13 @@
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <h6 class="text-muted mb-1 small text-uppercase">Nomor Resi</h6>
-                                <p class="fw-bold mb-3">${data.summary.waybill_number}</p>
+                                <p class="fw-bold mb-3">${resi}</p>
                                 <h6 class="text-muted mb-1 small text-uppercase">Kurir</h6>
-                                <p class="fw-bold mb-3">${data.summary.courier_name}</p>
+                                <p class="fw-bold mb-3">${courier.toUpperCase()}</p>
                             </div>
                             <div class="col-md-6 text-md-end">
                                 <h6 class="text-muted mb-1 small text-uppercase">Status Terakhir</h6>
-                                <span class="badge bg-success fs-6">${data.summary.status}</span>
+                                <span class="badge bg-success fs-6">${lastStatus}</span>
                             </div>
                         </div>
                         <h6 class="fw-bold mb-3"><i class="bi bi-clock-history"></i> Riwayat Perjalanan</h6>

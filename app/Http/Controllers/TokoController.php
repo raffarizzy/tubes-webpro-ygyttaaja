@@ -55,7 +55,7 @@ class TokoController extends Controller
             $productIds = $toko->products->pluck('id');
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
                 ->with(['order.user', 'order.alamat'])
-                ->latest()
+                ->orderBy('id', 'desc')
                 ->get();
 
             // Statistik Tambahan
@@ -81,7 +81,7 @@ class TokoController extends Controller
             $productIds = $toko->products->pluck('id');
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
                 ->with(['order.user', 'order.alamat'])
-                ->latest()
+                ->orderBy('id', 'desc')
                 ->get();
 
             $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)

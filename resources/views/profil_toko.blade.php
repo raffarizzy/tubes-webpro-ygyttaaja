@@ -23,6 +23,18 @@
         margin-bottom: 80px;
     }
 
+    /* Bleed background to prevent white gap on scroll up */
+    .shop-banner::before {
+        content: "";
+        position: absolute;
+        top: -1000px;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--primary-dark);
+        z-index: -1;
+    }
+
     .shop-profile-card {
         position: absolute;
         bottom: -60px;
@@ -315,24 +327,24 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    {{-- Alerts --}}
-    <div class="container mt-3">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
-                <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-    </div>
-
     {{-- Banner & Profile --}}
     <div class="shop-banner">
+        {{-- Alerts di dalam Banner agar tidak mendorong layout ke bawah --}}
+        <div class="container pt-3">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+        </div>
+
         <div class="shop-profile-card">
             <div class="shop-logo-wrapper">
                 <img src="{{ $toko->logo_path ? asset('storage/'.$toko->logo_path) : asset('img/iconPengguna.png') }}" 
@@ -514,7 +526,15 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="fw-600">{{ $item->nama_produk }}</td>
+                                        <td class="fw-600">
+                                            {{ $item->nama_produk }}
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
+                                                </span>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Ongkir: Rp {{ number_format($item->order->shipping_cost ?? 0, 0, ',', '.') }}</div>
+                                            </div>
+                                        </td>
                                         <td>{{ $item->qty }}x</td>
                                         <td class="fw-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                                         <td class="text-center">
