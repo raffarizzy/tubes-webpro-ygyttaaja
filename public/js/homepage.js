@@ -147,29 +147,46 @@ function createProductCard(produk) {
     // Fix path gambar
     let imagePath;
     if (produk.imagePath.startsWith("http")) {
-        // Kalau sudah full URL
         imagePath = produk.imagePath;
     } else if (produk.imagePath.startsWith("produk/")) {
-        // Kalau dari Laravel storage
         imagePath = `http://localhost:8000/storage/${produk.imagePath}`;
     } else {
-        // Kalau path relatif (img/iconOli.png)
         imagePath = produk.imagePath;
     }
 
+    // Hitung harga diskon jika ada
+    const hasDiscount = produk.diskon && produk.diskon > 0;
+    const finalPrice = hasDiscount 
+        ? Math.round(produk.harga * (1 - produk.diskon / 100)) 
+        : produk.harga;
+
     card.innerHTML = `
-        <img src="${imagePath}" 
-             alt="${produk.nama}" 
-             onerror="if(this.src!=='${
-                 window.location.origin
-             }/img/iconOli.png'){this.src='${
-        window.location.origin
-    }/img/iconOli.png'}" />
+        ${hasDiscount ? `<div class="badge-diskon">Hemat ${produk.diskon}%</div>` : ''}
+        
+        <div class="img-container">
+            <img src="${imagePath}" 
+                 alt="${produk.nama}" 
+                 onerror="this.src='/img/iconOli.png'" />
+        </div>
+
+        <div class="toko-info">
+            <i class="bi bi-shop"></i>
+            <span>${produk.nama_toko || 'Medcom Seller'}</span>
+        </div>
+
         <h3>${produk.nama}</h3>
-        <p class="harga">${formatRupiah(produk.harga)}</p>
+        
+        <div class="harga-container">
+            ${hasDiscount ? `<span class="harga-coret">${formatRupiah(produk.harga)}</span>` : ''}
+            <p class="harga">${formatRupiah(finalPrice)}</p>
+        </div>
+
         <p class="deskripsi">${produk.deskripsi}</p>
-        <a href="/produk/${produk.id}">
-            <button class="btn-beli">Lihat Detail</button>
+        
+        <a href="/produk/${produk.id}" style="text-decoration: none; margin-top: auto;">
+            <button class="btn-beli">
+                <i class="bi bi-cart-plus"></i> Lihat Detail
+            </button>
         </a>
     `;
 

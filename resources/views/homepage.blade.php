@@ -69,7 +69,7 @@
 
     <!-- Produk -->
     <section class="produk">
-        <h2>Produk Unggulan</h2>
+        <h2>Produk Yang Tersedia</h2>
         <!-- Produk akan dimuat dari JS -->
         <div id="produk-container"></div>
 
