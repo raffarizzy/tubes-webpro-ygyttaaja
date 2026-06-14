@@ -90,34 +90,49 @@
           </p>
         </div>
 
-        <!-- Info Toko -->
-        <div class="d-flex align-items-center gap-3 p-3 bg-white rounded shadow-sm my-3">
-          @php
-            $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
-            if (!str_starts_with($tokoLogo, 'http') && !str_starts_with($tokoLogo, '/img/')) {
-              if (str_starts_with($tokoLogo, 'toko/')) {
-                $tokoLogo = '/storage/' . $tokoLogo;
-              } elseif (!str_starts_with($tokoLogo, '/storage/')) {
-                $tokoLogo = '/storage/' . $tokoLogo;
+        <!-- Info Toko (Clickable) -->
+        <a href="{{ route('profil_toko') }}" class="text-decoration-none d-block">
+          <div class="d-flex align-items-center gap-3 p-3 bg-white rounded shadow-sm my-3 border border-transparent hover-shadow transition" style="cursor: pointer;">
+            @php
+              $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
+              if (!str_starts_with($tokoLogo, 'http') && !str_starts_with($tokoLogo, '/img/')) {
+                if (str_starts_with($tokoLogo, 'toko/')) {
+                  $tokoLogo = '/storage/' . $tokoLogo;
+                } elseif (!str_starts_with($tokoLogo, '/storage/')) {
+                  $tokoLogo = '/storage/' . $tokoLogo;
+                }
               }
-            }
-          @endphp
+            @endphp
 
-          <div class="flex-shrink-0">
-            <img
-              src="{{ $tokoLogo }}"
-              alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
-              class="rounded-circle border border-2 border-color-medcom"
-              style="width: 60px; height: 60px; object-fit: cover;"
-              onerror="this.src='/img/iconPengguna.png'"
-            />
-          </div>
+            <div class="flex-shrink-0">
+              <img
+                src="{{ $tokoLogo }}"
+                alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
+                class="rounded-circle border border-2 border-color-medcom"
+                style="width: 60px; height: 60px; object-fit: cover;"
+                onerror="this.src='/img/iconPengguna.png'"
+              />
+            </div>
 
-          <div>
-            <p id="toko-nama" class="fw-bold color-medcom m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
-            <p id="toko-lokasi" class="text-muted small m-0">{{ $product->toko->lokasi ?? '-' }}</p>
+            <div>
+              <p id="toko-nama" class="fw-bold color-medcom m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
+              <p id="toko-lokasi" class="text-muted small m-0">
+                <i class="bi bi-geo-alt-fill me-1"></i>{{ $product->toko->lokasi ?? '-' }}
+              </p>
+              <small class="text-primary mt-1 d-block">Lihat Toko <i class="bi bi-chevron-right ms-1"></i></small>
+            </div>
           </div>
-        </div>
+        </a>
+
+        <style>
+          .hover-shadow:hover {
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+            border-color: #122c4f !important;
+          }
+          .transition {
+            transition: all 0.2s ease-in-out;
+          }
+        </style>
 
         <!-- Deskripsi -->
         <div class="mt-4">
