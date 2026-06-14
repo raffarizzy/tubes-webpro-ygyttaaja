@@ -42,7 +42,18 @@
             <h2 class="mb-1 fw-bold">Riwayat Pesanan</h2>
             <p class="text-muted mb-0">Lihat semua pesanan yang pernah Anda buat</p>
         </div>
-        <a href="{{ url('/') }}" class="btn btn-outline-primary"> Kembali ke Beranda </a>
+        <a href="{{ url('/') }}" class="btn" 
+        style = "
+            --bs-btn-color: #ffffff;
+            --bs-btn-bg: #122c4f;
+            --bs-btn-border-color: #122c4f;
+            --bs-btn-hover-color: #ffffff;
+            --bs-btn-hover-bg: #0d2033; /* Darker blue on hover */
+            --bs-btn-hover-border-color: #0d2033;
+            --bs-btn-active-bg: #0a1829;
+            --bs-btn-active-border-color: #0a1829;
+        "
+        > Kembali ke Beranda </a>
     </div>
 
     <!-- Alert Messages -->

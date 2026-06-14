@@ -5,6 +5,14 @@
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .color-medcom {
+          color: #122c4f !important; /* !important ensures it overrides standard Bootstrap utility specificity */
+        }
+        .border-color-medcom {
+          border-color: #122c4f !important;
+        }
+    </style>
 @endpush
 
 @section('content')
@@ -42,11 +50,11 @@
 
       <!-- DETAIL PRODUK -->
       <div class="col-md-6">
-        <h3 id="product-name" class="fw-bold text-primary">{{ $product->nama }}</h3>
+        <h3 id="product-name" class="fw-bold color-medcom">{{ $product->nama }}</h3>
 
         <!-- Harga -->
         <div class="d-flex align-items-center gap-2 my-3">
-          <span id="product-price" class="fw-bold fs-4 text-primary">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
+          <span id="product-price" class="fw-bold fs-4 color-medcom">Rp {{ number_format($product->harga, 0, ',', '.') }}</span>
           @if($product->diskon && $product->diskon > 0)
             @php
               $hargaAsli = round($product->harga / (1 - $product->diskon / 100));
@@ -99,21 +107,21 @@
             <img
               src="{{ $tokoLogo }}"
               alt="{{ $product->toko->nama_toko ?? 'Toko' }}"
-              class="rounded-circle border border-2 border-primary"
+              class="rounded-circle border border-2 border-color-medcom"
               style="width: 60px; height: 60px; object-fit: cover;"
               onerror="this.src='/img/iconPengguna.png'"
             />
           </div>
 
           <div>
-            <p id="toko-nama" class="fw-bold text-primary m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
+            <p id="toko-nama" class="fw-bold color-medcom m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
             <p id="toko-lokasi" class="text-muted small m-0">{{ $product->toko->lokasi ?? '-' }}</p>
           </div>
         </div>
 
         <!-- Deskripsi -->
         <div class="mt-4">
-          <h5 class="text-primary fw-semibold">Deskripsi</h5>
+          <h5 class="color-medcom fw-semibold">Deskripsi</h5>
           <p id="product-description" class="text-muted">{{ $product->deskripsi }}</p>
         </div>
 
@@ -138,7 +146,7 @@
 
     <!-- Ulasan -->
     <div class="mt-5">
-      <h4 class="text-primary fw-bold mb-3">Ulasan Pengguna</h4>
+      <h4 class="color-medcom fw-bold mb-3">Ulasan Pengguna</h4>
       <div id="reviews-list" class="row g-3">
         @forelse($ratings as $rating)
           <div class="col-12 col-md-6 col-lg-4">
