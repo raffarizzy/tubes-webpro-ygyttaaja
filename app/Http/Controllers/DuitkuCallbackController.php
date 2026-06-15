@@ -58,17 +58,19 @@ class DuitkuCallbackController extends Controller
                 ]);
 
                 if ($response->successful()) {
-                    return response('OK', 200); // Duitku butuh respon 'OK'
+                    return response('OK', 200)
+                        ->header('ngrok-skip-browser-warning', 'true'); // Bypass ngrok warning
                 } else {
                     Log::error("Duitku Callback: Failed to sync with Node API for Order #$orderId", [
                         'status' => $response->status(),
                         'body' => $response->body()
                     ]);
-                    return response('Internal Server Error', 500);
+                    return response('Internal Server Error', 500)
+                        ->header('ngrok-skip-browser-warning', 'true');
                 }
             }
 
-            return response('OK', 200);
+            return response('OK', 200)->header('ngrok-skip-browser-warning', 'true');
 
         } catch (\Exception $e) {
             Log::error('Duitku Callback Error: ' . $e->getMessage());

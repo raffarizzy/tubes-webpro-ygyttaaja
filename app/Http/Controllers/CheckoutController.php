@@ -108,116 +108,88 @@ class CheckoutController extends Controller
     public function pay(Request $request)
     {
         if (!Auth::check()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
         }
 
         $request->validate([
             'order_id' => 'required|integer',
-            'alamat_id' => 'required|integer',
             'total' => 'required|integer|min:1',
-            'payment_method' => 'nullable|string',
         ]);
 
         try {
             /** @var \App\Models\User $user */
             $user = Auth::user();
-            Log::info('Local Checkout Pay: Started', ['order_id' => $request->order_id, 'user_id' => $user->id]);
-
-            // 1. Verify order exists via Node.js API
-            $apiUrl = "{$this->nodeApiUrl}/orders/{$request->order_id}";
-            Log::info('Local Checkout Pay: Contacting Node API', ['url' => $apiUrl]);
             
-            $orderResponse = Http::timeout(10)->get($apiUrl);
-
-            if (!$orderResponse->successful()) {
-                Log::error('Local Checkout Pay: Order Not Found in API', ['status' => $orderResponse->status(), 'body' => $orderResponse->body()]);
-                throw new \Exception('Order tidak ditemukan di database API');
-            }
-
-            $orderData = $orderResponse->json('data');
-
-            // 2. Verify order belongs to user
-            if ($orderData['user_id'] != $user->id) {
-                Log::warning('Local Checkout Pay: Access Denied', ['owner' => $orderData['user_id'], 'current' => $user->id]);
-                return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
-            }
-
-            // 3. Duitku POP Inquiry
+            // 1. Duitku Credentials
             $merchantCode = config('services.duitku.merchant_code');
             $apiKey = config('services.duitku.api_key');
+            $mode = config('services.duitku.mode');
             
             if (!$merchantCode || !$apiKey) {
-                Log::error('Local Checkout Pay: Missing Duitku Credentials in .env');
-                throw new \Exception('Konfigurasi Duitku (Merchant Code/API Key) belum diatur di .env');
+                throw new \Exception('Konfigurasi Duitku belum lengkap di .env');
             }
 
+            // 2. Prepare Data
             $merchantOrderId = 'ORDER-' . $request->order_id . '-' . time();
             $paymentAmount = (int) $request->total;
-            $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
+            $timestamp = round(microtime(true) * 1000); 
+            
+            // Signature: SHA256(merchantCode + timestamp + apiKey)
+            $signature = hash('sha256', $merchantCode . $timestamp . $apiKey);
 
-            $duitkuUrl = config('services.duitku.mode') === 'production' 
-                ? 'https://passport.duitku.com/webapi/api/merchant/v2/inquiry'
-                : 'https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry';
+            $duitkuUrl = $mode === 'production' 
+                ? 'https://api.duitku.com/api/merchant/createInvoice'
+                : 'https://api-sandbox.duitku.com/api/merchant/createInvoice';
 
-            Log::info('Local Checkout Pay: Contacting Duitku', [
-                'url' => $duitkuUrl, 
-                'order' => $merchantOrderId,
-                'method' => $request->payment_method ?? 'ALL'
-            ]);
-
-            $params = [
+            // 3. Request Transaction (Redirect Mode)
+            $response = Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+                'x-duitku-signature' => $signature,
+                'x-duitku-timestamp' => $timestamp,
+                'x-duitku-merchantcode' => $merchantCode
+            ])->timeout(30)->post($duitkuUrl, [
                 'merchantCode' => $merchantCode,
                 'paymentAmount' => $paymentAmount,
                 'merchantOrderId' => $merchantOrderId,
-                'productDetails' => 'Pembayaran Medcom Order #' . $request->order_id,
+                'productDetails' => 'Pembayaran Order #' . $request->order_id,
                 'email' => $user->email,
+                'customerVaName' => $user->name,
                 'callbackUrl' => route('duitku.callback'),
                 'returnUrl' => route('riwayat.pesanan'),
-                'signature' => $signature,
-                'expiryPeriod' => 60
-            ];
+                'expiryPeriod' => 1440 
+            ]);
 
-            if ($request->filled('payment_method')) {
-                $params['paymentMethod'] = $request->payment_method;
+            if (!$response->successful()) {
+                Log::error('Duitku Redirect Error', ['body' => $response->body()]);
+                throw new \Exception('Gagal menghubungi server Duitku');
             }
 
-            $inquiryResponse = Http::timeout(15)->post($duitkuUrl, $params);
-
-            if (!$inquiryResponse->successful()) {
-                Log::error('Local Checkout Pay: Duitku Server Error', ['status' => $inquiryResponse->status(), 'body' => $inquiryResponse->body()]);
-                throw new \Exception('Gagal menghubungi server Duitku (HTTP Error)');
-            }
-
-            $duitkuData = $inquiryResponse->json();
-
+            $duitkuData = $response->json();
+            
             if (($duitkuData['statusCode'] ?? '') !== '00') {
-                Log::error('Local Checkout Pay: Duitku Business Error', $duitkuData);
-                throw new \Exception('Duitku: ' . ($duitkuData['statusMessage'] ?? 'Unknown error'));
+                throw new \Exception('Duitku: ' . ($duitkuData['statusMessage'] ?? 'Unknown Error'));
             }
 
+            $paymentUrl = $duitkuData['paymentUrl'];
             $reference = $duitkuData['reference'];
 
-            // 4. Update order status and save reference via Node.js API
-            Log::info('Local Checkout Pay: Updating Order Status in API');
+            // 4. Sinkronisasi ke Node.js API
             $statusResponse = Http::timeout(10)
                 ->put("{$this->nodeApiUrl}/orders/{$request->order_id}/status", [
                     'status' => 'pending',
-                    'payment_url' => null,
+                    'payment_url' => $paymentUrl,
                     'payment_reference' => $reference
                 ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Duitku Inquiry Berhasil',
-                'reference' => $reference,
-                'order_id' => $request->order_id,
+                'payment_url' => $paymentUrl,
+                'reference' => $reference
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Local Checkout Pay: FATAL ERROR', ['msg' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            Log::error('Checkout Redirect Pay Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
