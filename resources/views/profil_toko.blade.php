@@ -843,6 +843,9 @@
 
     // Persistensi Tab setelah Refresh
     document.addEventListener('DOMContentLoaded', function() {
+        // Pre-fill existing location if available
+        prefillTokoLocation();
+
         // --- Wilayah Logic for Toko ---
         const tokoProv = document.getElementById('tokoProvinsi');
         const tokoKota = document.getElementById('tokoKota');
@@ -916,7 +919,8 @@
         async function prefillTokoLocation() {
             await loadProvinces();
             const currentKode = "{{ $toko->kode_wilayah ?? '' }}";
-            
+            console.log(currentKode);
+            console.log("ke run okk ajg");
             if (currentKode) {
                 const provCode = currentKode.substring(0, 2);
                 const cityCode = currentKode.substring(0, 5);
@@ -931,9 +935,6 @@
                 updateHiddenFields();
             }
         }
-
-        // Pre-fill existing location if available
-        prefillTokoLocation();
 
         // Ambil hash dari URL (misal: #orders)
         const hash = window.location.hash;

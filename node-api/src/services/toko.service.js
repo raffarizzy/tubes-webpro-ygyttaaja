@@ -36,6 +36,10 @@ exports.getByUserId = async (userId) => {
       nama_toko,
       deskripsi_toko,
       lokasi,
+      provinsi,
+      kota,
+      kecamatan,
+      kode_wilayah,
       logo_path,
       created_at,
       updated_at
@@ -58,6 +62,9 @@ exports.getById = async (tokoId) => {
       nama_toko,
       deskripsi_toko,
       lokasi,
+      kota,
+      kecamatan,
+      kode_wilayah,
       logo_path,
       created_at
      FROM tokos 
