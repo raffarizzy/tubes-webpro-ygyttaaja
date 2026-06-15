@@ -1,0 +1,7 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/medcomwe/mainrepo/node-api"
+PassengerBaseURI "/"
+PassengerNodejs "/home/medcomwe/nodevenv/mainrepo/node-api/22/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END

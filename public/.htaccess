@@ -4,6 +4,9 @@
     </IfModule>
 
     RewriteEngine On
+    
+    # TAMBAHKAN BARIS INI (Sangat Penting untuk Symlink cPanel)
+    Options +FollowSymLinks
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

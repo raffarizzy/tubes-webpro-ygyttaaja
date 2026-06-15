@@ -152,7 +152,7 @@ function createProductCard(produk) {
     if (produk.imagePath.startsWith("http")) {
         imagePath = produk.imagePath;
     } else if (produk.imagePath.startsWith("produk/")) {
-        imagePath = `http://localhost:8000/storage/${produk.imagePath}`;
+        imagePath = `/storage/${produk.imagePath}`;
     } else {
         imagePath = produk.imagePath;
     }
