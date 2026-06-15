@@ -12,6 +12,37 @@
         .border-color-medcom {
           border-color: #122c4f !important;
         }
+        .description-container {
+          background-color: #f8f9fa;
+          border: 1px solid #e9ecef;
+          border-radius: 12px;
+          padding: 1.25rem;
+          margin-top: 0.5rem;
+        }
+        .description-content {
+          white-space: pre-line;
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          -webkit-box-orient: vertical;
+          transition: all 0.3s ease;
+        }
+        .description-content.expanded {
+          display: block;
+          -webkit-line-clamp: unset;
+        }
+        .read-more-btn {
+          color: #122c4f;
+          font-weight: 700;
+          cursor: pointer;
+          font-size: 0.9rem;
+          display: none;
+          margin-top: 10px;
+          text-decoration: none;
+        }
+        .read-more-btn:hover {
+          text-decoration: underline;
+        }
     </style>
 @endpush
 
@@ -91,7 +122,7 @@
         </div>
 
         <!-- Info Toko (Clickable) -->
-        <a href="{{ route('profil_toko') }}" class="text-decoration-none d-block">
+        <a href="{{ route('toko.show', $product->toko->id) }}" class="text-decoration-none d-block">
           <div class="d-flex align-items-center gap-3 p-3 bg-white rounded shadow-sm my-3 border border-transparent hover-shadow transition" style="cursor: pointer;">
             @php
               $tokoLogo = $product->toko->logo_path ?? '/img/iconPengguna.png';
@@ -137,7 +168,10 @@
         <!-- Deskripsi -->
         <div class="mt-4">
           <h5 class="color-medcom fw-semibold">Deskripsi</h5>
-          <p id="product-description" class="text-muted" style="white-space: pre-line;">{{ $product->deskripsi }}</p>
+          <div class="description-container">
+            <p id="product-description" class="text-muted mb-0 description-content">{{ $product->deskripsi }}</p>
+            <a href="javascript:void(0)" id="btn-read-more" class="read-more-btn">Baca Selengkapnya</a>
+          </div>
         </div>
 
         <!-- Rating -->
@@ -217,6 +251,31 @@
     @endphp
     window.PRODUCT_DATA = @json($productJsData);
     window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
+
+    // Read More functionality for Description
+    document.addEventListener("DOMContentLoaded", () => {
+      const descContent = document.getElementById('product-description');
+      const readMoreBtn = document.getElementById('btn-read-more');
+
+      if (descContent && readMoreBtn) {
+        // Show button only if content exceeds 4 lines
+        if (descContent.scrollHeight > descContent.clientHeight) {
+          readMoreBtn.style.display = 'inline-block';
+        }
+
+        readMoreBtn.addEventListener('click', function() {
+          const isExpanded = descContent.classList.contains('expanded');
+          
+          if (isExpanded) {
+            descContent.classList.remove('expanded');
+            this.textContent = 'Baca Selengkapnya';
+          } else {
+            descContent.classList.add('expanded');
+            this.textContent = 'Sembunyikan';
+          }
+        });
+      }
+    });
   </script>
   <script src="{{ asset('js/detail-produk.js') }}"></script>
 @endpush

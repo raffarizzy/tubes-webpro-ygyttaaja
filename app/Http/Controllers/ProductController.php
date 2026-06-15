@@ -44,6 +44,7 @@ class ProductController extends Controller
                 // Reconstruct toko & category as objects
                 if (isset($product->nama_toko)) {
                     $product->toko = (object) [
+                        'id' => $product->toko_id ?? null,
                         'nama_toko' => $product->nama_toko,
                         'lokasi' => $product->toko_lokasi ?? null,
                         'logo_path' => $product->toko_logo ?? null,

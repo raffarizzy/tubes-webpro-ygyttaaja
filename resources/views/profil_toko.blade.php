@@ -365,9 +365,11 @@
                             </span>
                         </div>
                     </div>
+                    @if($isOwner)
                     <button class="btn btn-outline-dark rounded-pill px-4" onclick="openEditTokoModal()">
                         <i class="bi bi-pencil-square me-2"></i> Edit Profil
                     </button>
+                    @endif
                 </div>
             </div>
         </div>
@@ -409,14 +411,16 @@
         <ul class="nav nav-pills gap-2 mb-4 mt-5" id="shopTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active rounded-pill px-4 fw-600" id="products-tab" data-bs-toggle="pill" data-bs-target="#products" type="button" role="tab">
-                    <i class="bi bi-grid me-2"></i> Produk Anda
+                    <i class="bi bi-grid me-2"></i> {{ $isOwner ? 'Produk Anda' : 'Semua Produk' }}
                 </button>
             </li>
+            @if($isOwner)
             <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill px-4 fw-600" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders" type="button" role="tab">
                     <i class="bi bi-cart-check me-2"></i> Pesanan Masuk
                 </button>
             </li>
+            @endif
         </ul>
 
         <div class="tab-content" id="shopTabsContent">
@@ -424,27 +428,31 @@
             <div class="tab-pane fade show active" id="products" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
-                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">Daftar Produk</h2>
-                        <p class="text-muted mb-0">Kelola stok dan informasi produk Anda</p>
+                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">{{ $isOwner ? 'Daftar Produk' : 'Katalog Produk' }}</h2>
+                        <p class="text-muted mb-0">{{ $isOwner ? 'Kelola stok dan informasi produk Anda' : 'Temukan berbagai produk berkualitas dari toko kami' }}</p>
                     </div>
+                    @if($isOwner)
                     <button class="btn-add-product" onclick="openTambahModal()">
                         <i class="bi bi-plus-lg"></i> Tambah Produk Baru
                     </button>
+                    @endif
                 </div>
 
                 @if($toko->products->count() == 0)
                     <div class="text-center py-5 bg-white rounded-4 shadow-sm">
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3 text-muted">Belum ada produk di toko Anda</h4>
+                        <h4 class="mt-3 text-muted">Belum ada produk @if($isOwner) di toko Anda @endif</h4>
+                        @if($isOwner)
                         <p class="text-muted">Mulai berjualan dengan menambahkan produk pertama Anda.</p>
                         <button class="btn btn-primary rounded-pill px-4" onclick="openTambahModal()">
                             Tambah Produk Sekarang
                         </button>
+                        @endif
                     </div>
                 @else
                     <div class="product-grid" id="produk-list">
                         @foreach($toko->products as $p)
-                        <div class="product-card" id="produk-{{ $p->id }}">
+                        <div class="product-card" id="produk-{{ $p->id }}" onclick="!event.target.closest('.product-actions') && (window.location.href='{{ route('produk.detail', $p->id) }}')" style="cursor: pointer;">
                             <div class="product-image-wrapper">
                                 <img src="{{ asset('storage/'.$p->imagePath) }}" 
                                      class="product-image" 
@@ -458,6 +466,7 @@
                                 </div>
                                 <p class="product-stock">Stok: <span class="fw-bold text-dark">{{ $p->stok }}</span></p>
                                 
+                                @if($isOwner)
                                 <div class="product-actions">
                                     <button class="btn-action btn-edit" 
                                         onclick="openEditModal(
@@ -474,6 +483,7 @@
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </div>
+                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -482,6 +492,7 @@
             </div>
 
             {{-- Orders Tab --}}
+            @if($isOwner)
             <div class="tab-pane fade" id="orders" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
@@ -597,10 +608,12 @@
                     </div>
                 @endif
             </div>
+            @endif
         </div>
     </div>
 </div>
 
+@if($isOwner)
 {{-- MODALS - Keeping same IDs for compatibility with mengelolaProdukCRUD.js --}}
 
 {{-- Modal Edit Toko --}}
@@ -825,6 +838,7 @@
         </div>
     </div>
 </div>
+@endif
 
 @endsection
 
@@ -834,15 +848,18 @@
     const TOKO_ID = {{ $toko->id }};
     const STORE_PRODUCT_URL = "{{ route('product.store') }}";
 
+    @if($isOwner)
     function openShipModal(orderId) {
         const modal = new bootstrap.Modal(document.getElementById('modalShip'));
         const form = document.getElementById('formShip');
         form.action = `/toko/orders/${orderId}/ship`;
         modal.show();
     }
+    @endif
 
     // Persistensi Tab setelah Refresh
     document.addEventListener('DOMContentLoaded', function() {
+        @if($isOwner)
         // Pre-fill existing location if available
         prefillTokoLocation();
 
@@ -919,8 +936,6 @@
         async function prefillTokoLocation() {
             await loadProvinces();
             const currentKode = "{{ $toko->kode_wilayah ?? '' }}";
-            console.log(currentKode);
-            console.log("ke run okk ajg");
             if (currentKode) {
                 const provCode = currentKode.substring(0, 2);
                 const cityCode = currentKode.substring(0, 5);
@@ -935,6 +950,7 @@
                 updateHiddenFields();
             }
         }
+        @endif
 
         // Ambil hash dari URL (misal: #orders)
         const hash = window.location.hash;

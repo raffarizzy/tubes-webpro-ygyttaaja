@@ -70,7 +70,9 @@ class TokoController extends Controller
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            $isOwner = true;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -95,7 +97,60 @@ class TokoController extends Controller
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            $isOwner = true;
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
+        }
+    }
+
+    /**
+     * Display public toko profile
+     */
+    public function show($id)
+    {
+        try {
+            // Ambil data toko by ID dari API
+            $tokoResponse = Http::get($this->nodeApiUrl . '/' . $id);
+            
+            if (!$tokoResponse->successful()) {
+                // Fallback ke Eloquent
+                $toko = Toko::find($id);
+            } else {
+                $toko = (object) $tokoResponse->json()['data'];
+            }
+
+            if (!$toko) {
+                abort(404, 'Toko tidak ditemukan');
+            }
+
+            // Ambil produk toko
+            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $productIds = $toko->products->pluck('id');
+
+            // Statistik
+            $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                ->whereHas('order', function($q) { $q->where('status', 'paid'); })
+                ->count();
+            
+            $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+
+            // Cek apakah ini toko milik user yang login
+            $isOwner = auth()->check() && $toko->user_id == auth()->id();
+
+            // Jika owner, ambil pesanan masuk (untuk dashboard)
+            $incomingOrders = collect();
+            if ($isOwner) {
+                $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
+                    ->with(['order.user', 'order.alamat'])
+                    ->orderBy('id', 'desc')
+                    ->get();
+            }
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
+
+        } catch (\Exception $e) {
+            Log::error('Error in TokoController@show: ' . $e->getMessage());
+            abort(404, 'Toko tidak ditemukan');
         }
     }
 
