@@ -1,6 +1,6 @@
-# PROMPT: Buatkan Dokumen User Manual SpareHub
+# PROMPT: Buatkan Dokumen User Manual Medcom
 
-> **Instruksi untuk Claude:** Buatkan dokumen **User Manual** lengkap untuk aplikasi **SpareHub** berdasarkan semua informasi di bawah ini. Dokumen harus rapi, profesional, dan mudah dipahami oleh pengguna awam. Format dokumen menggunakan Microsoft Word style (heading bertingkat, nomor halaman, daftar isi, gambar/screenshot bernomor). Di setiap bagian yang butuh screenshot, saya sudah tandai dengan blok `[SCREENSHOT: ...]` — tolong tetap sertakan placeholder tersebut dalam dokumen dengan format *Figure X.X — Keterangan*, sisanya saya yang isi dengan gambar asli.
+> **Instruksi untuk Claude:** Buatkan dokumen **User Manual** lengkap untuk aplikasi **Medcom** berdasarkan semua informasi di bawah ini. Dokumen harus rapi, profesional, dan mudah dipahami oleh pengguna awam. Format dokumen menggunakan Microsoft Word style (heading bertingkat, nomor halaman, daftar isi, gambar/screenshot bernomor). Di setiap bagian yang butuh screenshot, saya sudah tandai dengan blok `[SCREENSHOT: ...]` — tolong tetap sertakan placeholder tersebut dalam dokumen dengan format *Figure X.X — Keterangan*, sisanya saya yang isi dengan gambar asli.
 
 ---
 
@@ -8,7 +8,7 @@
 
 | Item | Detail |
 |------|--------|
-| **Nama Aplikasi** | SpareHub |
+| **Nama Aplikasi** | Medcom |
 | **Jenis** | Platform e-commerce khusus jual beli sparepart motor |
 | **Platform** | Web Browser (Desktop & Mobile), Android, iOS |
 | **Pengguna** | Pembeli dan Penjual (satu akun bisa berperan keduanya) |
@@ -27,14 +27,14 @@ Daftar Isi
 Daftar Gambar
 
 BAB 1 — Pendahuluan
-  1.1 Tentang SpareHub
+  1.1 Tentang Medcom
   1.2 Tujuan Dokumen
   1.3 Sasaran Pembaca
   1.4 Cara Membaca Dokumen Ini
 
 BAB 2 — Memulai Aplikasi
   2.1 Persyaratan Perangkat
-  2.2 Mengakses SpareHub
+  2.2 Mengakses Medcom
   2.3 Mendaftar Akun Baru (Registrasi)
   2.4 Masuk ke Aplikasi (Login)
   2.5 Lupa Password
@@ -88,12 +88,12 @@ Tulis tabel persyaratan minimum untuk tiga platform:
 | **iOS** | Apple A9+, RAM 2 GB+, iOS 7.0+, Storage 2 GB bebas |
 | **Desktop** | Dual Core+, RAM 4 GB+, Windows 10 / macOS High Sierra+, Browser Chrome/Firefox/Safari terbaru |
 
-#### 2.2 Mengakses SpareHub
+#### 2.2 Mengakses Medcom
 
-Pengguna membuka browser dan mengetikkan URL SpareHub. Halaman beranda akan tampil menampilkan daftar produk, search bar, dan navigasi.
+Pengguna membuka browser dan mengetikkan URL Medcom. Halaman beranda akan tampil menampilkan daftar produk, search bar, dan navigasi.
 
-`[SCREENSHOT: Screenshot halaman beranda SpareHub — tampilkan navbar, search bar, dan grid produk]`
-*Figure 2.1 — Halaman Beranda SpareHub*
+`[SCREENSHOT: Screenshot halaman beranda Medcom — tampilkan navbar, search bar, dan grid produk]`
+*Figure 2.1 — Halaman Beranda Medcom*
 
 #### 2.3 Mendaftar Akun Baru
 
@@ -487,7 +487,7 @@ Sertakan glosarium berisi minimal istilah-istilah berikut:
 | Rating | Penilaian bintang (1–5) terhadap produk |
 | Ulasan | Komentar/teks dari pembeli tentang produk yang sudah dibeli |
 | Ongkir | Ongkos Kirim — biaya pengiriman dari toko ke alamat pembeli |
-| Payment Gateway | Layanan pembayaran online (SpareHub menggunakan Duitku) |
+| Payment Gateway | Layanan pembayaran online (Medcom menggunakan Duitku) |
 | Pagination | Sistem tampilan produk yang dibagi menjadi beberapa halaman |
 | Dashboard Toko | Halaman kelola toko penjual |
 
@@ -510,7 +510,7 @@ Sertakan glosarium berisi minimal istilah-istilah berikut:
 
 ## Daftar Screenshot yang Dibutuhkan (Ringkasan)
 
-Berikut daftar semua screenshot yang perlu diambil dari aplikasi SpareHub dan dimasukkan ke dalam dokumen:
+Berikut daftar semua screenshot yang perlu diambil dari aplikasi Medcom dan dimasukkan ke dalam dokumen:
 
 | No | Figure | Halaman yang Di-screenshot |
 |----|--------|---------------------------|
