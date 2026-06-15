@@ -23,6 +23,25 @@
         margin-bottom: 80px;
     }
 
+    .btn-medcom-blue {
+        --bs-btn-color: #ffffff;
+        --bs-btn-bg: #122c4f;
+        --bs-btn-border-color: #122c4f;
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #0d2033; /* Darker blue on hover */
+        --bs-btn-hover-border-color: #0d2033;
+        --bs-btn-active-bg: #0a1829;
+        --bs-btn-active-border-color: #0a1829;
+    }
+
+    .text-medcom-blue {
+        color: #122c4f !important;
+    }
+
+    .bg-medcom-blue {
+        background-color: #122c4f !important;
+    }
+
     /* Bleed background to prevent white gap on scroll up */
     .shop-banner::before {
         content: "";
@@ -459,7 +478,7 @@
                                      alt="{{ $p->nama }}">
                             </div>
                             <div class="product-content">
-                                <span class="product-category">Sparepart</span>
+                                <span class="product-category">{{ $p->category->judulKategori ?? 'Sparepart' }}</span>
                                 <h3 class="product-title">{{ $p->nama }}</h3>
                                 <div class="d-flex justify-content-between align-items-end">
                                     <span class="product-price">Rp {{ number_format($p->harga, 0, ',', '.') }}</span>
@@ -567,6 +586,27 @@
                                         </td>
                                         <td class="pe-4 text-end">
                                             <div class="d-flex justify-content-end gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" 
+                                                        onclick="openDetailOrderModal({{ json_encode([
+                                                            'id' => $item->order->id,
+                                                            'user_name' => $item->order->user->name,
+                                                            'user_email' => $item->order->user->email,
+                                                            'nama_penerima' => $item->order->alamat->nama_penerima ?? $item->order->user->name,
+                                                            'nomor_penerima' => $item->order->alamat->nomor_penerima ?? '-',
+                                                            'alamat_lengkap' => $item->order->alamat->alamat ?? '-',
+                                                            'wilayah' => ($item->order->alamat->kecamatan ?? '').', '.($item->order->alamat->kota ?? '').', '.($item->order->alamat->provinsi ?? ''),
+                                                            'produk' => $item->nama_produk,
+                                                            'qty' => $item->qty,
+                                                            'harga' => $item->harga,
+                                                            'subtotal' => $item->subtotal,
+                                                            'ongkir' => $item->order->shipping_cost ?? 0,
+                                                            'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
+                                                            'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'status' => $item->order->status,
+                                                            'resi' => $item->order->nomor_resi ?? '-'
+                                                        ]) }})">
+                                                    Detail
+                                                </button>
                                                 @if($item->order->status === 'paid')
                                                     <form action="{{ route('toko.order.accept', $item->order->id) }}" method="POST" class="d-inline">
                                                         @csrf
@@ -595,9 +635,6 @@
                                                         Resi: <span class="fw-bold text-dark">{{ $item->order->nomor_resi }}</span>
                                                     </div>
                                                 @endif
-                                                <button class="btn btn-sm btn-light border rounded-pill px-3" onclick="alert('Detail pesanan #{{ $item->order->id }} akan segera hadir!')">
-                                                    Detail
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -699,9 +736,10 @@
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
                                 <select name="category_id" class="form-select" required>
-                                    <option value="1">Sparepart Mesin</option>
-                                    <option value="2">Sparepart Body</option>
-                                    <option value="3">Aksesoris</option>
+                                    <option value="">Pilih Kategori</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="row">
@@ -756,8 +794,10 @@
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
                             <select id="editKategori" class="form-select" required>
-                                <option value="1">Sparepart Mesin</option>
-                                <option value="2">Sparepart Body</option>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="row">
@@ -832,7 +872,7 @@
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Konfirmasi Kirim</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim Pesanan</button>
                 </div>
             </form>
         </div>
@@ -969,6 +1009,37 @@
                 history.replaceState(null, null, target);
             });
         });
+
+        // Search & Filter Produk Toko
+        const searchInputToko = document.getElementById('search-produk-toko');
+        const filterKategoriToko = document.getElementById('filter-kategori-toko');
+        const produkCards = document.querySelectorAll('.product-card');
+
+        function filterProdukToko() {
+            const searchTerm = searchInputToko.value.toLowerCase();
+            const selectedCategory = filterKategoriToko.value;
+
+            produkCards.forEach(card => {
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const productCategory = card.getAttribute('data-category');
+
+                const matchTitle = title.includes(searchTerm);
+                const matchCategory = selectedCategory === "" || productCategory === selectedCategory;
+
+                if (matchTitle && matchCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchInputToko) {
+            searchInputToko.addEventListener('input', filterProdukToko);
+        }
+        if (filterKategoriToko) {
+            filterKategoriToko.addEventListener('change', filterProdukToko);
+        }
     });
 </script>
 <script src="{{ asset('js/mengelolaProdukCRUD.js') }}"></script>
