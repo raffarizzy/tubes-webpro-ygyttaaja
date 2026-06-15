@@ -137,7 +137,7 @@
         <!-- Deskripsi -->
         <div class="mt-4">
           <h5 class="color-medcom fw-semibold">Deskripsi</h5>
-          <p id="product-description" class="text-muted">{{ $product->deskripsi }}</p>
+          <p id="product-description" class="text-muted" style="white-space: pre-line;">{{ $product->deskripsi }}</p>
         </div>
 
         <!-- Rating -->
@@ -205,14 +205,17 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     // Data produk untuk JavaScript
-    window.PRODUCT_DATA = {
-      id: {{ $product->id }},
-      nama: "{{ $product->nama }}",
-      harga: {{ $product->harga }},
-      stok: {{ $product->stok }},
-      imagePath: "{{ $imagePath }}",
-      deskripsi: "{{ $product->deskripsi }}"
-    };
+    @php
+      $productJsData = [
+        'id' => $product->id,
+        'nama' => $product->nama,
+        'harga' => $product->harga,
+        'stok' => $product->stok,
+        'imagePath' => $imagePath,
+        'deskripsi' => $product->deskripsi,
+      ];
+    @endphp
+    window.PRODUCT_DATA = @json($productJsData);
     window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
   </script>
   <script src="{{ asset('js/detail-produk.js') }}"></script>
