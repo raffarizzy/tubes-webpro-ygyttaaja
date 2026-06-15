@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Product;
 
 class ShippingController extends Controller
 {
@@ -33,12 +34,21 @@ class ShippingController extends Controller
         try {
             $items = $request->items;
 
+            // 0. Get Dynamic Origin ID from the first product's shop
+            $firstItem = $items[0];
+            $productId = $firstItem['product_id'] ?? $firstItem['id'];
+            $firstProduct = Product::with('toko')->find($productId);
+            
+            $dynamicOriginId = ($firstProduct && $firstProduct->toko && $firstProduct->toko->kode_wilayah) 
+                ? $firstProduct->toko->kode_wilayah 
+                : $this->originId;
+
             // 1. Calculate total weight (in grams, default 1kg per item if weight not set)
             $totalWeightGrams = 0;
             foreach ($items as $item) {
                 // Fetch actual weight from DB to be safe, or use default from request
-                $productId = $item['product_id'] ?? $item['id'];
-                $product = \App\Models\Product::find($productId);
+                $pId = $item['product_id'] ?? $item['id'];
+                $product = Product::find($pId);
                 $productWeight = $product ? $product->berat : 1000; 
                 
                 $qty = $item['jumlah'] ?? $item['qty'] ?? 1;
@@ -58,7 +68,7 @@ class ShippingController extends Controller
             }
 
             Log::info('Calculating shipping rates', [
-                'origin' => $this->originId,
+                'origin' => $dynamicOriginId,
                 'destination' => $request->destination_id,
                 'total_weight_grams' => $totalWeightGrams,
                 'calculated_weight_kg' => $finalWeight
@@ -68,7 +78,7 @@ class ShippingController extends Controller
             $response = Http::withHeaders([
                 'x-api-key' => $this->apiKey
             ])->post('https://klikresi.com/api/rates', [
-                'origin_id' => $this->originId,
+                'origin_id' => $dynamicOriginId,
                 'destination_id' => $request->destination_id,
                 'weight' => $finalWeight
             ]);

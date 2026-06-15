@@ -686,9 +686,10 @@
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
                                 <select name="category_id" class="form-select" required>
-                                    <option value="1">Sparepart Mesin</option>
-                                    <option value="2">Sparepart Body</option>
-                                    <option value="3">Aksesoris</option>
+                                    <option value="">Pilih Kategori</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="row">
@@ -743,8 +744,10 @@
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
                             <select id="editKategori" class="form-select" required>
-                                <option value="1">Sparepart Mesin</option>
-                                <option value="2">Sparepart Body</option>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="row">

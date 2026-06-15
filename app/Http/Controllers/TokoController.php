@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Toko;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
@@ -69,8 +70,9 @@ class TokoController extends Controller
                 ->count();
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+            $categories = Category::all();
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'categories'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -94,8 +96,9 @@ class TokoController extends Controller
                 ->count();
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+            $categories = Category::all();
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'categories'));
         }
     }
 
