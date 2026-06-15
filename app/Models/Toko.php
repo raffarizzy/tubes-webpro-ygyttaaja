@@ -7,10 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Toko extends Model
 {
     protected $fillable = [
+        'id',
         'user_id',
         'nama_toko',
         'deskripsi_toko',
         'lokasi',
+        'provinsi',
+        'kota',
+        'kecamatan',
+        'kode_wilayah',
         'logo_path'
     ];
 

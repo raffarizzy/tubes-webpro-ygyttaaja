@@ -80,13 +80,17 @@ exports.create = async (data) => {
   }
 
   const [result] = await db.query(
-    `INSERT INTO tokos (user_id, nama_toko, deskripsi_toko, lokasi, logo_path)
-     VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO tokos (user_id, nama_toko, deskripsi_toko, lokasi, provinsi, kota, kecamatan, kode_wilayah, logo_path, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
     [
       data.user_id,
       data.nama_toko,
       data.deskripsi_toko || null,
       data.lokasi || null,
+      data.provinsi || null,
+      data.kota || null,
+      data.kecamatan || null,
+      data.kode_wilayah || null,
       data.logo_path || null
     ]
   );

@@ -134,7 +134,11 @@ class TokoController extends Controller
             'nama_toko' => 'required|string|max:255',
             'deskripsi_toko' => 'required|string',
             'lokasi' => 'required|string|max:255',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif'
+            'provinsi' => 'required|string',
+            'kota' => 'required|string',
+            'kecamatan' => 'required|string',
+            'kode_wilayah' => 'required|string',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp'
         ]);
 
         try {
@@ -161,10 +165,16 @@ class TokoController extends Controller
             $img = $manager->decode($logo);
             $img->scale(width: 500); // Logo cukup 500px
 
-            \Illuminate\Support\Facades\Storage::disk('public')->put(
-                $logoPath, 
-                (string) $img->encodeUsingFileExtension('webp', quality: 75)
-            );
+            $encodedLogo = (string) $img->encodeUsingFileExtension('webp', quality: 75);
+            
+            // Pastikan folder ada dan simpan
+            $isSaved = \Illuminate\Support\Facades\Storage::disk('public')->put($logoPath, $encodedLogo);
+            
+            if ($isSaved) {
+                Log::info("Logo Toko saved successfully: " . \Illuminate\Support\Facades\Storage::disk('public')->path($logoPath));
+            } else {
+                Log::error("Failed to save Logo Toko: " . $logoPath);
+            }
 
             $logoUrl = \Illuminate\Support\Facades\Storage::url($logoPath);
 
@@ -175,6 +185,10 @@ class TokoController extends Controller
                 'nama_toko' => $request->nama_toko,
                 'deskripsi_toko' => $request->deskripsi_toko,
                 'lokasi' => $request->lokasi,
+                'provinsi' => $request->provinsi,
+                'kota' => $request->kota,
+                'kecamatan' => $request->kecamatan,
+                'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
 
@@ -184,6 +198,22 @@ class TokoController extends Controller
                 $errorMsg = $response->json()['message'] ?? 'Gagal menyimpan toko ke API';
                 throw new \Exception($errorMsg);
             }
+
+            $nodeTokoId = $response->json()['data']['id'];
+
+            // 4. Simpan ke Database Laravel (Eloquent)
+            Toko::create([
+                'id' => $nodeTokoId,
+                'user_id' => auth()->id(),
+                'nama_toko' => $request->nama_toko,
+                'deskripsi_toko' => $request->deskripsi_toko,
+                'lokasi' => $request->lokasi,
+                'provinsi' => $request->provinsi,
+                'kota' => $request->kota,
+                'kecamatan' => $request->kecamatan,
+                'kode_wilayah' => $request->kode_wilayah,
+                'logo_path' => $logoPath,
+            ]);
 
             return redirect()->route('profil_toko')
                 ->with('success', 'Toko berhasil dibuat!');
@@ -212,7 +242,11 @@ class TokoController extends Controller
                 'nama_toko' => 'required|string|max:255',
                 'deskripsi_toko' => 'required|string',
                 'lokasi' => 'required|string|max:255',
-                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif'
+                'provinsi' => 'required|string',
+                'kota' => 'required|string',
+                'kecamatan' => 'required|string',
+                'kode_wilayah' => 'required|string',
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp'
             ]);
 
             // 1. Update di database Laravel
@@ -252,6 +286,10 @@ class TokoController extends Controller
                 'nama_toko' => $request->nama_toko,
                 'deskripsi_toko' => $request->deskripsi_toko,
                 'lokasi' => $request->lokasi,
+                'provinsi' => $request->provinsi,
+                'kota' => $request->kota,
+                'kecamatan' => $request->kecamatan,
+                'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
 
@@ -260,6 +298,10 @@ class TokoController extends Controller
                 'nama_toko' => $request->nama_toko,
                 'deskripsi_toko' => $request->deskripsi_toko,
                 'lokasi' => $request->lokasi,
+                'provinsi' => $request->provinsi,
+                'kota' => $request->kota,
+                'kecamatan' => $request->kecamatan,
+                'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ];
 

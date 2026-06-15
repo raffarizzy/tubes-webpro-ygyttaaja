@@ -88,7 +88,16 @@ exports.create = async (req, res) => {
       return response.validationError(res, 'User ID tidak ditemukan. Login terlebih dahulu.');
     }
 
-    const { nama_toko, deskripsi_toko, lokasi, logo_path } = req.body;
+    const { 
+      nama_toko, 
+      deskripsi_toko, 
+      lokasi, 
+      provinsi, 
+      kota, 
+      kecamatan, 
+      kode_wilayah, 
+      logo_path 
+    } = req.body;
 
     if (!nama_toko) {
       return response.validationError(res, 'Nama toko wajib diisi');
@@ -99,6 +108,10 @@ exports.create = async (req, res) => {
       nama_toko,
       deskripsi_toko,
       lokasi,
+      provinsi,
+      kota,
+      kecamatan,
+      kode_wilayah,
       logo_path
     });
 

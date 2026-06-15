@@ -621,8 +621,36 @@
                         <label class="form-label">Deskripsi</label>
                         <textarea name="deskripsi_toko" class="form-control" rows="3" required>{{ $toko->deskripsi_toko }}</textarea>
                     </div>
+
+                    {{-- Lokasi Toko dengan Wilayah --}}
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small mb-1">Provinsi</label>
+                            <select class="form-select form-select-sm" id="tokoProvinsi" required>
+                                <option value="">Pilih Provinsi</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small mb-1">Kota/Kabupaten</label>
+                            <select class="form-select form-select-sm" id="tokoKota" required disabled>
+                                <option value="">Pilih Kota</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small mb-1">Kecamatan</label>
+                            <select class="form-select form-select-sm" id="tokoKecamatan" required disabled>
+                                <option value="">Pilih Kecamatan</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" name="kode_wilayah" id="tokoKodeWilayah">
+                    <input type="hidden" name="provinsi" id="hiddenProvinsi">
+                    <input type="hidden" name="kota" id="hiddenKota">
+                    <input type="hidden" name="kecamatan" id="hiddenKecamatan">
+
                     <div class="mb-3">
-                        <label class="form-label">Lokasi</label>
+                        <label class="form-label">Alamat Lengkap (Jalan/No)</label>
                         <input type="text" name="lokasi" class="form-control" value="{{ $toko->lokasi }}" required>
                     </div>
                     <div class="mb-3">
@@ -815,6 +843,98 @@
 
     // Persistensi Tab setelah Refresh
     document.addEventListener('DOMContentLoaded', function() {
+        // --- Wilayah Logic for Toko ---
+        const tokoProv = document.getElementById('tokoProvinsi');
+        const tokoKota = document.getElementById('tokoKota');
+        const tokoKec = document.getElementById('tokoKecamatan');
+        const tokoKode = document.getElementById('tokoKodeWilayah');
+
+        async function fetchWilayah(url) {
+            const res = await fetch(url);
+            return await res.json();
+        }
+
+        async function loadProvinces() {
+            const data = await fetchWilayah('/api/wilayah/provinsi');
+            tokoProv.innerHTML = '<option value="">Pilih Provinsi</option>';
+            data.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.kode;
+                opt.textContent = p.nama;
+                tokoProv.appendChild(opt);
+            });
+        }
+
+        async function handleProvChange() {
+            tokoKota.innerHTML = '<option value="">Pilih Kota</option>';
+            tokoKec.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            tokoKec.disabled = true;
+            if (tokoProv.value) {
+                const data = await fetchWilayah(`/api/wilayah/kota/${tokoProv.value}`);
+                data.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.kode;
+                    opt.textContent = c.nama;
+                    tokoKota.appendChild(opt);
+                });
+                tokoKota.disabled = false;
+            } else {
+                tokoKota.disabled = true;
+            }
+            updateHiddenFields();
+        }
+
+        async function handleKotaChange() {
+            tokoKec.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            if (tokoKota.value) {
+                const data = await fetchWilayah(`/api/wilayah/kecamatan/${tokoKota.value}`);
+                data.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.kode;
+                    opt.textContent = d.nama;
+                    tokoKec.appendChild(opt);
+                });
+                tokoKec.disabled = false;
+            } else {
+                tokoKec.disabled = true;
+            }
+            updateHiddenFields();
+        }
+
+        function updateHiddenFields() {
+            tokoKode.value = tokoKec.value || tokoKota.value || tokoProv.value || "";
+            document.getElementById('hiddenProvinsi').value = tokoProv.options[tokoProv.selectedIndex]?.text || '';
+            document.getElementById('hiddenKota').value = tokoKota.options[tokoKota.selectedIndex]?.text || '';
+            document.getElementById('hiddenKecamatan').value = tokoKec.options[tokoKec.selectedIndex]?.text || '';
+        }
+
+        tokoProv.addEventListener('change', handleProvChange);
+        tokoKota.addEventListener('change', handleKotaChange);
+        tokoKec.addEventListener('change', updateHiddenFields);
+
+        // Pre-fill existing location if available
+        async function prefillTokoLocation() {
+            await loadProvinces();
+            const currentKode = "{{ $toko->kode_wilayah ?? '' }}";
+            
+            if (currentKode) {
+                const provCode = currentKode.substring(0, 2);
+                const cityCode = currentKode.substring(0, 5);
+                
+                tokoProv.value = provCode;
+                await handleProvChange();
+                
+                tokoKota.value = cityCode;
+                await handleKotaChange();
+                
+                tokoKec.value = currentKode;
+                updateHiddenFields();
+            }
+        }
+
+        // Pre-fill existing location if available
+        prefillTokoLocation();
+
         // Ambil hash dari URL (misal: #orders)
         const hash = window.location.hash;
         if (hash) {
