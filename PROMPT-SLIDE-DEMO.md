@@ -1,8 +1,16 @@
-# PROMPT: Buatkan Slide Presentasi Demo — Medcom
+# PROMPT: Buatkan Slide Display Expo — Medcom
 
-> **Instruksi untuk Claude Design:** Buatkan slide presentasi demo untuk aplikasi web **Medcom**. Slide ini digunakan untuk memperkenalkan dan mendemonstrasikan fitur-fitur aplikasi kepada audiens (dosen/penguji/umum). Total **±15–18 slide**. Desain harus terlihat modern, profesional, dan konsisten.
+> **Instruksi untuk Claude Design:** Buatkan slide untuk **display booth expo** aplikasi web **Medcom**. Slide ini akan diputar **autoplay/loop** di layar booth saat expo berlangsung — tujuannya menarik perhatian orang yang lewat agar penasaran dan berhenti untuk melihat lebih lanjut.
 >
-> Di setiap slide yang membutuhkan screenshot aplikasi, saya sudah tandai dengan blok `[SCREENSHOT: ...]` — buat **placeholder kotak kosong** (dengan border atau background abu-abu muda) bertuliskan keterangan screenshot tersebut. Saya yang akan mengisi gambar aslinya setelah slide jadi.
+> **Karakter utama desain:**
+> - **Visual-first** — screenshot besar, teks sesedikit mungkin
+> - **Bold & eye-catching** — orang yang lewat sekilas langsung "nangkep" pesannya
+> - **Tidak ada narasi panjang** — maksimal 5–7 kata per poin, tanpa kalimat penuh
+> - **Loop-friendly** — setiap slide harus berdiri sendiri, bisa dipahami tanpa konteks slide sebelumnya
+>
+> Total **±12–14 slide**. Setiap slide harus bisa dibaca dalam **3–5 detik**.
+>
+> Di setiap slide yang membutuhkan screenshot, saya sudah tandai dengan blok `[SCREENSHOT: ...]` — buat **placeholder kotak kosong** (background abu-abu muda `#E8E8E8`, border `1px solid #CCCCCC`, border-radius 8px, teks keterangan italic centered) sebagai penanda. Saya yang akan mengisi gambar aslinya.
 
 ---
 
@@ -11,37 +19,33 @@
 | Elemen | Detail |
 |--------|--------|
 | **Nama Aplikasi** | Medcom |
-| **Tagline** | *Platform Jual Beli Sparepart Motor — Mudah, Aman, Terpercaya* |
+| **Tagline** | *Sparepart Motor, Satu Platform* |
 | **Warna Primer** | Biru Gelap `#0012AD` |
 | **Warna Sekunder** | Putih `#FFFFFF` |
-| **Warna Aksen** | Abu-abu gelap `#333333`, Abu-abu muda `#F5F5F5` |
-| **Font Judul** | Bold / Semi-bold, modern (contoh: Poppins Bold atau Montserrat) |
-| **Font Isi** | Regular 14–16pt |
-| **Gaya** | Minimalis modern, flat design, banyak whitespace |
+| **Aksen** | Abu-abu `#333333`, Kuning aksen `#FFD600` (untuk highlight) |
+| **Font** | Poppins atau Montserrat — Bold untuk headline, Regular untuk subtext |
 | **Ukuran Slide** | 16:9 (Widescreen) |
+| **Gaya** | Bold, modern, banyak whitespace, screenshot mendominasi area slide |
+| **Animasi** | Transisi simpel (fade atau slide), autoplay tiap 5–7 detik |
 
 ---
 
-## Struktur Slide (±15–18 Slide)
+## Struktur Slide (12–14 Slide)
 
 ```
-Slide 1  — Cover / Judul
-Slide 2  — Latar Belakang & Masalah
-Slide 3  — Solusi: Apa itu Medcom?
-Slide 4  — Fitur Utama (Overview)
-Slide 5  — Demo: Beranda & Pencarian Produk
-Slide 6  — Demo: Detail Produk
-Slide 7  — Demo: Keranjang Belanja
-Slide 8  — Demo: Checkout & Pembayaran
-Slide 9  — Demo: Riwayat & Pelacakan Pesanan
-Slide 10 — Demo: Fitur Penjual — Buat Toko
-Slide 11 — Demo: Fitur Penjual — Kelola Produk
-Slide 12 — Demo: Fitur Penjual — Kelola Pesanan
-Slide 13 — Demo: Profil & Pengaturan Akun
-Slide 14 — Demo: Sistem Rating & Ulasan
-Slide 15 — Arsitektur Teknologi
-Slide 16 — Alur Transaksi (End-to-End)
-Slide 17 — Penutup / Terima Kasih
+Slide 1  — Hero / Brand Opening
+Slide 2  — Masalah (1 kalimat kuat)
+Slide 3  — Solusi: Medcom
+Slide 4  — Showcase: Cari Produk
+Slide 5  — Showcase: Detail Produk
+Slide 6  — Showcase: Keranjang & Checkout
+Slide 7  — Showcase: Bayar via Duitku
+Slide 8  — Showcase: Lacak Pesananmu
+Slide 9  — Showcase: Buka Toko Sendiri
+Slide 10 — Showcase: Kelola Produk & Pesanan
+Slide 11 — Showcase: Rating & Ulasan
+Slide 12 — Stack Teknologi (singkat)
+Slide 13 — Call to Action / Closing
 ```
 
 ---
@@ -50,436 +54,314 @@ Slide 17 — Penutup / Terima Kasih
 
 ---
 
-### SLIDE 1 — Cover / Judul
+### SLIDE 1 — Hero / Brand Opening
 
-**Layout:** Full-background warna biru gelap `#0012AD`, teks putih di tengah.
+**Tujuan:** First impression. Orang yang lewat langsung tahu ini apa.
+
+**Layout:** Full-bleed background biru `#0012AD`. Semua teks putih, di tengah slide.
+
+**Elemen (teks besar, bold, centered):**
+```
+MEDCOM
+─────────────────
+Sparepart Motor, Satu Platform
+```
+
+- Nama **MEDCOM** dalam font display ukuran sangat besar (70–80pt)
+- Tagline di bawahnya, 28–32pt
+- Animasi: fade in dari tengah
+
+`[SCREENSHOT: Screenshot beranda Medcom — dipakai sebagai background semi-transparan (opacity 15–20%) di belakang teks, atau sebagai elemen visual dekoratif di sisi kanan slide]`
+
+---
+
+### SLIDE 2 — Masalah
+
+**Tujuan:** Langsung "nyentil" pengunjung yang pernah kesulitan cari sparepart.
+
+**Layout:** Background putih. Satu kalimat besar di tengah. Tidak ada bullet list.
 
 **Elemen:**
-- Logo/nama aplikasi: **MEDCOM** (besar, bold, putih)
-- Tagline di bawahnya: *"Platform Jual Beli Sparepart Motor — Mudah, Aman, Terpercaya"* (italic, putih, lebih kecil)
-- Nama tim di bawah (lebih kecil lagi):
-  - Frizam Dafa Maulana
-  - Naufal Muhammad Dzulfikar
-  - Bagas Pratama
-  - Riziq Rizwan
-  - Raffa Rizky Febryan
-- Tahun: **2025/2026**
-
-`[SCREENSHOT: Logo atau mockup tampilan beranda Medcom — bisa diletakkan sebagai elemen visual di sisi kanan slide dengan efek transparansi/shadow]`
-
----
-
-### SLIDE 2 — Latar Belakang & Masalah
-
-**Layout:** Latar putih, judul biru. Ikon/ilustrasi masalah di sisi kanan atau atas.
-
-**Judul slide:** *Mengapa Medcom Dibutuhkan?*
-
-**Isi (bullet point dengan ikon):**
-- 🔍 Sulit menemukan sparepart motor yang spesifik secara online
-- 🏪 Tidak semua daerah punya toko fisik sparepart yang lengkap
-- 📋 Tidak ada katalog digital yang terstandarisasi untuk penjual sparepart
-- 🤝 Minimnya platform yang menghubungkan penjual & pembeli sparepart secara langsung
-
-**Catatan desain:** Gunakan ikon sederhana (outline style) di depan setiap poin. Warna ikon: biru `#0012AD`.
-
----
-
-### SLIDE 3 — Solusi: Apa itu Medcom?
-
-**Layout:** Split 50/50 — kiri teks, kanan visual/screenshot.
-
-**Judul slide:** *Medcom: Solusi Digital untuk Sparepart Motor*
-
-**Isi teks (kiri):**
-> Medcom adalah platform e-commerce yang dirancang khusus untuk jual beli sparepart motor secara online. Satu akun bisa berperan sebagai **pembeli** sekaligus **penjual**.
-
-**Poin singkat:**
-- ✅ Cari & beli sparepart dari mana saja
-- ✅ Buka toko dan jual produk dengan mudah
-- ✅ Pembayaran aman via Duitku
-- ✅ Pengiriman terintegrasi KlikResi
-- ✅ Sistem ulasan & rating transparan
-
-`[SCREENSHOT: Screenshot halaman beranda Medcom — tampilkan navbar, grid produk, dan search bar (landscape/fullwidth)]`
-*(Letakkan di sisi kanan slide, dengan border-radius dan shadow tipis)*
-
----
-
-### SLIDE 4 — Fitur Utama (Overview)
-
-**Layout:** Grid 2×3 atau 3×2, setiap kotak berisi ikon + judul fitur + 1 kalimat deskripsi.
-
-**Judul slide:** *Fitur Utama Medcom*
-
-**6 kotak fitur:**
-
-| Ikon | Judul | Deskripsi Singkat |
-|------|-------|-------------------|
-| 🔍 | Pencarian & Filter | Cari produk by nama, kategori, dan harga secara real-time |
-| 🛒 | Keranjang Belanja | Tambah, ubah qty, dan kelola produk sebelum checkout |
-| 💳 | Checkout & Pembayaran | Proses order dan bayar via Duitku (VA, e-wallet, dll.) |
-| 📦 | Lacak Pesanan | Pantau status pesanan dari dibayar hingga diterima |
-| 🏪 | Dashboard Penjual | Buka toko, kelola produk, dan proses pesanan masuk |
-| ⭐ | Rating & Ulasan | Pembeli beri bintang dan komentar setelah produk diterima |
-
-**Catatan desain:** Setiap kotak punya background putih, border tipis abu-abu, dan ikon berwarna biru `#0012AD`.
-
----
-
-### SLIDE 5 — Demo: Beranda & Pencarian Produk
-
-**Layout:** Judul di atas, screenshot besar di tengah/bawah, bullet poin kecil di samping atau di bawah gambar.
-
-**Judul slide:** *Beranda & Pencarian Produk*
-
-**Poin fitur (kiri atau bawah):**
-- Tampilkan semua produk terbaru secara otomatis
-- Filter by **kategori**, **harga minimum**, dan **harga maksimum**
-- Pencarian nama produk secara **real-time** (tanpa reload halaman)
-- Sistem **pagination** — 12 produk per halaman
-
-`[SCREENSHOT: Screenshot halaman beranda dengan filter aktif — tampilkan search bar terisi kata kunci dan produk hasil pencarian yang muncul]`
-*(Gambar besar, ambil screenshot landscape penuh browser)*
-
----
-
-### SLIDE 6 — Demo: Detail Produk
-
-**Layout:** Split — screenshot di kiri (60%), daftar fitur di kanan (40%).
-
-**Judul slide:** *Halaman Detail Produk*
-
-**Poin fitur (kanan):**
-- Gambar produk resolusi tinggi
-- Nama, harga, stok tersedia, dan kategori
-- Deskripsi produk lengkap
-- Informasi toko penjual (nama, lokasi, logo)
-- **Rating rata-rata** bintang + jumlah ulasan
-- Daftar ulasan dari pembeli lain
-- Tombol **"Tambah ke Keranjang"**
-
-`[SCREENSHOT: Screenshot halaman detail produk — tampilkan gambar produk, info toko, rating bintang, dan tombol tambah keranjang]`
-*(Gunakan sebagai gambar utama di sisi kiri slide)*
-
----
-
-### SLIDE 7 — Demo: Keranjang Belanja
-
-**Layout:** Screenshot besar di tengah, bullet kecil di bawah atau samping.
-
-**Judul slide:** *Keranjang Belanja*
-
-**Poin fitur:**
-- Lihat semua produk yang akan dibeli
-- Ubah **jumlah (qty)** — harga total otomatis menyesuaikan
-- Hapus item tertentu atau **kosongkan semua**
-- Lihat subtotal & total sebelum checkout
-- Tombol **"Lanjut ke Checkout"**
-
-`[SCREENSHOT: Screenshot halaman keranjang yang berisi beberapa produk — tampilkan kolom quantity, harga satuan, subtotal per item, dan total di bawah]`
-
----
-
-### SLIDE 8 — Demo: Checkout & Pembayaran
-
-**Layout:** Timeline/flow horizontal di atas (5 langkah), screenshot di bawah.
-
-**Judul slide:** *Proses Checkout & Pembayaran*
-
-**Flow langkah (5 steps, horizontal dengan panah):**
 ```
-[1. Pilih Alamat] → [2. Pilih Kurir & Ongkir] → [3. Review Total] → [4. Bayar via Duitku] → [5. Selesai ✅]
+Susah cari sparepart motor
+yang spesifik?
 ```
 
-**Keterangan singkat:**
-- Alamat dipilih dari daftar tersimpan (pilihan provinsi/kota/kecamatan)
-- Ongkir dihitung otomatis oleh **KlikResi** berdasarkan berat & wilayah
-- Pembayaran diproses via **Duitku** (VA, GoPay, OVO, dll.)
-- Batas waktu bayar: **24 jam**
+- Font 48–56pt, bold, hitam `#111111`
+- Di bawahnya, teks lebih kecil (18pt, abu-abu): *"Kami punya solusinya."*
+- Ikon tanda tanya besar atau ilustrasi simpel di samping teks
 
-`[SCREENSHOT: Screenshot halaman checkout — tampilkan bagian pilihan alamat + daftar opsi kurir dengan harga ongkir + ringkasan biaya (subtotal, ongkir, total)]`
-
-`[SCREENSHOT: Screenshot halaman pembayaran Duitku — tampilkan pilihan metode pembayaran (VA/e-wallet)]`
-*(Dua screenshot kecil berdampingan di bawah flow)*
+**Catatan:** Jangan tambahkan list panjang. Satu kalimat, satu pesan.
 
 ---
 
-### SLIDE 9 — Demo: Riwayat & Pelacakan Pesanan
+### SLIDE 3 — Solusi: Medcom
 
-**Layout:** Split 50/50 — kiri screenshot riwayat, kanan screenshot detail/tracking.
+**Tujuan:** Jawab masalah slide 2 secara visual dan singkat.
 
-**Judul slide:** *Riwayat Pesanan & Pelacakan*
+**Layout:** Split 50/50 — kiri teks, kanan screenshot besar.
 
-**Poin fitur:**
-- Lihat semua pesanan beserta status terkini
-- Klik pesanan untuk lihat **detail lengkap**
-- **Nomor resi** tersedia jika pesanan sudah dikirim → bisa dilacak langsung
-- Tombol **"Selesaikan Pesanan"** setelah barang diterima
-- Tombol **"Batalkan Pesanan"** (selama belum diproses)
-
-`[SCREENSHOT: Screenshot halaman riwayat pesanan — tampilkan daftar pesanan dengan badge status berwarna (pending/paid/shipped/finished)]`
-*(Sisi kiri)*
-
-`[SCREENSHOT: Screenshot detail salah satu pesanan status "shipped" — tampilkan nomor resi dan info pengiriman]`
-*(Sisi kanan)*
-
----
-
-### SLIDE 10 — Demo: Fitur Penjual — Buat Toko
-
-**Layout:** Screenshot form di kanan, bullet poin di kiri.
-
-**Judul slide:** *Buka Toko di Medcom*
-
-**Poin:**
-- Satu akun = satu toko *(tidak bisa duplikat)*
-- Isi: nama toko, deskripsi, lokasi, wilayah (provinsi/kota/kecamatan), dan logo
-- Wilayah toko digunakan untuk **hitung ongkir asal** secara otomatis
-- Logo otomatis dioptimasi ke format **WebP 500px**
-
-`[SCREENSHOT: Screenshot halaman form buat toko — tampilkan semua field terisi: nama toko, deskripsi, dropdown provinsi/kota/kecamatan, dan preview logo yang diupload]`
-
----
-
-### SLIDE 11 — Demo: Fitur Penjual — Kelola Produk
-
-**Layout:** Screenshot dashboard toko di tengah (besar), poin kecil di bawah atau samping.
-
-**Judul slide:** *Dashboard Toko — Kelola Produk*
-
-**Poin fitur:**
-- Tampilkan semua produk milik toko dalam grid
-- **Tambah produk**: nama, kategori, harga, stok, berat, deskripsi, gambar, diskon
-- **Edit produk**: perbarui data kapan saja
-- **Hapus produk**: langsung dari daftar
-- Gambar produk dioptimasi otomatis ke **WebP 1000px**
-
-`[SCREENSHOT: Screenshot halaman profil toko — tampilkan grid daftar produk dengan tombol Edit dan Hapus di setiap kartu produk]`
-*(Gambar utama slide)*
-
-`[SCREENSHOT: Screenshot form tambah produk — tampilkan semua field yang wajib diisi (nama, kategori, harga, stok, deskripsi) dan area upload gambar]`
-*(Gambar kedua, lebih kecil, di pojok kanan bawah atau inset)*
-
----
-
-### SLIDE 12 — Demo: Fitur Penjual — Kelola Pesanan
-
-**Layout:** Tabel status flow di atas, screenshot di bawah.
-
-**Judul slide:** *Dashboard Toko — Kelola Pesanan Masuk*
-
-**Alur status pesanan (flow tabel):**
-
-| Status Awal | Aksi Penjual | Status Akhir |
-|-------------|--------------|--------------|
-| `paid` (sudah dibayar) | **Terima** | `processing` |
-| `processing` | **Kirim** + input nomor resi | `shipped` |
-| `paid` / `processing` | **Batalkan** | `cancelled` |
-
-**Poin tambahan:**
-- Statistik toko: jumlah pesanan sukses & rating rata-rata toko
-- Pesanan diurutkan dari yang terbaru
-
-`[SCREENSHOT: Screenshot bagian pesanan masuk di profil toko — tampilkan daftar pesanan dengan nama pembeli, produk yang dipesan, dan tombol aksi (Terima/Kirim/Batalkan)]`
-
-`[SCREENSHOT: Screenshot modal/form input nomor resi saat penjual klik "Kirim Pesanan"]`
-*(Bisa sebagai inset kecil di pojok kiri/kanan bawah)*
-
----
-
-### SLIDE 13 — Demo: Profil & Pengaturan Akun
-
-**Layout:** Split 50/50 atau screenshot besar dengan overlay bullet.
-
-**Judul slide:** *Pengaturan Akun Pengguna*
-
-**Poin fitur:**
-- Edit nama, email, nomor HP, tanggal lahir, jenis kelamin
-- Ganti **foto profil** — dioptimasi ke crop persegi 300×300 WebP
-- Ganti **password** (butuh verifikasi password lama)
-- Kelola **daftar alamat pengiriman** (tambah/edit/hapus, atur default)
-- Hapus akun secara permanen
-
-`[SCREENSHOT: Screenshot halaman edit profil — tampilkan form dengan semua field profil dan area upload foto profil]`
-*(Sisi kiri)*
-
-`[SCREENSHOT: Screenshot halaman daftar alamat — tampilkan beberapa kartu alamat tersimpan dengan badge "Default" dan tombol edit/hapus]`
-*(Sisi kanan)*
-
----
-
-### SLIDE 14 — Demo: Sistem Rating & Ulasan
-
-**Layout:** Screenshot besar di tengah, poin di sisi atau bawah.
-
-**Judul slide:** *Rating & Ulasan Produk*
-
-**Poin fitur:**
-- Pembeli bisa memberi ulasan setelah pesanan **selesai**
-- Rating **bintang 1–5** + komentar teks (maks. 1000 karakter)
-- **Satu ulasan per produk** per akun — tidak bisa duplikat
-- Ulasan tampil di halaman detail produk untuk pembeli lain
-- Pemilik ulasan bisa **menghapus** ulasannya sendiri
-
-`[SCREENSHOT: Screenshot form pemberian ulasan — tampilkan pilihan bintang (1–5) yang aktif dan kolom teks ulasan yang sedang diisi]`
-*(Sisi kiri atau atas)*
-
-`[SCREENSHOT: Screenshot halaman detail produk — scroll ke bawah, tampilkan bagian ulasan yang sudah ada, rating rata-rata bintang, dan beberapa komentar dari pembeli]`
-*(Sisi kanan atau bawah)*
-
----
-
-### SLIDE 15 — Arsitektur Teknologi
-
-**Layout:** Diagram arsitektur sistem. Gunakan kotak + panah, tidak perlu screenshot.
-
-**Judul slide:** *Arsitektur Teknologi Medcom*
-
-**Diagram arsitektur (buat secara visual):**
-
+**Teks kiri (besar, bold):**
 ```
-┌─────────────────────────────────────────────────────────┐
-│                    PENGGUNA (Browser)                    │
-│              HTML + CSS + JavaScript (Blade)            │
-└──────────────────────┬──────────────────────────────────┘
-                       │  HTTP Request
-                       ▼
-┌─────────────────────────────────────────────────────────┐
-│               LARAVEL (PHP) — Web Layer                  │
-│  • Routing & Auth (Session)                             │
-│  • Blade Templating                                     │
-│  • File Upload & Image Optimization (Intervention)      │
-│  • Proxy ke Node.js API                                 │
-└────────────┬──────────────────────────────┬─────────────┘
-             │ Internal HTTP                │ External API
-             ▼                              ▼
-┌────────────────────────┐    ┌─────────────────────────────┐
-│  NODE.JS (Express)     │    │  LAYANAN EKSTERNAL           │
-│  REST API Backend      │    │  • Duitku (Payment Gateway) │
-│  • Products API        │    │  • KlikResi (Ongkir/Tracking│
-│  • Cart API            │    │  • API Wilayah Indonesia    │
-│  • Orders API          │    └─────────────────────────────┘
-│  • Toko API            │
-│  • Rating API          │
-│  • Alamat API          │
-└────────────┬───────────┘
-             │ SQL Query
-             ▼
-┌─────────────────────────────────────────────────────────┐
-│                    MySQL Database                        │
-│  users │ products │ tokos │ orders │ ratings │ alamats  │
-└─────────────────────────────────────────────────────────┘
+Jual. Beli. Mudah.
+```
+- 48pt, biru `#0012AD`, bold
+- Di bawahnya 3 baris kecil (18pt):
+  - Cari sparepart dari rumah
+  - Buka toko dalam hitungan menit
+  - Bayar & lacak pengiriman langsung
+
+`[SCREENSHOT: Screenshot halaman beranda Medcom — tampilkan navbar, search bar, dan grid produk. Foto penuh, tanpa teks overlay]`
+*(Sisi kanan, dengan shadow dan border-radius 12px)*
+
+---
+
+### SLIDE 4 — Showcase: Cari Produk
+
+**Tujuan:** Tunjukkan betapa mudahnya cari produk.
+
+**Layout:** Screenshot mendominasi (75% area slide). Teks kecil di pojok kiri atas atau kiri bawah.
+
+**Teks (pojok, 20–22pt, bold, biru):**
+```
+Cari sparepart
+dalam detik ⚡
 ```
 
-**Tabel stack (di bawah diagram):**
-
-| Layer | Teknologi |
-|-------|-----------|
-| Frontend | Laravel Blade + Tailwind CSS + Vanilla JS |
-| Web Backend | Laravel 11 (PHP) |
-| API Backend | Node.js + Express.js |
-| Database | MySQL |
-| Payment | Duitku |
-| Shipping | KlikResi |
+`[SCREENSHOT: Screenshot beranda dengan filter/search aktif — tampilkan search bar terisi dan grid produk hasil pencarian yang muncul real-time]`
+*(Gambar besar, hampir fullscreen, dengan efek shadow tipis)*
 
 ---
 
-### SLIDE 16 — Alur Transaksi End-to-End
+### SLIDE 5 — Showcase: Detail Produk
 
-**Layout:** Flow diagram horizontal atau vertikal dengan ikon dan warna.
+**Tujuan:** Tunjukkan kelengkapan info produk — gambar, harga, toko, rating.
 
-**Judul slide:** *Alur Transaksi Lengkap*
+**Layout:** Screenshot besar di kanan (60%), teks bullet singkat di kiri (40%).
 
-**Flow diagram (7 langkah, gunakan panah berurutan):**
-
+**Teks kiri (bold, tiap baris 18–20pt):**
 ```
-① DAFTAR / LOGIN
-        ↓
-② CARI & LIHAT PRODUK
-        ↓
-③ TAMBAH KE KERANJANG
-        ↓
-④ CHECKOUT
-   (Pilih alamat → pilih kurir → review total)
-        ↓
-⑤ BAYAR via DUITKU
-   (Virtual Account / e-Wallet)
-        ↓
-⑥ PENJUAL PROSES & KIRIM
-   (Terima → input resi → kirim)
-        ↓
-⑦ PEMBELI TERIMA & BERI ULASAN ⭐
-   (Konfirmasi selesai → rating produk)
+✓ Foto produk HD
+✓ Info toko & lokasi
+✓ Rating pembeli
+✓ Langsung ke keranjang
 ```
 
-**Catatan desain:**
-- Setiap langkah dalam bentuk kotak bulat (pill shape) berwarna biru `#0012AD` teks putih
-- Panah tebal di antara setiap langkah
-- Tambahkan ikon kecil di setiap langkah (orang, kaca pembesar, keranjang, form, kartu kredit, truk, bintang)
+`[SCREENSHOT: Screenshot halaman detail produk — tampilkan gambar produk besar, nama, harga, info toko, bintang rating, dan tombol "Tambah ke Keranjang"]`
 
 ---
 
-### SLIDE 17 — Penutup / Terima Kasih
+### SLIDE 6 — Showcase: Keranjang & Checkout
 
-**Layout:** Full-background biru gelap `#0012AD`, teks putih, minimalis.
+**Tujuan:** Tunjukkan proses belanja yang simpel — dari keranjang ke checkout dalam 1 slide.
+
+**Layout:** Dua screenshot berdampingan (side by side), masing-masing 45% lebar slide.
+
+**Teks di atas dua screenshot (24pt, bold, tengah):**
+```
+Dari keranjang ke checkout — dalam 1 menit
+```
+
+`[SCREENSHOT: Screenshot halaman keranjang — tampilkan daftar produk, qty, dan subtotal]`
+*(Kiri, label kecil di bawah: "Keranjang")*
+
+`[SCREENSHOT: Screenshot halaman checkout — tampilkan pilihan alamat, opsi kurir + ongkir, dan ringkasan total biaya]`
+*(Kanan, label kecil di bawah: "Checkout")*
+
+---
+
+### SLIDE 7 — Showcase: Bayar via Duitku
+
+**Tujuan:** Bangun kepercayaan — pembayaran aman via gateway terpercaya.
+
+**Layout:** Screenshot besar di tengah/kanan. Teks di kiri.
+
+**Teks kiri (bold):**
+```
+Pembayaran Aman
+via Duitku
+──────────────
+VA Bank · GoPay
+OVO · QRIS · dll
+```
+
+- "Aman" atau logo Duitku di highlight warna kuning `#FFD600`
+
+`[SCREENSHOT: Screenshot halaman pembayaran Duitku — tampilkan pilihan metode pembayaran (Virtual Account, e-wallet, dll)]`
+
+---
+
+### SLIDE 8 — Showcase: Lacak Pesananmu
+
+**Tujuan:** Tunjukkan transparansi status pesanan end-to-end.
+
+**Layout:** Screenshot besar di kiri, flow status kecil di kanan.
+
+**Flow status (kanan, vertikal, 16pt):**
+```
+● Menunggu Pembayaran
+● Dibayar
+● Diproses
+● Dikirim → Nomor Resi
+● Selesai ✓
+```
+- Highlight "Dikirim → Nomor Resi" dengan warna biru atau bold
+
+`[SCREENSHOT: Screenshot halaman riwayat pesanan — tampilkan daftar pesanan dengan badge status warna-warni (pending/paid/processing/shipped/finished)]`
+
+---
+
+### SLIDE 9 — Showcase: Buka Toko Sendiri
+
+**Tujuan:** Ajak pengunjung yang ingin jualan untuk tertarik jadi penjual.
+
+**Layout:** Full-bleed background biru `#0012AD`. Teks putih. Screenshot dengan frame/mockup.
+
+**Teks (putih, bold, besar):**
+```
+Punya stok sparepart?
+Buka toko sekarang. Gratis.
+```
+- 36–40pt untuk baris pertama
+- 28pt untuk baris kedua
+- Tambahkan sub-teks kecil (16pt): *"Satu akun, satu toko, langsung berjualan"*
+
+`[SCREENSHOT: Screenshot form buka toko Medcom — tampilkan field nama toko, deskripsi, lokasi, dan upload logo]`
+*(Di-frame dengan mockup browser atau phone, ditempatkan di sisi kanan slide)*
+
+---
+
+### SLIDE 10 — Showcase: Kelola Produk & Pesanan
+
+**Tujuan:** Tunjukkan kemudahan dashboard penjual.
+
+**Layout:** Dua screenshot berdampingan. Teks minimal di atas.
+
+**Teks atas (24pt, bold, hitam):**
+```
+Semua dalam satu dashboard
+```
+
+`[SCREENSHOT: Screenshot grid produk di profil toko — tampilkan kartu-kartu produk dengan tombol edit/hapus]`
+*(Kiri, label: "Produk Saya")*
+
+`[SCREENSHOT: Screenshot daftar pesanan masuk di dashboard toko — tampilkan baris pesanan dengan nama pembeli dan tombol aksi]`
+*(Kanan, label: "Pesanan Masuk")*
+
+---
+
+### SLIDE 11 — Showcase: Rating & Ulasan
+
+**Tujuan:** Tunjukkan fitur kepercayaan — sistem rating transparan.
+
+**Layout:** Screenshot di kanan (60%), teks di kiri (40%).
+
+**Teks kiri:**
+```
+Beli dengan percaya diri.
+
+⭐⭐⭐⭐⭐
+Ulasan nyata dari pembeli.
+```
+- Bintang dalam warna kuning `#FFD600`
+- Teks 20pt
+
+`[SCREENSHOT: Screenshot bagian ulasan di halaman detail produk — tampilkan rating rata-rata bintang, jumlah ulasan, dan beberapa komentar pembeli]`
+
+---
+
+### SLIDE 12 — Stack Teknologi
+
+**Tujuan:** Untuk pengunjung teknis / dosen — tunjukkan bahwa ini dibangun dengan stack yang solid.
+
+**Layout:** Background gelap `#0F172A` (dark mode). Teks putih. Grid kartu teknologi.
+
+**Teks header (putih, 28pt, bold):**
+```
+Dibangun dengan teknologi modern
+```
+
+**Grid 6 kartu teknologi (tiap kartu: ikon + nama + 2–3 kata deskripsi):**
+
+| Ikon | Teknologi | Peran |
+|------|-----------|-------|
+| ⚡ | Laravel 11 | Web Layer & Auth |
+| 🟢 | Node.js + Express | REST API Backend |
+| 🐬 | MySQL | Database |
+| 💳 | Duitku | Payment Gateway |
+| 📦 | KlikResi | Ongkir & Tracking |
+| 🖼️ | Intervention Image | Optimasi Gambar |
+
+**Catatan desain:** Kartu dengan background `#1E293B`, border abu-abu gelap, teks putih. Ikon berwarna (bisa emoji atau ikon flat).
+
+---
+
+### SLIDE 13 — Call to Action / Closing
+
+**Tujuan:** Dorong pengunjung untuk mencoba langsung atau bertanya ke tim.
+
+**Layout:** Full-bleed biru `#0012AD`. Teks putih, centered, bold.
 
 **Elemen:**
-- Teks besar di tengah: **"Terima Kasih"**
-- Sub-teks: *"Ada pertanyaan?"*
-- Nama aplikasi: **MEDCOM**
-- Tagline kecil: *Platform Jual Beli Sparepart Motor*
-- (Opsional) QR Code atau URL demo aplikasi di pojok bawah
+```
+MEDCOM
+─────────────────
+Coba sekarang.
+Tanya tim kami di sini!
+```
 
-`[SCREENSHOT: Screenshot beranda atau halaman produk Medcom — digunakan sebagai background semi-transparan atau elemen visual dekoratif di slide penutup]`
+- "MEDCOM" besar (72pt), putih
+- "Coba sekarang." — 36pt, bold
+- "Tanya tim kami di sini!" — 24pt, italic
+- Nama tim kecil di bawah (14pt):
+  Frizam · Naufal · Bagas · Riziq · Raffa
+- (Opsional) QR Code ke URL demo di pojok kanan bawah
+
+`[SCREENSHOT: Screenshot beranda atau halaman produk Medcom — digunakan sebagai background semi-transparan (opacity 10–15%) atau elemen dekoratif di sudut slide]`
 
 ---
 
-## Panduan Desain Slide
+## Panduan Desain untuk Expo Display
 
-### Konsistensi Elemen
-- **Header setiap slide:** Warna `#0012AD` (biru gelap), tinggi ±80–100px, teks judul putih
-- **Body slide:** Background putih `#FFFFFF` atau abu-abu sangat muda `#F8F9FA`
-- **Accent:** Gunakan warna biru untuk ikon, garis pemisah, dan highlight teks
-- **Footer:** Nama "Medcom" kecil di pojok kiri bawah + nomor halaman di pojok kanan bawah
+### Prinsip Utama
+- **Teks sesedikit mungkin** — kalau bisa pakai gambar, pakai gambar
+- **Ukuran font minimum body: 18pt** — harus terbaca dari jarak 2–3 meter
+- **Setiap slide = 1 pesan** — jangan campur dua topik dalam satu slide
+- **Screenshot harus besar** — minimal 50% area slide untuk tampilan visual utama
 
-### Tipografi
-| Elemen | Rekomendasi |
-|--------|-------------|
-| Judul Slide | Poppins/Montserrat Bold, 28–36pt, putih (di header) |
-| Sub-judul | Poppins Semi-Bold, 20–24pt, biru `#0012AD` |
-| Body teks | Poppins Regular, 14–16pt, hitam `#333333` |
-| Caption | 11–12pt, abu-abu `#666666` |
+### Warna & Kontras
+- Background terang → teks gelap (hitam/biru)
+- Background gelap/biru → teks putih
+- Jangan gunakan abu-abu muda untuk teks — kurang kontras di layar expo
 
-### Placeholder Screenshot
-Untuk setiap `[SCREENSHOT: ...]`, buat **kotak placeholder** dengan:
-- Background: abu-abu muda `#E8E8E8`
-- Border: 1px solid `#CCCCCC`, border-radius 8px
-- Di dalam kotak: teks keterangan screenshot (abu-abu tua, italic, centered)
+### Animasi
+- Transisi: **Fade** atau **Slide from right** — jangan gunakan transisi yang terlalu ramai
+- Durasi autoplay per slide: **5–7 detik**
+- Loop: **Ya, terus-menerus**
+
+### Screenshot Placeholder
+Untuk setiap `[SCREENSHOT: ...]`, buat kotak dengan:
+- Background: `#E8E8E8`
+- Border: `1px solid #CCCCCC`, border-radius 8px
+- Teks keterangan: italic, abu-abu tua `#666666`, centered
 - Ukuran menyesuaikan layout slide
 
 ---
 
 ## Daftar Screenshot yang Dibutuhkan (Checklist)
 
-| No | Slide | Yang Di-screenshot |
-|----|-------|-------------------|
-| 1 | Slide 1 (Cover) | Beranda / mockup tampilan Medcom untuk elemen dekoratif |
-| 2 | Slide 3 (Solusi) | Beranda penuh — navbar, search bar, grid produk |
-| 3 | Slide 5 (Pencarian) | Beranda dengan filter aktif + hasil pencarian |
-| 4 | Slide 6 (Detail Produk) | Halaman detail produk lengkap |
-| 5 | Slide 7 (Keranjang) | Keranjang berisi beberapa produk + total |
-| 6 | Slide 8 (Checkout) — 1 | Halaman checkout: alamat + ongkir + ringkasan biaya |
-| 7 | Slide 8 (Checkout) — 2 | Halaman pembayaran Duitku (pilihan metode) |
-| 8 | Slide 9 (Riwayat) — 1 | Daftar riwayat pesanan dengan badge status |
-| 9 | Slide 9 (Riwayat) — 2 | Detail pesanan status "shipped" + nomor resi |
-| 10 | Slide 10 (Buat Toko) | Form buat toko yang sudah terisi |
-| 11 | Slide 11 (Kelola Produk) — 1 | Grid produk di profil toko + tombol edit/hapus |
-| 12 | Slide 11 (Kelola Produk) — 2 | Form tambah produk |
-| 13 | Slide 12 (Kelola Pesanan) — 1 | Daftar pesanan masuk di dashboard toko |
-| 14 | Slide 12 (Kelola Pesanan) — 2 | Form/modal input nomor resi |
-| 15 | Slide 13 (Profil) — 1 | Halaman edit profil |
-| 16 | Slide 13 (Profil) — 2 | Halaman daftar alamat |
-| 17 | Slide 14 (Rating) — 1 | Form pemberian rating & ulasan |
-| 18 | Slide 14 (Rating) — 2 | Bagian ulasan di halaman detail produk |
-| 19 | Slide 17 (Penutup) | Beranda atau tampilan produk untuk elemen dekoratif |
+| No | Slide | Yang Di-screenshot | Keterangan Tambahan |
+|----|-------|--------------------|---------------------|
+| 1 | Slide 1 (Hero) | Beranda Medcom | Dipakai sebagai background transparan |
+| 2 | Slide 3 (Solusi) | Beranda: navbar + search + grid produk | Tampilan penuh, landscape |
+| 3 | Slide 4 (Cari Produk) | Beranda dengan filter/search aktif | Tunjukkan hasil pencarian muncul |
+| 4 | Slide 5 (Detail Produk) | Halaman detail produk lengkap | Tampilkan gambar, harga, rating, tombol |
+| 5 | Slide 6 (Keranjang) | Halaman keranjang berisi produk | Tampilkan qty dan subtotal |
+| 6 | Slide 6 (Checkout) | Halaman checkout: alamat + ongkir | Tampilkan ringkasan biaya |
+| 7 | Slide 7 (Duitku) | Halaman pembayaran Duitku | Tampilkan pilihan metode pembayaran |
+| 8 | Slide 8 (Lacak) | Riwayat pesanan: daftar dengan badge status | Badge warna-warni |
+| 9 | Slide 9 (Buka Toko) | Form buka toko | Field nama toko, lokasi, upload logo |
+| 10 | Slide 10 (Kelola) — 1 | Grid produk di profil toko | Dengan tombol edit/hapus |
+| 11 | Slide 10 (Kelola) — 2 | Daftar pesanan masuk di dashboard toko | Dengan tombol aksi |
+| 12 | Slide 11 (Rating) | Bagian ulasan di halaman detail produk | Rating bintang + komentar |
+| 13 | Slide 13 (Closing) | Beranda atau tampilan produk | Dipakai sebagai background transparan |
