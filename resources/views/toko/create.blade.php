@@ -96,7 +96,6 @@
         max-height: 100px;
         border-radius: 12px;
         margin-top: 15px;
-        display: none;
     }
 
     .step-indicator {
@@ -145,19 +144,19 @@
             <div class="row g-2 mb-3">
                 <div class="col-md-4">
                     <label class="form-label small mb-1">Provinsi</label>
-                    <select class="form-select" id="tokoProvinsi" required>
+                    <select class="form-select" id="tokoProvinsi" name="provinsi" required>
                         <option value="">Pilih Provinsi</option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small mb-1">Kota/Kabupaten</label>
-                    <select class="form-select" id="tokoKota" required disabled>
+                    <select class="form-select" id="tokoKota" name="kota" required disabled>
                         <option value="">Pilih Kota</option>
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label small mb-1">Kecamatan</label>
-                    <select class="form-select" id="tokoKecamatan" required disabled>
+                    <select class="form-select" id="tokoKecamatan" name="kecamatan" required disabled>
                         <option value="">Pilih Kecamatan</option>
                     </select>
                 </div>
@@ -174,9 +173,6 @@
             </div>
             
             <input type="hidden" name="kode_wilayah" id="tokoKodeWilayah">
-            <input type="hidden" name="provinsi" id="hiddenProvinsi">
-            <input type="hidden" name="kota" id="hiddenKota">
-            <input type="hidden" name="kecamatan" id="hiddenKecamatan">
 
             <div class="mb-4">
                 <label class="form-label">Logo Toko</label>
@@ -266,12 +262,12 @@
         [tokoProv, tokoKota, tokoKec].forEach(el => {
             el.addEventListener('change', () => {
                 tokoKode.value = tokoKec.value || tokoKota.value || tokoProv.value || "";
-                
-                // Set the text values for Laravel to store
-                document.getElementById('hiddenProvinsi').value = tokoProv.options[tokoProv.selectedIndex]?.text || '';
-                document.getElementById('hiddenKota').value = tokoKota.options[tokoKota.selectedIndex]?.text || '';
-                document.getElementById('hiddenKecamatan').value = tokoKec.options[tokoKec.selectedIndex]?.text || '';
             });
+        });
+
+        // Ensure kode_wilayah is set before form submission
+        document.querySelector('form').addEventListener('submit', function(e) {
+            document.getElementById('tokoKodeWilayah').value = tokoKec.value || tokoKota.value || tokoProv.value || "";
         });
 
         loadProvinces();

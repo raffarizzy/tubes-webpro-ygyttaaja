@@ -157,7 +157,8 @@ class TokoController extends Controller
 
             // 2. Upload logo ke storage Laravel dengan optimasi
             $logo = $request->file('logo');
-            $filename = hexdec(uniqid()) . '.webp';
+            $uniqueId = hexdec(uniqid());
+            $filename = $uniqueId . '.webp';
             $logoPath = 'toko/' . $filename;
 
             // Optimasi Logo: Resize & Convert ke WebP (v4 Syntax)
@@ -201,19 +202,19 @@ class TokoController extends Controller
 
             $nodeTokoId = $response->json()['data']['id'];
 
-            // 4. Simpan ke Database Laravel (Eloquent)
-            Toko::create([
-                'id' => $nodeTokoId,
-                'user_id' => auth()->id(),
-                'nama_toko' => $request->nama_toko,
-                'deskripsi_toko' => $request->deskripsi_toko,
-                'lokasi' => $request->lokasi,
-                'provinsi' => $request->provinsi,
-                'kota' => $request->kota,
-                'kecamatan' => $request->kecamatan,
-                'kode_wilayah' => $request->kode_wilayah,
-                'logo_path' => $logoPath,
-            ]);
+            // 4. Simpan ke Database Laravel (Eloquent) - use auto-increment id, simpan Node.js ID terpisah
+            // Toko::create([
+            //     'user_id' => auth()->id(),
+            //     'node_toko_id' => $nodeTokoId,
+            //     'nama_toko' => $request->nama_toko,
+            //     'deskripsi_toko' => $request->deskripsi_toko,
+            //     'lokasi' => $request->lokasi,
+            //     'provinsi' => $request->provinsi,
+            //     'kota' => $request->kota,
+            //     'kecamatan' => $request->kecamatan,
+            //     'kode_wilayah' => $request->kode_wilayah,
+            //     'logo_path' => $logoPath,
+            // ]);
 
             return redirect()->route('profil_toko')
                 ->with('success', 'Toko berhasil dibuat!');
@@ -271,7 +272,8 @@ class TokoController extends Controller
 
                 // Upload logo baru dengan optimasi
                 $logo = $request->file('logo');
-                $filename = hexdec(uniqid()) . '.webp';
+                $uniqueId = hexdec(uniqid());
+                $filename = $uniqueId . '.webp';
                 $logoPath = 'toko/' . $filename;
 
                 $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());

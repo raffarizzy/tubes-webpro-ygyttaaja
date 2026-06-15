@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Toko extends Model
 {
     protected $fillable = [
-        'id',
         'user_id',
+        'node_toko_id',
         'nama_toko',
         'deskripsi_toko',
         'lokasi',
