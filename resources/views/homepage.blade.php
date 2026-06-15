@@ -18,7 +18,7 @@
     <section class="search-filter-section" style="max-width: 1200px; margin: 40px auto; padding: 0 20px;">
         <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: end;">
             <!-- Search Bar -->
-            <div style="flex: 1; min-width: 250px;">
+            <div style="flex: 2; min-width: 250px;">
                 <label for="search-input" style="display: block; margin-bottom: 8px; font-weight: 500;">Cari Produk</label>
                 <input
                     type="text"
@@ -26,6 +26,20 @@
                     placeholder="Cari nama produk..."
                     style="width: 100%; padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px;"
                 />
+            </div>
+
+            <!-- Filter Kategori -->
+            <div style="flex: 1; min-width: 200px;">
+                <label for="category-filter" style="display: block; margin-bottom: 8px; font-weight: 500;">Kategori</label>
+                <select 
+                    id="category-filter" 
+                    style="width: 100%; padding: 10px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; background-color: white;"
+                >
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->judulKategori }}">{{ $category->judulKategori }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Filter Harga Min -->

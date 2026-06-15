@@ -55,7 +55,7 @@ class TokoController extends Controller
             $toko = (object) $toko;
 
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
-            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
 
             // Ambil pesanan masuk
             $productIds = $toko->products->pluck('id');
@@ -84,7 +84,7 @@ class TokoController extends Controller
                 return redirect()->route('toko.create');
             }
 
-            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
             $productIds = $toko->products->pluck('id');
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
                 ->with(['order.user', 'order.alamat'])

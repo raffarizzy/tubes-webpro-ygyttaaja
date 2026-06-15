@@ -15,6 +15,7 @@ const itemsPerPage = 12;
 // Filter state
 let filterState = {
     search: "",
+    category: "",
     priceMin: null,
     priceMax: null,
 };
@@ -63,6 +64,11 @@ function applyFilters() {
                 .toLowerCase()
                 .includes(filterState.search.toLowerCase());
 
+        // Category filter
+        const matchCategory = 
+            filterState.category === "" || 
+            (produk.category_nama && produk.category_nama === filterState.category);
+
         // Price filter
         const matchPriceMin =
             filterState.priceMin === null ||
@@ -71,7 +77,7 @@ function applyFilters() {
             filterState.priceMax === null ||
             produk.harga <= filterState.priceMax;
 
-        return matchSearch && matchPriceMin && matchPriceMax;
+        return matchSearch && matchCategory && matchPriceMin && matchPriceMax;
     });
 
     // Reset to page 1 when filter changes
@@ -410,6 +416,15 @@ function initEventListeners() {
         });
     }
 
+    // Category filter
+    const categoryFilter = document.getElementById("category-filter");
+    if (categoryFilter) {
+        categoryFilter.addEventListener("change", (e) => {
+            filterState.category = e.target.value;
+            applyFilters();
+        });
+    }
+
     // Reset filter button
     const resetBtn = document.getElementById("reset-filter");
     if (resetBtn) {
@@ -417,12 +432,14 @@ function initEventListeners() {
             // Clear filter state
             filterState = {
                 search: "",
+                category: "",
                 priceMin: null,
                 priceMax: null,
             };
 
             // Clear inputs
             if (searchInput) searchInput.value = "";
+            if (categoryFilter) categoryFilter.value = "";
             if (priceMinInput) priceMinInput.value = "";
             if (priceMaxInput) priceMaxInput.value = "";
 
