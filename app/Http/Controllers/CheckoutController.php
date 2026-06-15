@@ -106,7 +106,7 @@ class CheckoutController extends Controller
 }
 
     /**
-     * Proses pembayaran dengan Xendit - Consume Node.js API
+     * Proses pembayaran dengan Duitku - Consume Node.js API
      */
     public function pay(Request $request)
     {
@@ -127,13 +127,7 @@ class CheckoutController extends Controller
             /** @var \App\Models\User $user */
             $user = Auth::user();
 
-            Log::info('Processing payment', [
-                'order_id' => $request->order_id,
-                'user_id' => $user->id,
-                'total' => $request->total
-            ]);
-
-            // Verify order exists via Node.js API
+            // 1. Verify order exists via Node.js API
             $orderResponse = Http::timeout(30)
                 ->get("{$this->nodeApiUrl}/orders/{$request->order_id}");
 
@@ -143,108 +137,66 @@ class CheckoutController extends Controller
 
             $orderData = $orderResponse->json('data');
 
-            // Verify order belongs to user
+            // 2. Verify order belongs to user
             if ($orderData['user_id'] != $user->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak memiliki akses ke order ini'
-                ], 403);
+                return response()->json(['success' => false, 'message' => 'Akses ditolak'], 403);
             }
 
-            // Verify order status is pending
-            if ($orderData['status'] !== 'pending') {
-                throw new \Exception('Order sudah diproses sebelumnya');
-            }
+            // 3. Duitku POP Inquiry
+            $merchantCode = config('services.duitku.merchant_code');
+            $apiKey = config('services.duitku.api_key');
+            $merchantOrderId = 'ORDER-' . $request->order_id . '-' . time();
+            $paymentAmount = (int) $request->total;
+            
+            // Signature formula: md5(merchantCode + merchantOrderId + paymentAmount + apiKey)
+            $signature = md5($merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
 
-            // Update alamat if different (via Node.js API)
-            if ($orderData['alamat_id'] != $request->alamat_id) {
-                $updateResponse = Http::timeout(30)
-                    ->put("{$this->nodeApiUrl}/orders/{$request->order_id}/alamat", [
-                        'alamat_id' => $request->alamat_id
-                    ]);
+            $duitkuUrl = config('services.duitku.mode') === 'production' 
+                ? 'https://passport.duitku.com/webapi/api/merchant/v2/inquiry'
+                : 'https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry';
 
-                if (!$updateResponse->successful()) {
-                    Log::warning('Failed to update order alamat', [
-                        'order_id' => $request->order_id,
-                        'alamat_id' => $request->alamat_id
-                    ]);
-                }
-            }
-
-            // Create Xendit invoice
-            \Xendit\Xendit::setApiKey(config('services.xendit.secret'));
-
-            $invoice = \Xendit\Invoice::create([
-                'external_id' => 'ORDER-' . $request->order_id . '-' . time(),
-                'payer_email' => $user->email,
-                'description' => 'Pembayaran Order #' . $request->order_id,
-                'amount' => $request->total,
-                'success_redirect_url' => route('payment.success'),
-                'failure_redirect_url' => route('checkout'),
+            $inquiryResponse = Http::timeout(30)->post($duitkuUrl, [
+                'merchantCode' => $merchantCode,
+                'paymentAmount' => $paymentAmount,
+                'merchantOrderId' => $merchantOrderId,
+                'productDetails' => 'Pembayaran Medcom Order #' . $request->order_id,
+                'email' => $user->email,
+                'callbackUrl' => route('duitku.callback'),
+                'returnUrl' => route('riwayat.pesanan'),
+                'signature' => $signature,
+                'expiryPeriod' => 60 // 60 menit
             ]);
 
-            Log::info('Xendit invoice created', [
-                'order_id' => $request->order_id,
-                'invoice_id' => $invoice['id'],
-                'invoice_url' => $invoice['invoice_url']
-            ]);
+            if (!$inquiryResponse->successful()) {
+                throw new \Exception('Gagal menghubungi server Duitku');
+            }
 
-            // Update order status and save payment_url via Node.js API
+            $duitkuData = $inquiryResponse->json();
+
+            if (($duitkuData['statusCode'] ?? '') !== '00') {
+                throw new \Exception('Duitku Error: ' . ($duitkuData['statusMessage'] ?? 'Unknown error'));
+            }
+
+            $reference = $duitkuData['reference'];
+
+            // 4. Update order status and save reference via Node.js API
             $statusResponse = Http::timeout(30)
                 ->put("{$this->nodeApiUrl}/orders/{$request->order_id}/status", [
                     'status' => 'pending',
-                    'payment_url' => $invoice['invoice_url']
+                    'payment_url' => null, // Duitku POP uses reference
+                    'payment_reference' => $reference // New field if needed, or repurposed
                 ]);
-
-            if (!$statusResponse->successful()) {
-                Log::error('Failed to update order payment URL via Node.js API', [
-                    'order_id' => $request->order_id,
-                    'response' => $statusResponse->body()
-                ]);
-                throw new \Exception('Failed to update order payment info');
-            }
-
-            // Save invoice data to session for tracking
-            session([
-                'last_invoice_id' => $invoice['id'],
-                'last_invoice_url' => $invoice['invoice_url'],
-                'last_order_id' => $request->order_id
-            ]);
-
-            Log::info('Payment invoice created and saved', [
-                'order_id' => $request->order_id,
-                'invoice_id' => $invoice['id'],
-                'status' => 'pending'
-            ]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Payment berhasil diproses',
-                'invoice_url' => $invoice['invoice_url'],
+                'message' => 'Duitku Inquiry Berhasil',
+                'reference' => $reference,
                 'order_id' => $request->order_id,
             ]);
 
-        } catch (\Xendit\Exceptions\ApiException $e) {
-            Log::error('Xendit API error', [
-                'message' => $e->getMessage(),
-                'error_code' => $e->getErrorCode()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal membuat invoice pembayaran: ' . $e->getMessage()
-            ], 500);
-
         } catch (\Exception $e) {
-            Log::error('Payment error', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal memproses pembayaran: ' . $e->getMessage()
-            ], 500);
+            Log::error('Duitku Payment Error', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 

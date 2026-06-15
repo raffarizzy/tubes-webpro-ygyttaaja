@@ -975,10 +975,34 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!paymentResponse.ok) throw new Error("Gagal memproses pembayaran");
             const paymentData = await paymentResponse.json();
 
-            if (paymentData.invoice_url) {
-                localStorage.removeItem("checkoutData");
-                showNotification("Order berhasil dibuat!", "success");
-                setTimeout(() => window.location.href = paymentData.invoice_url, 1500);
+            if (paymentData.reference) {
+                // INTEGRASI DUITKU POP
+                checkout.process(paymentData.reference, {
+                    defaultLanguage: "id",
+                    successEvent: function(result) {
+                        console.log('Duitku Success:', result);
+                        localStorage.removeItem("checkoutData");
+                        showNotification("Pembayaran Berhasil!", "success");
+                        setTimeout(() => window.location.href = "/riwayat-pesanan", 2000);
+                    },
+                    pendingEvent: function(result) {
+                        console.log('Duitku Pending:', result);
+                        localStorage.removeItem("checkoutData");
+                        showNotification("Menunggu Pembayaran", "info");
+                        setTimeout(() => window.location.href = "/riwayat-pesanan", 2000);
+                    },
+                    errorEvent: function(result) {
+                        console.error('Duitku Error:', result);
+                        showNotification("Gagal memproses pembayaran: " + (result.statusMessage || "Unknown error"), "danger");
+                        payButton.disabled = false;
+                        payButton.innerHTML = '<i class="bi bi-credit-card"></i> Bayar Sekarang';
+                    },
+                    closeEvent: function(result) {
+                        console.log('Duitku Closed:', result);
+                        payButton.disabled = false;
+                        payButton.innerHTML = '<i class="bi bi-credit-card"></i> Bayar Sekarang';
+                    }
+                });
             }
         } catch (err) {
             console.error(err);
