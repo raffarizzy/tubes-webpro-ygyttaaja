@@ -174,9 +174,13 @@
                             @endif
                             
                             @if($pesanan->status === 'pending')
-                                @if($pesanan->payment_url)
-                                    <a href="{{ $pesanan->payment_url }}" target="_blank" class="btn btn-medcom-blue btn-sm"> Bayar Sekarang </a>
-                                @endif
+                                <button type="button" class="btn btn-medcom-blue btn-sm btn-pay-now" 
+                                        data-order-id="{{ $pesanan->id }}"
+                                        data-url="{{ $pesanan->payment_url ?? '' }}"
+                                        data-total="{{ $pesanan->total_harga }}"> 
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    <span class="btn-text">Bayar Sekarang</span>
+                                </button>
                                 <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan pesanan?')">
                                     @csrf
                                     <button type="submit" class="btn btn-outline-danger btn-sm"> Batalkan </button>
@@ -222,11 +226,61 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
         const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
         const waSupportLink = document.getElementById('waSupportLink');
+
+        // Logic "Bayar Sekarang" via Duitku Redirect (Resilient Mode)
+        document.querySelectorAll('.btn-pay-now').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const orderId = this.dataset.orderId;
+                const paymentUrl = this.dataset.url;
+                const total = this.dataset.total;
+                const btnText = this.querySelector('.btn-text');
+                const spinner = this.querySelector('.spinner-border');
+
+                // 1. Jika sudah punya URL, langsung redirect
+                if (paymentUrl && paymentUrl !== 'null' && paymentUrl.includes('duitku')) {
+                    window.location.href = paymentUrl;
+                    return;
+                }
+
+                // 2. Jika belum punya URL (pesanan lama atau error), minta ke server
+                try {
+                    this.disabled = true;
+                    btnText.textContent = "Menyiapkan...";
+                    spinner.classList.remove('d-none');
+
+                    const response = await fetch("/checkout/pay", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            total: total
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (result.success && result.payment_url) {
+                        window.location.href = result.payment_url;
+                    } else {
+                        throw new Error(result.message || "Gagal mendapatkan URL pembayaran");
+                    }
+                } catch (err) {
+                    alert("Error: " + err.message);
+                } finally {
+                    this.disabled = false;
+                    btnText.textContent = "Bayar Sekarang";
+                    spinner.classList.add('d-none');
+                }
+            });
+        });
 
         document.querySelectorAll('.btn-report').forEach(btn => {
             btn.addEventListener('click', function() {

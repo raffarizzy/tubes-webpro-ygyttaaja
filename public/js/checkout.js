@@ -143,24 +143,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
     let selectedPaymentMethod = null;
 
-    // Available payment methods with images
+    // Available payment methods with official Duitku codes
     const paymentMethods = [
         {
-            id: "qris",
+            id: "SP", // ShopeePay / QRIS
             name: "QRIS",
             description: "Scan & Bayar dengan QRIS",
             image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjhvTtjN1Bj37W3jTiire9jlqgP046Je6-JPvIVEMjW6avji3kH1eC5HyUDIY8q1l6z89kidy_XZz4cX7-d_rdSentSrY94naUFcRo-NhiEvMUWmevEbQz-xRdMLUFSr61dHVvbVDq58GmxM0UAIgwnfCak8KWr0wTa0UmmjdUQTTcm2pEd3YjuHtPj9Q/s2161/Logo%20QRIS.png",
             color: "#1a73e8",
         },
         {
-            id: "bank_transfer",
+            id: "BC", // BCA Virtual Account
             name: "BCA",
             description: "Transfer via Virtual Account BCA",
             image: "https://iconape.com/wp-content/png_logo_vector/bca-bank-central-asia.png",
             color: "#003d7a",
         },
         {
-            id: "credit_card",
+            id: "VC", // Credit Card (Visa/Mastercard)
             name: "VISA",
             description: "Bayar dengan Kartu Kredit/Debit VISA",
             image: "https://www.freepnglogos.com/uploads/visa-inc-png-18.png",
@@ -767,11 +767,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Update pay button state
     window.updatePayButtonState = function () {
-        const paymentSelected =
-            document.querySelector(".payment-method-card.selected") !== null;
-        const courierSelected = document.getElementById("selected-courier-code")?.value !== "";
+        const courierSelected = document.getElementById("courierCodeInput")?.value !== "";
 
-        if (selectedAddress && paymentSelected && courierSelected) {
+        if (selectedAddress && courierSelected) {
             payButton.disabled = false;
             payButton.classList.remove("disabled");
             paymentHint.textContent = "Siap untuk melanjutkan pembayaran";
@@ -785,8 +783,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 paymentHint.textContent = "Pilih alamat pengiriman";
             } else if (!courierSelected) {
                 paymentHint.textContent = "Pilih metode pengiriman";
-            } else if (!paymentSelected) {
-                paymentHint.textContent = "Pilih metode pembayaran";
             }
             paymentHint.classList.remove("text-success");
             paymentHint.classList.add("text-muted");
@@ -909,12 +905,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Pay button handler
     payButton.addEventListener("click", async () => {
-        const paymentSelected = document.querySelector(".payment-method-card.selected");
         const courierCode = document.getElementById("courierCodeInput").value;
         const shippingCost = parseInt(document.getElementById("shippingCostInput").value);
 
-        if (!selectedAddress || !paymentSelected || !courierCode) {
-            alert("Lengkapi alamat, pengiriman, dan metode pembayaran!");
+        if (!selectedAddress || !courierCode) {
+            alert("Lengkapi alamat dan pengiriman!");
             return;
         }
 
@@ -969,16 +964,18 @@ document.addEventListener("DOMContentLoaded", function () {
                     order_id: orderId,
                     alamat_id: selectedAddress.id,
                     total: total,
+                    payment_method: '', // Biarkan Duitku POP yang menangani pilihan metode
                 }),
             });
 
             if (!paymentResponse.ok) throw new Error("Gagal memproses pembayaran");
             const paymentData = await paymentResponse.json();
 
-            if (paymentData.invoice_url) {
+            if (paymentData.payment_url) {
+                // REDIRECT MODE (Halaman Penuh)
                 localStorage.removeItem("checkoutData");
-                showNotification("Order berhasil dibuat!", "success");
-                setTimeout(() => window.location.href = paymentData.invoice_url, 1500);
+                showNotification("Mengarahkan ke halaman pembayaran...", "info");
+                setTimeout(() => window.location.href = paymentData.payment_url, 1000);
             }
         } catch (err) {
             console.error(err);

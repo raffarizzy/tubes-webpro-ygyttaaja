@@ -416,6 +416,13 @@ class OrderController extends Controller
         if (is_array($data)) {
             $obj = (object) $data;
 
+            // Convert all fields from object/array
+            foreach ((array)$data as $key => $value) {
+                if (!isset($obj->{$key})) {
+                    $obj->{$key} = $value;
+                }
+            }
+
             // Convert items
             if (isset($obj->items) && is_array($obj->items)) {
                 $obj->items = collect($obj->items)->map(function ($item) {
@@ -435,10 +442,9 @@ class OrderController extends Controller
                 $obj->alamat = (object) $obj->alamat;
             }
 
-            // Convert user if exists
-            if (isset($obj->user) && is_array($obj->user)) {
-                $obj->user = (object) $obj->user;
-            }
+            // Ensure payment fields are explicitly mapped for clarity
+            $obj->payment_reference = $data['payment_reference'] ?? null;
+            $obj->payment_url = $data['payment_url'] ?? null;
 
             return $obj;
         }
