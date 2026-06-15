@@ -179,21 +179,14 @@
             </div>
           </div>
 
-          <!-- Metode Pembayaran -->
-          <div class="card shadow-sm mb-3">
+          <!-- Metode Pembayaran (Sekarang ditangani oleh Duitku POP) -->
+          <div class="card shadow-sm mb-3 d-none">
             <div class="card-body p-3">
               <h6 class="text-secondary fw-bold mb-3">
                 Pilih Metode Pembayaran
               </h6>
-
-              <!-- Payment Method Selection -->
               <div id="paymentMethodsContainer">
-                <div class="text-center py-4">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                  </div>
-                  <p class="text-muted mt-2 mb-0 small">Memuat metode pembayaran...</p>
-                </div>
+                <input type="radio" name="paymentMethod" value="ALL" checked>
               </div>
             </div>
           </div>

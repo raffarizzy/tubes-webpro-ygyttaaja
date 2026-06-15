@@ -174,9 +174,13 @@
                             @endif
                             
                             @if($pesanan->status === 'pending')
-                                @if($pesanan->payment_url)
-                                    <a href="{{ $pesanan->payment_url }}" target="_blank" class="btn btn-medcom-blue btn-sm"> Bayar Sekarang </a>
-                                @endif
+                                <button type="button" class="btn btn-medcom-blue btn-sm btn-pay-now" 
+                                        data-order-id="{{ $pesanan->id }}"
+                                        data-reference="{{ $pesanan->payment_reference ?? '' }}"
+                                        data-total="{{ $pesanan->total_harga }}"> 
+                                    <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    <span class="btn-text">Bayar Sekarang</span>
+                                </button>
                                 <form action="{{ route('orders.cancel', $pesanan->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Batalkan pesanan?')">
                                     @csrf
                                     <button type="submit" class="btn btn-outline-danger btn-sm"> Batalkan </button>
@@ -222,11 +226,91 @@
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Duitku POP JS --}}
+@if(config('services.duitku.mode') === 'production')
+    <script src="https://app-prod.duitku.com/lib/js/duitku.js"></script>
+@else
+    <script src="https://app-sandbox.duitku.com/lib/js/duitku.js"></script>
+@endif
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const trackingModal = new bootstrap.Modal(document.getElementById('trackingModal'));
         const reportModal = new bootstrap.Modal(document.getElementById('reportModal'));
         const waSupportLink = document.getElementById('waSupportLink');
+
+        // Logic "Bayar Sekarang" via Duitku POP (Resilient Mode)
+        document.querySelectorAll('.btn-pay-now').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const orderId = this.dataset.orderId;
+                const reference = this.dataset.reference;
+                const total = this.dataset.total;
+                const btnText = this.querySelector('.btn-text');
+                const spinner = this.querySelector('.spinner-border');
+
+                // 1. Jika sudah punya reference, langsung buka POP
+                if (reference && reference !== 'null') {
+                    openDuitkuPop(reference);
+                    return;
+                }
+
+                // 2. Jika belum punya reference (pesanan lama atau error), minta ke server
+                try {
+                    this.disabled = true;
+                    btnText.textContent = "Menyiapkan...";
+                    spinner.classList.remove('d-none');
+
+                    const response = await fetch("/checkout/pay", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                        },
+                        body: JSON.stringify({
+                            order_id: orderId,
+                            alamat_id: 0, // Alamat sudah ada di database, kita kirim 0 saja
+                            total: total,
+                            payment_method: 'VC' // Default ke Credit Card atau user bisa pilih nanti di POP
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (result.success && result.reference) {
+                        openDuitkuPop(result.reference);
+                    } else {
+                        throw new Error(result.message || "Gagal mendapatkan referensi pembayaran");
+                    }
+                } catch (err) {
+                    alert("Error: " + err.message);
+                } finally {
+                    this.disabled = false;
+                    btnText.textContent = "Bayar Sekarang";
+                    spinner.classList.add('d-none');
+                }
+            });
+        });
+
+        function openDuitkuPop(reference) {
+            checkout.process(reference, {
+                defaultLanguage: "id",
+                successEvent: function(result) {
+                    alert("Pembayaran Berhasil!");
+                    location.reload();
+                },
+                pendingEvent: function(result) {
+                    alert("Pesanan sedang menunggu pembayaran.");
+                    location.reload();
+                },
+                errorEvent: function(result) {
+                    alert("Gagal memproses pembayaran: " + (result.statusMessage || "Terjadi kesalahan"));
+                },
+                closeEvent: function(result) {
+                    console.log('Duitku Popup Closed');
+                    // Tidak perlu reload jika hanya menutup, agar user tetap di halaman riwayat
+                }
+            });
+        }
 
         document.querySelectorAll('.btn-report').forEach(btn => {
             btn.addEventListener('click', function() {
