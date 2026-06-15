@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 
+// Callback Duitku (Public - Protected by Signature Verification)
+Route::post('/duitku/callback', [\App\Http\Controllers\DuitkuCallbackController::class, 'handle'])
+    ->name('duitku.callback');
+
 // ============================================
 // PROTECTED API ROUTES (Admin/Seller only)
 // ============================================

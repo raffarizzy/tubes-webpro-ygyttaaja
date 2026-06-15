@@ -44,4 +44,14 @@ return [
         ],
     ],
 
+    'node_api' => [
+        'url' => env('NODE_API_URL', 'http://localhost:3001'),
+    ],
+
+    'duitku' => [
+        'merchant_code' => env('DUITKU_MERCHANT_CODE'),
+        'api_key' => env('DUITKU_API_KEY'),
+        'mode' => env('DUITKU_MODE', 'sandbox'), // sandbox or production
+    ],
+
 ];
