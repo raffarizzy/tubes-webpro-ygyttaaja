@@ -100,57 +100,81 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'nama' => 'required|string',
-            'category_id' => 'required|integer',
-            'harga' => 'required|numeric',
-            'stok' => 'required|integer',
-            'deskripsi' => 'required|string',
-            'image' => 'required|image|mimes:jpg,jpeg,png,webp'
-        ]);
+        try {
+            $request->validate([
+                'nama' => 'required|string',
+                'category_id' => 'required|integer',
+                'harga' => 'required|numeric',
+                'stok' => 'required|integer',
+                'deskripsi' => 'required|string',
+                'image' => 'required|image|mimes:jpg,jpeg,png,webp'
+            ]);
 
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = hexdec(uniqid()) . '.webp';
-            $imagePath = 'produk/' . $filename;
+            $imagePath = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = hexdec(uniqid()) . '.webp';
+                $imagePath = 'produk/' . $filename;
 
-            // Optimasi Gambar: Resize & Convert ke WebP (v4 Syntax)
-            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-            $img = $manager->decode($image);
-            
-            // Resize ke lebar max 1000px, tinggi otomatis proporsional
-            $img->scale(width: 1000);
+                // Optimasi Gambar: Resize & Convert ke WebP (v4 Syntax)
+                try {
+                    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $img = $manager->decode($image);
+                    $img->scale(width: 1000);
+                    \Illuminate\Support\Facades\Storage::disk('public')->put(
+                        $imagePath, 
+                        (string) $img->encodeUsingFileExtension('webp', quality: 75)
+                    );
+                } catch (\Exception $imgError) {
+                    Log::error("Image optimization failed: " . $imgError->getMessage());
+                    // Fallback: simpan tanpa optimasi jika library gagal
+                    $imagePath = $request->file('image')->store('produk', 'public');
+                }
+            }
 
-            // Simpan ke storage
-            \Illuminate\Support\Facades\Storage::disk('public')->put(
-                $imagePath, 
-                (string) $img->encodeUsingFileExtension('webp', quality: 75)
-            );
-        }
+            $tokoId = auth()->user()->toko->id ?? null;
+            if (!$tokoId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User belum memiliki toko'
+                ], 400);
+            }
 
-        $tokoId = auth()->user()->toko->id ?? null;
-        if (!$tokoId) {
+            $apiUrl = config('services.node_api.url') . '/api/products';
+            $response = Http::timeout(10)->post($apiUrl, [
+                'toko_id' => $tokoId,
+                'category_id' => $request->category_id,
+                'nama' => $request->nama,
+                'harga' => $request->harga,
+                'stok' => $request->stok,
+                'deskripsi' => $request->deskripsi,
+                'imagePath' => $imagePath,
+                'diskon' => $request->diskon ?? 0
+            ]);
+
+            if ($response->successful()) {
+                return response()->json(['success' => true]);
+            } else {
+                Log::error("Node.js API Error (Product Store): " . $response->body());
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Gagal simpan ke API: ' . ($response->json('message') ?? 'Error tidak dikenal')
+                ], 500);
+            }
+
+        } catch (\Illuminate\Validation\ValidationException $v) {
             return response()->json([
                 'success' => false,
-                'message' => 'User belum memiliki toko'
-            ], 400);
+                'message' => 'Validasi gagal',
+                'errors' => $v->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error("General Error in ProductController@store: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+            ], 500);
         }
-
-        $response = Http::post(config('services.node_api.url') . '/api/products', [
-            'toko_id' => $tokoId,
-            'category_id' => $request->category_id,
-            'nama' => $request->nama,
-            'harga' => $request->harga,
-            'stok' => $request->stok,
-            'deskripsi' => $request->deskripsi,
-            'imagePath' => $imagePath,
-            'diskon' => $request->diskon ?? 0
-        ]);
-
-        return $response->successful()
-            ? response()->json(['success' => true])
-            : response()->json(['success' => false], 500);
     }
 
     /**
@@ -158,29 +182,47 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data = $request->only([
-            'nama', 'harga', 'stok', 'deskripsi', 'category_id', 'diskon'
-        ]);
+        try {
+            $data = $request->only([
+                'nama', 'harga', 'stok', 'deskripsi', 'category_id', 'diskon'
+            ]);
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $filename = hexdec(uniqid()) . '.webp';
-            $imagePath = 'produk/' . $filename;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $filename = hexdec(uniqid()) . '.webp';
+                $imagePath = 'produk/' . $filename;
 
-            // Optimasi Gambar (v4 Syntax)
-            $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
-            $img = $manager->decode($image);
-            $img->scale(width: 1000);
+                // Optimasi Gambar (v4 Syntax)
+                try {
+                    $manager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                    $img = $manager->decode($image);
+                    $img->scale(width: 1000);
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($imagePath, (string) $img->encodeUsingFileExtension('webp', quality: 75));
+                    $data['imagePath'] = $imagePath;
+                } catch (\Exception $imgError) {
+                    Log::error("Image optimization failed (Update): " . $imgError->getMessage());
+                    $data['imagePath'] = $request->file('image')->store('produk', 'public');
+                }
+            }
 
-            \Illuminate\Support\Facades\Storage::disk('public')->put($imagePath, (string) $img->encodeUsingFileExtension('webp', quality: 75));
-            $data['imagePath'] = $imagePath;
+            $apiUrl = config('services.node_api.url') . "/api/products/{$id}";
+            $response = Http::timeout(10)->patch($apiUrl, $data);
+
+            if ($response->successful()) {
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal update di API: ' . ($response->json('message') ?? 'Error tidak dikenal')
+                ], 500);
+            }
+        } catch (\Exception $e) {
+            Log::error("General Error in ProductController@update: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+            ], 500);
         }
-
-        $response = Http::patch(config('services.node_api.url') . "/api/products/{$id}", $data);
-
-        return $response->successful()
-            ? response()->json(['success' => true])
-            : response()->json(['success' => false], 500);
     }
 
     /**
