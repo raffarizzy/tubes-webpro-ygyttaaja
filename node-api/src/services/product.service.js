@@ -117,25 +117,37 @@ exports.getByCategory = async (categoryId) => {
  * Create new product
  */
 exports.create = async (data) => {
-  const [result] = await db.query(
-    `INSERT INTO products (toko_id, category_id, nama, deskripsi, harga, diskon, stok, imagePath)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      data.toko_id,
-      data.category_id,
-      data.nama,
-      data.deskripsi,
-      data.harga,
-      data.diskon || null,
-      data.stok,
-      data.imagePath
-    ]
-  );
+  try {
+    // Pastikan nilai numerik benar dan berikan default jika kosong
+    const toko_id = parseInt(data.toko_id);
+    const category_id = parseInt(data.category_id);
+    const harga = parseInt(data.harga);
+    const stok = parseInt(data.stok);
+    const diskon = data.diskon ? parseInt(data.diskon) : 0;
+    
+    const [result] = await db.query(
+      `INSERT INTO products (toko_id, category_id, nama, deskripsi, harga, diskon, stok, imagePath, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [
+        toko_id,
+        category_id,
+        data.nama,
+        data.deskripsi || '',
+        harga,
+        diskon,
+        stok,
+        data.imagePath
+      ]
+    );
 
-  return {
-    id: result.insertId,
-    message: 'Produk berhasil dibuat'
-  };
+    return {
+      id: result.insertId,
+      message: 'Produk berhasil dibuat'
+    };
+  } catch (error) {
+    console.error('Error in product.service.js (create):', error);
+    throw error;
+  }
 };
 
 /**

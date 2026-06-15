@@ -74,21 +74,23 @@ exports.getByCategory = async (req, res) => {
  */
 exports.create = async (req, res) => {
   try {
-    console.log('=== CREATE PRODUCT ===');
-    console.log('BODY:', req.body);
+    console.log('=== CREATE PRODUCT ATTEMPT ===');
+    console.log('BODY RECEIVED:', JSON.stringify(req.body, null, 2));
 
-    // Validasi input
-    const { toko_id, category_id, nama, deskripsi, harga, stok, imagePath } = req.body;
+    // Validasi input yang lebih informatif
+    const requiredFields = ['toko_id', 'category_id', 'nama', 'deskripsi', 'harga', 'stok', 'imagePath'];
+    const missingFields = requiredFields.filter(field => !req.body[field]);
 
-    if (!toko_id || !category_id || !nama || !deskripsi || !harga || !stok || !imagePath) {
-      return response.validationError(res, 'Field toko_id, category_id, nama, deskripsi, harga, stok, dan imagePath wajib diisi');
+    if (missingFields.length > 0) {
+      console.warn('Validation Failed. Missing:', missingFields.join(', '));
+      return response.validationError(res, `Field berikut wajib diisi: ${missingFields.join(', ')}`);
     }
 
     const result = await service.create(req.body);
 
     return response.success(res, result, 'Produk berhasil dibuat', 201);
   } catch (error) {
-    console.error('Error create product:', error);
+    console.error('Error create product (Controller):', error);
     return response.error(res, 'Gagal membuat produk', 500, error.message);
   }
 };
