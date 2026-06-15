@@ -23,6 +23,25 @@
         margin-bottom: 80px;
     }
 
+    .btn-medcom-blue {
+        --bs-btn-color: #ffffff;
+        --bs-btn-bg: #122c4f;
+        --bs-btn-border-color: #122c4f;
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #0d2033; /* Darker blue on hover */
+        --bs-btn-hover-border-color: #0d2033;
+        --bs-btn-active-bg: #0a1829;
+        --bs-btn-active-border-color: #0a1829;
+    }
+
+    .text-medcom-blue {
+        color: #122c4f !important;
+    }
+
+    .bg-medcom-blue {
+        background-color: #122c4f !important;
+    }
+
     /* Bleed background to prevent white gap on scroll up */
     .shop-banner::before {
         content: "";
@@ -617,9 +636,6 @@
                                                         Resi: <span class="fw-bold text-dark">{{ $item->order->nomor_resi }}</span>
                                                     </div>
                                                 @endif
-                                                <button class="btn btn-sm btn-light border rounded-pill px-3" onclick="alert('Detail pesanan #{{ $item->order->id }} akan segera hadir!')">
-                                                    Detail
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -866,7 +882,7 @@
                 <div class="modal fade" id="modalDetailOrder" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                 <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-primary text-white p-4">
+                <div class="modal-header bg-medcom-blue text-white p-4">
                 <h5 class="modal-title fw-bold">Detail Pesanan #<span id="detailId"></span></h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
@@ -888,7 +904,7 @@
                     </div>
                     <div class="col-md-6">
                         <div class="p-3 border rounded-3 h-100">
-                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-bag-check-fill me-2"></i>Informasi Produk & Pembayaran</h6>
+                            <h6 class="fw-bold text-medcom-blue mb-3"><i class="bi bi-bag-check-fill me-2"></i>Informasi Produk & Pembayaran</h6>
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Produk</span>
                                 <span class="fw-bold" id="detailProduk"></span>
@@ -928,7 +944,7 @@
                 </div>
                 </div>
                 <div class="modal-footer border-0 p-4">
-                <button type="button" class="btn btn-primary rounded-pill px-5" data-bs-dismiss="modal">Tutup</button>
+                <button type="button" class="btn btn-medcom-blue rounded-pill px-5" data-bs-dismiss="modal">Tutup</button>
                 </div>
                 </div>
                 </div>
