@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Toko;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
@@ -54,7 +55,7 @@ class TokoController extends Controller
             $toko = (object) $toko;
 
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
-            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
 
             // Ambil pesanan masuk
             $productIds = $toko->products->pluck('id');
@@ -69,8 +70,9 @@ class TokoController extends Controller
                 ->count();
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+            $categories = Category::all();
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'categories'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -82,7 +84,7 @@ class TokoController extends Controller
                 return redirect()->route('toko.create');
             }
 
-            $toko->products = Product::where('toko_id', $toko->id)->get();
+            $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
             $productIds = $toko->products->pluck('id');
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
                 ->with(['order.user', 'order.alamat'])
@@ -94,8 +96,9 @@ class TokoController extends Controller
                 ->count();
             
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
+            $categories = Category::all();
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'categories'));
         }
     }
 

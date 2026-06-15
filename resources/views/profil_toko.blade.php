@@ -23,6 +23,25 @@
         margin-bottom: 80px;
     }
 
+    .btn-medcom-blue {
+        --bs-btn-color: #ffffff;
+        --bs-btn-bg: #122c4f;
+        --bs-btn-border-color: #122c4f;
+        --bs-btn-hover-color: #ffffff;
+        --bs-btn-hover-bg: #0d2033; /* Darker blue on hover */
+        --bs-btn-hover-border-color: #0d2033;
+        --bs-btn-active-bg: #0a1829;
+        --bs-btn-active-border-color: #0a1829;
+    }
+
+    .text-medcom-blue {
+        color: #122c4f !important;
+    }
+
+    .bg-medcom-blue {
+        background-color: #122c4f !important;
+    }
+
     /* Bleed background to prevent white gap on scroll up */
     .shop-banner::before {
         content: "";
@@ -424,12 +443,24 @@
             <div class="tab-pane fade show active" id="products" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
-                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">Daftar Produk</h2>
-                        <p class="text-muted mb-0">Kelola stok dan informasi produk Anda</p>
+                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">Produk Toko</h2>
+                        <p class="text-muted mb-0">Kelola katalog produk yang Anda jual</p>
                     </div>
-                    <button class="btn-add-product" onclick="openTambahModal()">
-                        <i class="bi bi-plus-lg"></i> Tambah Produk Baru
-                    </button>
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="input-group" style="width: 300px;">
+                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                            <input type="text" id="search-produk-toko" class="form-control border-start-0" placeholder="Cari produk Anda...">
+                        </div>
+                        <select id="filter-kategori-toko" class="form-select" style="width: 200px;">
+                            <option value="">Semua Kategori</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat->judulKategori }}">{{ $cat->judulKategori }}</option>
+                            @endforeach
+                        </select>
+                        <button class="btn-add-product" onclick="openTambahModal()">
+                            <i class="bi bi-plus-lg"></i> Tambah Produk Baru
+                        </button>
+                    </div>
                 </div>
 
                 @if($toko->products->count() == 0)
@@ -444,14 +475,14 @@
                 @else
                     <div class="product-grid" id="produk-list">
                         @foreach($toko->products as $p)
-                        <div class="product-card" id="produk-{{ $p->id }}">
+                        <div class="product-card" id="produk-{{ $p->id }}" data-category="{{ $p->category->judulKategori ?? '' }}">
                             <div class="product-image-wrapper">
                                 <img src="{{ asset('storage/'.$p->imagePath) }}" 
                                      class="product-image" 
                                      alt="{{ $p->nama }}">
                             </div>
                             <div class="product-content">
-                                <span class="product-category">Sparepart</span>
+                                <span class="product-category">{{ $p->category->judulKategori ?? 'Sparepart' }}</span>
                                 <h3 class="product-title">{{ $p->nama }}</h3>
                                 <div class="d-flex justify-content-between align-items-end">
                                     <span class="product-price">Rp {{ number_format($p->harga, 0, ',', '.') }}</span>
@@ -556,6 +587,27 @@
                                         </td>
                                         <td class="pe-4 text-end">
                                             <div class="d-flex justify-content-end gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" 
+                                                        onclick="openDetailOrderModal({{ json_encode([
+                                                            'id' => $item->order->id,
+                                                            'user_name' => $item->order->user->name,
+                                                            'user_email' => $item->order->user->email,
+                                                            'nama_penerima' => $item->order->alamat->nama_penerima ?? $item->order->user->name,
+                                                            'nomor_penerima' => $item->order->alamat->nomor_penerima ?? '-',
+                                                            'alamat_lengkap' => $item->order->alamat->alamat ?? '-',
+                                                            'wilayah' => ($item->order->alamat->kecamatan ?? '').', '.($item->order->alamat->kota ?? '').', '.($item->order->alamat->provinsi ?? ''),
+                                                            'produk' => $item->nama_produk,
+                                                            'qty' => $item->qty,
+                                                            'harga' => $item->harga,
+                                                            'subtotal' => $item->subtotal,
+                                                            'ongkir' => $item->order->shipping_cost ?? 0,
+                                                            'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
+                                                            'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'status' => $item->order->status,
+                                                            'resi' => $item->order->nomor_resi ?? '-'
+                                                        ]) }})">
+                                                    Detail
+                                                </button>
                                                 @if($item->order->status === 'paid')
                                                     <form action="{{ route('toko.order.accept', $item->order->id) }}" method="POST" class="d-inline">
                                                         @csrf
@@ -584,9 +636,6 @@
                                                         Resi: <span class="fw-bold text-dark">{{ $item->order->nomor_resi }}</span>
                                                     </div>
                                                 @endif
-                                                <button class="btn btn-sm btn-light border rounded-pill px-3" onclick="alert('Detail pesanan #{{ $item->order->id }} akan segera hadir!')">
-                                                    Detail
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -686,9 +735,10 @@
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
                                 <select name="category_id" class="form-select" required>
-                                    <option value="1">Sparepart Mesin</option>
-                                    <option value="2">Sparepart Body</option>
-                                    <option value="3">Aksesoris</option>
+                                    <option value="">Pilih Kategori</option>
+                                    @foreach($categories as $cat)
+                                        <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="row">
@@ -743,8 +793,10 @@
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
                             <select id="editKategori" class="form-select" required>
-                                <option value="1">Sparepart Mesin</option>
-                                <option value="2">Sparepart Body</option>
+                                <option value="">Pilih Kategori</option>
+                                @foreach($categories as $cat)
+                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div class="row">
@@ -819,12 +871,85 @@
                 </div>
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Konfirmasi Kirim</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim Pesanan</button>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
+                </form>
+                </div>
+                </div>
+                </div>
+
+                {{-- Modal Detail Pesanan --}}
+                <div class="modal fade" id="modalDetailOrder" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-medcom-blue text-white p-4">
+                <h5 class="modal-title fw-bold">Detail Pesanan #<span id="detailId"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="p-3 bg-light rounded-3 mb-4">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-person-fill me-2"></i>Informasi Pembeli</h6>
+                            <p class="mb-1 fw-bold" id="detailUserName"></p>
+                            <p class="text-muted small mb-0" id="detailUserEmail"></p>
+                        </div>
+                        <div class="p-3 bg-light rounded-3">
+                            <h6 class="fw-bold text-primary mb-3"><i class="bi bi-geo-alt-fill me-2"></i>Alamat Pengiriman</h6>
+                            <p class="mb-1 fw-bold" id="detailNamaPenerima"></p>
+                            <p class="mb-1 small text-muted" id="detailNomorPenerima"></p>
+                            <p class="mb-2 small" id="detailAlamatLengkap"></p>
+                            <p class="small text-muted" id="detailWilayah"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded-3 h-100">
+                            <h6 class="fw-bold text-medcom-blue mb-3"><i class="bi bi-bag-check-fill me-2"></i>Informasi Produk & Pembayaran</h6>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Produk</span>
+                                <span class="fw-bold" id="detailProduk"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Harga Satuan</span>
+                                <span id="detailHarga"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Jumlah</span>
+                                <span id="detailQty"></span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Subtotal Produk</span>
+                                <span class="fw-bold" id="detailSubtotal"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Ongkos Kirim</span>
+                                <span class="fw-bold" id="detailOngkir"></span>
+                            </div>
+                            <div class="d-flex justify-content-between mt-3 p-2 bg-primary-subtle rounded">
+                                <span class="fw-bold">Total Pembayaran</span>
+                                <span class="fw-bold text-primary" id="detailTotal"></span>
+                            </div>
+                            <hr>
+                            <div class="mb-2">
+                                <span class="text-muted small d-block">Metode Pengiriman</span>
+                                <span class="fw-bold" id="detailKurir"></span>
+                            </div>
+                            <div class="mb-0">
+                                <span class="text-muted small d-block">Nomor Resi</span>
+                                <span class="badge bg-secondary" id="detailResi"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                <button type="button" class="btn btn-medcom-blue rounded-pill px-5" data-bs-dismiss="modal">Tutup</button>
+                </div>
+                </div>
+                </div>
+                </div>
+
 
 @endsection
 
@@ -833,6 +958,27 @@
 <script>
     const TOKO_ID = {{ $toko->id }};
     const STORE_PRODUCT_URL = "{{ route('product.store') }}";
+
+    function openDetailOrderModal(data) {
+        document.getElementById('detailId').textContent = data.id;
+        document.getElementById('detailUserName').textContent = data.user_name;
+        document.getElementById('detailUserEmail').textContent = data.user_email;
+        document.getElementById('detailNamaPenerima').textContent = data.nama_penerima;
+        document.getElementById('detailNomorPenerima').textContent = data.nomor_penerima;
+        document.getElementById('detailAlamatLengkap').textContent = data.alamat_lengkap;
+        document.getElementById('detailWilayah').textContent = data.wilayah;
+        document.getElementById('detailProduk').textContent = data.produk;
+        document.getElementById('detailHarga').textContent = 'Rp ' + data.harga.toLocaleString('id-ID');
+        document.getElementById('detailQty').textContent = data.qty + 'x';
+        document.getElementById('detailSubtotal').textContent = 'Rp ' + data.subtotal.toLocaleString('id-ID');
+        document.getElementById('detailOngkir').textContent = 'Rp ' + data.ongkir.toLocaleString('id-ID');
+        document.getElementById('detailTotal').textContent = 'Rp ' + data.total.toLocaleString('id-ID');
+        document.getElementById('detailKurir').textContent = data.kurir;
+        document.getElementById('detailResi').textContent = data.resi;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalDetailOrder'));
+        modal.show();
+    }
 
     function openShipModal(orderId) {
         const modal = new bootstrap.Modal(document.getElementById('modalShip'));
@@ -953,6 +1099,37 @@
                 history.replaceState(null, null, target);
             });
         });
+
+        // Search & Filter Produk Toko
+        const searchInputToko = document.getElementById('search-produk-toko');
+        const filterKategoriToko = document.getElementById('filter-kategori-toko');
+        const produkCards = document.querySelectorAll('.product-card');
+
+        function filterProdukToko() {
+            const searchTerm = searchInputToko.value.toLowerCase();
+            const selectedCategory = filterKategoriToko.value;
+
+            produkCards.forEach(card => {
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const productCategory = card.getAttribute('data-category');
+
+                const matchTitle = title.includes(searchTerm);
+                const matchCategory = selectedCategory === "" || productCategory === selectedCategory;
+
+                if (matchTitle && matchCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchInputToko) {
+            searchInputToko.addEventListener('input', filterProdukToko);
+        }
+        if (filterKategoriToko) {
+            filterKategoriToko.addEventListener('change', filterProdukToko);
+        }
     });
 </script>
 <script src="{{ asset('js/mengelolaProdukCRUD.js') }}"></script>
