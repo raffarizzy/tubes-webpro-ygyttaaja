@@ -74,7 +74,7 @@ class TokoController extends Controller
 
             $isOwner = true;
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner', 'categories'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@index: ' . $e->getMessage());
@@ -102,7 +102,7 @@ class TokoController extends Controller
 
             $isOwner = true;
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner', 'categories'));
         }
     }
 
@@ -149,7 +149,9 @@ class TokoController extends Controller
                     ->get();
             }
 
-            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner'));
+            $categories = \App\Models\Category::all();
+
+            return view('profil_toko', compact('toko', 'incomingOrders', 'successOrdersCount', 'averageRating', 'isOwner', 'categories'));
 
         } catch (\Exception $e) {
             Log::error('Error in TokoController@show: ' . $e->getMessage());
