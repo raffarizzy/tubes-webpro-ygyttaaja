@@ -26,48 +26,45 @@
 <body class="@yield('body-class') d-flex flex-column min-vh-100">
     <!-- NAVBAR -->
     <nav>
-        <img src="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" id="logo" alt="Logo Medcom" style="cursor:pointer; width: 35px; height: 35px;"
-            onclick="window.location.href='/'" />
+        <a href="{{ url('/') }}" class="navbar-brand">
+            <img src="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" id="logo" alt="Logo Medcom" />
+        </a>
 
-        <ul>
+        <ul class="nav-links">
             <li><a href="{{ url('/') }}">Beranda</a></li>
             <li class="nav-keranjang-wrapper">
                 <a href="{{ route('keranjang') }}">
                     Keranjang
                 </a>
             </li>
-
             <li><a href="{{ route('profil_toko') }}">Toko Saya</a></li>
-
-            <!-- PROFIL -->
-            <li>
-                <div id="profil">
-                    @auth
-                        <img src="{{ auth()->user()->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle"/>
-
-                        <a href="{{ route('profile.edit') }}" class="user-name-link">
-                            <span class="user-name">
-                                {{ auth()->user()->name }}
-                            </span>
-                        </a>
-
-                        <span class="nav-separator">|</span>
-
-                        <form method="POST" action="{{ route('logout') }}" style="display:inline"
-                            onsubmit="return confirm('Apakah Anda yakin ingin logout?')">
-                            @csrf
-                            <button type="submit" class="btn-logout">
-                                Logout
-                            </button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="login-link">
-                            Login
-                        </a>
-                    @endauth
-                </div>
-            </li>
         </ul>
+
+        <!-- PROFIL -->
+        <div id="profil" class="d-flex align-items-center">
+            @auth
+                <a href="{{ route('profile.edit') }}" class="user-name-link d-flex align-items-center gap-2 text-decoration-none">
+                    <img src="{{ auth()->user()->pfpPath }}" id="iconPengguna" alt="User Icon" class="rounded-circle border border-white" style="width: 32px; height: 32px; object-fit: cover;"/>
+                    <span class="user-name">
+                        {{ auth()->user()->name }}
+                    </span>
+                </a>
+
+                <span class="nav-separator">|</span>
+
+                <form method="POST" action="{{ route('logout') }}" style="display:inline"
+                    onsubmit="return confirm('Apakah Anda yakin ingin logout?')">
+                    @csrf
+                    <button type="submit" class="btn-logout">
+                        Logout
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="login-link">
+                    Login
+                </a>
+            @endauth
+        </div>
     </nav>
 
     <!-- MAIN CONTENT -->

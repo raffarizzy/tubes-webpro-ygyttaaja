@@ -31,9 +31,9 @@ nav {
 
 /* Logo */
 #logo {
-    width: 40px;
     height: 40px;
-    cursor: pointer;
+    width: auto;
+    display: block;
     transition: transform 0.3s ease;
 }
 
@@ -42,7 +42,7 @@ nav {
 }
 
 /* Menu List */
-nav ul {
+.nav-links {
     list-style: none;
     display: flex;
     gap: 32px;
@@ -51,11 +51,11 @@ nav ul {
     align-items: center;
 }
 
-nav ul li {
+.nav-links li {
     position: relative;
 }
 
-nav ul li a {
+.nav-links li a {
     color: #ffffff;
     text-decoration: none;
     font-weight: 500;
@@ -65,8 +65,8 @@ nav ul li a {
     gap: 5px;
 }
 
-nav ul li a:hover,
-nav ul li a.active {
+.nav-links li a:hover,
+.nav-links li a.active {
     color: #ffc107;
 }
 
@@ -193,26 +193,52 @@ nav ul li a.active {
 
 @media (max-width: 768px) {
     nav {
+        flex-direction: row;
         flex-wrap: wrap;
         height: auto;
         padding: 10px 15px;
+        justify-content: space-between;
     }
 
-    nav ul {
-        width: 100%;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 10px;
-        flex-wrap: wrap;
+    .navbar-brand {
+        order: 1;
+    }
+
+    #logo {
+        height: 30px; /* Diperkecil sesuai permintaan */
     }
 
     #profil {
+        order: 2;
         margin-left: 0;
+        width: auto;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        padding: 0;
         margin-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+        padding-top: 10px;
     }
 
     .user-name {
-        display: none; /* Hide name on mobile, only show icon */
+        display: none; /* Tetap sembunyikan nama di mobile agar muat sebaris */
+    }
+
+    .nav-separator {
+        display: none;
+    }
+
+    .btn-logout {
+        padding: 4px 8px;
+        font-size: 0.75em;
     }
 }
 
