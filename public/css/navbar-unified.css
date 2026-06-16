@@ -244,7 +244,20 @@ nav ul li a.active {
 footer {
     background-color: #122C4F;
     color: white;
-    text-align: center;
-    padding: 15px;
+    padding: 25px 0;
     margin-top: 40px;
 }
+
+.medcomLogos ul {
+    list-style: none;
+    padding: 0;
+}
+
+.medcomLogos li {
+    transition: transform 0.2s ease;
+}
+
+.medcomLogos li:hover {
+    transform: scale(1.1);
+}
+
