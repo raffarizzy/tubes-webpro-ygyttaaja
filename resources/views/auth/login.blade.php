@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Login - Medcom</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png">
 
     <!-- Bootstrap 5 -->
     <link
@@ -21,7 +22,7 @@
 
 <div class="card shadow-sm p-4" style="width: 380px;">
     <div class="text-center mb-4">
-        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png"
+        <img src="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png"
              alt="Logo"
              width="70"
              class="mb-2">

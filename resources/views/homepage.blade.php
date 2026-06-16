@@ -10,7 +10,7 @@
     <!-- Hero -->
     <section class="hero">
         <h1>Selamat Datang di <span>Medcom</span></h1>
-        <p>Tempat terbaik untuk mencari suku cadang kendaraan Anda!</p>
+        <p>Down to Earth Component Solution</p>
         <button id="scroll-produk">Jelajahi Produk</button>
     </section>
 
