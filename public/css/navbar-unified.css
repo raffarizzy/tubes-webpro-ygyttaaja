@@ -193,27 +193,39 @@ nav {
 
 @media (max-width: 768px) {
     nav {
-        flex-direction: row;
-        flex-wrap: wrap;
+        display: flex;
+        flex-flow: row wrap;
         height: auto;
-        padding: 10px 15px;
+        padding: 10px 12px;
         justify-content: space-between;
+        align-items: center;
+        width: 100%;
     }
 
     .navbar-brand {
         order: 1;
+        flex: 0 1 auto;
+        max-width: 45%; 
+        display: flex;
+        align-items: center;
+        min-width: 0;
     }
 
     #logo {
-        height: 30px; /* Diperkecil sesuai permintaan */
+        height: 26px; 
+        width: auto;
+        max-width: 100%;
+        object-fit: contain;
     }
 
     #profil {
         order: 2;
-        margin-left: 0;
-        width: auto;
-        justify-content: flex-end;
-        gap: 10px;
+        margin-left: auto; /* Memastikan nempel ke kanan */
+        flex: 0 0 auto; 
+        display: flex;
+        align-items: center;
+        gap: 6px; /* Mengecilkan gap untuk Safari */
+        flex-wrap: nowrap;
     }
 
     .nav-links {
@@ -310,4 +322,3 @@ footer {
 .medcomLogos li:hover {
     transform: scale(1.1);
 }
-
