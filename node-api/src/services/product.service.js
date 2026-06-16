@@ -27,7 +27,7 @@ exports.getById = async (id) => {
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN categories c ON p.category_id = c.id
-     WHERE p.id = ?`,
+     WHERE p.id = ? AND p.deleted_at IS NULL`,
     [id]
   );
 
@@ -59,6 +59,7 @@ exports.getAll = async (limit = 20, offset = 0) => {
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN categories c ON p.category_id = c.id
+     WHERE p.deleted_at IS NULL
      ORDER BY p.created_at DESC
      LIMIT ? OFFSET ?`,
     [parseInt(limit), parseInt(offset)]
@@ -89,7 +90,7 @@ exports.getByToko = async (tokoId) => {
      LEFT JOIN categories c ON p.category_id = c.id
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN users u ON t.user_id = u.id
-     WHERE p.toko_id = ?
+     WHERE p.toko_id = ? AND p.deleted_at IS NULL
      ORDER BY p.created_at DESC`,
     [tokoId]
   );
@@ -118,7 +119,7 @@ exports.getByCategory = async (categoryId) => {
      FROM products p
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN users u ON t.user_id = u.id
-     WHERE p.category_id = ?
+     WHERE p.category_id = ? AND p.deleted_at IS NULL
      ORDER BY p.created_at DESC`,
     [categoryId]
   );
@@ -171,7 +172,7 @@ exports.create = async (data) => {
 exports.update = async (id, data) => {
   // Cek dulu apakah product ada
   const [rows] = await db.query(
-    'SELECT * FROM products WHERE id = ?',
+    'SELECT * FROM products WHERE id = ? AND deleted_at IS NULL',
     [id]
   );
 
@@ -196,7 +197,7 @@ exports.update = async (id, data) => {
 
   await db.query(
     `UPDATE products
-     SET toko_id=?, category_id=?, nama=?, deskripsi=?, harga=?, diskon=?, stok=?, berat=?, imagePath=?
+     SET toko_id=?, category_id=?, nama=?, deskripsi=?, harga=?, diskon=?, stok=?, berat=?, imagePath=?, updated_at=NOW()
      WHERE id=?`,
     [
       updated.toko_id,
@@ -216,12 +217,12 @@ exports.update = async (id, data) => {
 };
 
 /**
- * Delete product
+ * Delete product (Soft Delete)
  */
 exports.delete = async (id) => {
   // Cek dulu apakah product ada
   const [rows] = await db.query(
-    'SELECT id FROM products WHERE id = ?',
+    'SELECT id FROM products WHERE id = ? AND deleted_at IS NULL',
     [id]
   );
 
@@ -229,7 +230,14 @@ exports.delete = async (id) => {
     throw new Error('Produk tidak ditemukan');
   }
 
-  await db.query('DELETE FROM products WHERE id = ?', [id]);
+  // 1. Hapus dari semua keranjang (Hard Delete dari keranjang karena produk sudah tidak tersedia)
+  await db.query('DELETE FROM barang_keranjangs WHERE product_id = ?', [id]);
+
+  // 2. Hapus rating terkait (Opsional, tapi biasanya ikut hilang jika produk tidak ada)
+  await db.query('DELETE FROM ratings WHERE product_id = ?', [id]);
+
+  // 3. Soft Delete produk: Set deleted_at saja agar Order History aman
+  await db.query('UPDATE products SET deleted_at = NOW() WHERE id = ?', [id]);
 
   return { message: 'Produk berhasil dihapus' };
 };
