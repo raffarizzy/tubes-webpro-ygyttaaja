@@ -61,6 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 <h3>${item.product.nama}</h3>
                 <p class="deskripsi">${item.product.deskripsi || ""}</p>
                 <p class="harga">${formatRupiah(item.harga)}</p>
+                <p class="berat" style="font-size: 0.8em; color: #666; margin: 4px 0 0 0;">Berat: ${item.product.berat || 1000} gram</p>
             </div>
 
             <!-- Quantity Controls -->

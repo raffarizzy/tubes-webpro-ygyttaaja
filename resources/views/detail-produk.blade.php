@@ -53,7 +53,11 @@
       <!-- GAMBAR PRODUK -->
       <div class="col-md-6 d-flex justify-content-center align-items-center">
           @php
-            $imagePath = $product->imagePath ?? '/img/iconOli.png';
+            $imagePath = $product->imagePath ?? 'produk/default.png';
+            if (!$imagePath) {
+                $imagePath = 'produk/default.png';
+            }
+
             if (!str_starts_with($imagePath, 'http')) {
               if (str_starts_with($imagePath, '/storage/')) {
               } elseif (str_starts_with($imagePath, 'storage/')) {
@@ -96,6 +100,7 @@
         </div>
 
         <p><strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> Tersedia</p>
+        <p><strong>Berat:</strong> <span id="product-berat">{{ $product->berat ?? 1000 }}</span> Gram</p>
 
         <!-- Quantity -->
         <div class="p-3 bg-body-secondary rounded">
@@ -146,7 +151,12 @@
             </div>
 
             <div>
-              <p id="toko-nama" class="fw-bold color-medcom m-0">{{ $product->toko->nama_toko ?? '-' }}</p>
+              <p id="toko-nama" class="fw-bold color-medcom m-0 d-flex align-items-center gap-1">
+                {{ $product->toko->nama_toko ?? '-' }}
+                @if($product->toko->is_verified_seller)
+                  <i class="bi bi-patch-check-fill text-primary" style="font-size: 0.9rem;" title="Verified Seller"></i>
+                @endif
+              </p>
               <p id="toko-lokasi" class="text-muted small m-0">
                 <i class="bi bi-geo-alt-fill me-1"></i>{{ $product->toko->lokasi ?? '-' }}
               </p>
@@ -245,6 +255,7 @@
         'nama' => $product->nama,
         'harga' => $product->harga,
         'stok' => $product->stok,
+        'berat' => $product->berat ?? 1000,
         'imagePath' => $imagePath,
         'deskripsi' => $product->deskripsi,
       ];

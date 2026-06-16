@@ -43,11 +43,20 @@ class ProductController extends Controller
                 
                 // Reconstruct toko & category as objects
                 if (isset($product->nama_toko)) {
+                    $isVerified = $product->is_verified_seller ?? null;
+                    
+                    // If missing from API, try to check DB
+                    if ($isVerified === null && isset($product->toko_id)) {
+                        $dbToko = \App\Models\Toko::with('user')->find($product->toko_id);
+                        $isVerified = $dbToko->user->is_verified_seller ?? false;
+                    }
+
                     $product->toko = (object) [
                         'id' => $product->toko_id ?? null,
                         'nama_toko' => $product->nama_toko,
                         'lokasi' => $product->toko_lokasi ?? null,
                         'logo_path' => $product->toko_logo ?? null,
+                        'is_verified_seller' => $isVerified ?? false,
                     ];
                 }
                 
@@ -78,10 +87,15 @@ class ProductController extends Controller
             Log::error("Error in ProductController@show: " . $e->getMessage());
             
             // Fallback ke Eloquent
-            $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+            $product = \App\Models\Product::with(['toko.user', 'category'])->find($id);
             
             if (!$product) {
                 abort(404, 'Product not found');
+            }
+
+            // Ensure is_verified_seller exists on the toko object
+            if ($product->toko) {
+                $product->toko->is_verified_seller = $product->toko->user->is_verified_seller ?? false;
             }
 
             $ratings = \App\Models\Rating::with('user')
@@ -107,11 +121,12 @@ class ProductController extends Controller
                 'category_id' => 'required|integer',
                 'harga' => 'required|numeric',
                 'stok' => 'required|integer',
+                'berat' => 'required|integer|min:1',
                 'deskripsi' => 'required|string',
-                'image' => 'required|image|mimes:jpg,jpeg,png,webp'
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp'
             ]);
 
-            $imagePath = null;
+            $imagePath = 'produk/default.png'; // Set default image
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $filename = hexdec(uniqid()) . '.webp';
@@ -148,6 +163,7 @@ class ProductController extends Controller
                 'nama' => $request->nama,
                 'harga' => $request->harga,
                 'stok' => $request->stok,
+                'berat' => $request->berat,
                 'deskripsi' => $request->deskripsi,
                 'imagePath' => $imagePath,
                 'diskon' => $request->diskon ?? 0
@@ -174,6 +190,131 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
+            ]);
+            }
+            }
+
+            /**
+            * IMPORT BULK dari JSON (Preview Modal)
+            */
+            public function importBulk(Request $request)
+            {
+            try {
+            $request->validate([
+                'products' => 'required|array',
+                'products.*.nama' => 'required|string',
+                'products.*.category_id' => 'required',
+                'products.*.harga' => 'required|numeric',
+                'products.*.stok' => 'required|integer',
+                'products.*.berat' => 'required|integer',
+                'products.*.deskripsi' => 'nullable|string'
+            ]);
+
+            $tokoId = auth()->user()->toko->id ?? null;
+            if (!$tokoId) {
+                return response()->json(['success' => false, 'message' => 'User belum memiliki toko'], 400);
+            }
+
+            $apiUrl = config('services.node_api.url') . '/api/products';
+            $successCount = 0;
+            $errors = [];
+
+            foreach ($request->products as $p) {
+                $response = Http::timeout(5)->post($apiUrl, [
+                    'toko_id' => $tokoId,
+                    'category_id' => $p['category_id'],
+                    'nama' => $p['nama'],
+                    'harga' => $p['harga'],
+                    'stok' => $p['stok'],
+                    'berat' => $p['berat'],
+                    'deskripsi' => $p['deskripsi'] ?? '',
+                    'imagePath' => 'produk/default.png',
+                    'diskon' => 0
+                ]);
+
+                if ($response->successful()) {
+                    $successCount++;
+                } else {
+                    $errors[] = "Gagal mengimpor '{$p['nama']}': " . ($response->json('message') ?? 'Error API');
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'count' => $successCount,
+                'errors' => $errors
+            ]);
+
+            } catch (\Exception $e) {
+            Log::error("Bulk Import Error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses impor: ' . $e->getMessage()
+            ], 500);
+            }
+            }
+
+            /**
+            * IMPORT produk via CSV
+            */
+    public function import(Request $request)
+    {
+        try {
+            $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt'
+            ]);
+
+            $file = $request->file('csv_file');
+            $handle = fopen($file->getRealPath(), 'r');
+            
+            // Skip header
+            $header = fgetcsv($handle, 1000, ',');
+            
+            $tokoId = auth()->user()->toko->id ?? null;
+            if (!$tokoId) {
+                return response()->json(['success' => false, 'message' => 'User belum memiliki toko'], 400);
+            }
+
+            $apiUrl = config('services.node_api.url') . '/api/products';
+            $successCount = 0;
+            $errors = [];
+
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+                // Mapping: 0: nama, 1: category_id, 2: harga, 3: stok, 4: berat, 5: deskripsi
+                if (count($data) < 6) continue;
+
+                $response = Http::timeout(5)->post($apiUrl, [
+                    'toko_id' => $tokoId,
+                    'category_id' => $data[1],
+                    'nama' => $data[0],
+                    'harga' => $data[2],
+                    'stok' => $data[3],
+                    'berat' => $data[4],
+                    'deskripsi' => $data[5],
+                    'imagePath' => 'produk/default.png',
+                    'diskon' => 0
+                ]);
+
+                if ($response->successful()) {
+                    $successCount++;
+                } else {
+                    $errors[] = "Gagal mengimpor '{$data[0]}': " . ($response->json('message') ?? 'Error API');
+                }
+            }
+
+            fclose($handle);
+
+            return response()->json([
+                'success' => true,
+                'count' => $successCount,
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("CSV Import Error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengimpor file: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -185,7 +326,7 @@ class ProductController extends Controller
     {
         try {
             $data = $request->only([
-                'nama', 'harga', 'stok', 'deskripsi', 'category_id', 'diskon'
+                'nama', 'harga', 'stok', 'berat', 'deskripsi', 'category_id', 'diskon'
             ]);
 
             if ($request->hasFile('image')) {

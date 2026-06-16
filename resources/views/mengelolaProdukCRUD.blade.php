@@ -21,21 +21,26 @@
         <form id="productForm" onsubmit="tambahProduk(event)">
           <div class="form-group">
             <label>Nama Produk *</label>
-            <input type="text" id="namaProduk" required />
+            <input type="text" id="namaProduk" name="nama" required />
           </div>
           <div class="form-group">
             <label>Harga (Rp) *</label>
-            <input type="number" id="hargaProduk" required min="0" />
+            <input type="number" id="hargaProduk" name="harga" required min="0" />
           </div>
           <div class="form-group">
             <label>Stok *</label>
-            <input type="number" id="stokProduk" required min="0" value="10" />
+            <input type="number" id="stokProduk" name="stok" required min="0" value="10" />
+          </div>
+          <div class="form-group">
+            <label>Berat (Gram) *</label>
+            <input type="number" id="beratProduk" name="berat" required min="1" value="1000" />
           </div>
           <div class="form-group">
             <label>Kategori *</label>
             <input
               type="text"
               id="kategoriProduk"
+              name="category_id"
               required
               placeholder="Contoh: Otomotif"
             />
@@ -44,18 +49,19 @@
             <label>Deskripsi</label>
             <textarea
               id="deskripsiProduk"
+              name="deskripsi"
               placeholder="Deskripsi produk (opsional)"
             ></textarea>
           </div>
           <div class="form-group">
-            <label>Upload Gambar *</label>
+            <label>Upload Gambar</label>
             <input
               type="file"
               id="imageProduk"
+              name="image"
               accept="image/jpeg,image/jpg,image/png"
-              required
             />
-            <small style="color: #666;">Format: JPG, JPEG, PNG</small>
+            <small style="color: #666;">Format: JPG, JPEG, PNG (Opsional)</small>
           </div>
           <div class="form-group" style="display: none;">
             <label>Toko ID</label>

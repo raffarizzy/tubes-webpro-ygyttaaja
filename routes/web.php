@@ -120,6 +120,7 @@ Route::middleware('auth')->group(function () {
     // TOKO MANAGEMENT
     // ============================================
     Route::get('/toko', [TokoController::class, 'index'])->name('profil_toko');
+    Route::get('/toko/verify', [TokoController::class, 'verify'])->name('toko.verify');
     Route::get('/toko/{id}', [TokoController::class, 'show'])->name('toko.show');
     Route::get('/toko/create', [TokoController::class, 'create'])->name('toko.create');
     Route::post('/toko', [TokoController::class, 'store'])->name('toko.store');
@@ -134,6 +135,8 @@ Route::middleware('auth')->group(function () {
     // PRODUCT MANAGEMENT (Oleh Penjual)
     // ============================================
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+    Route::post('/product/import', [ProductController::class, 'import'])->name('product.import');
+    Route::post('/product/import-bulk', [ProductController::class, 'importBulk'])->name('product.import.bulk');
     Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 

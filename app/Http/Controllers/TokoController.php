@@ -25,6 +25,11 @@ class TokoController extends Controller
      */
     public function index()
     {
+        // Cek apakah user sudah terverifikasi sebagai penjual
+        if (!auth()->user()->is_verified_seller) {
+            return redirect()->route('toko.verify');
+        }
+
         try {
             // Panggil Node.js API untuk cek apakah user punya toko
             $response = Http::withHeaders([
@@ -53,6 +58,11 @@ class TokoController extends Controller
 
             $toko = $tokoResponse->json()['data'];
             $toko = (object) $toko;
+            
+            // Ensure is_verified_seller exists
+            if (!isset($toko->is_verified_seller)) {
+                $toko->is_verified_seller = auth()->user()->is_verified_seller;
+            }
 
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
@@ -80,11 +90,13 @@ class TokoController extends Controller
             Log::error('Error in TokoController@index: ' . $e->getMessage());
             
             // Fallback ke database Laravel jika API error
-            $toko = Toko::where('user_id', auth()->id())->first();
+            $toko = Toko::with('user')->where('user_id', auth()->id())->first();
 
             if (!$toko) {
                 return redirect()->route('toko.create');
             }
+
+            $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
 
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
             $productIds = $toko->products->pluck('id');
@@ -117,13 +129,24 @@ class TokoController extends Controller
             
             if (!$tokoResponse->successful()) {
                 // Fallback ke Eloquent
-                $toko = Toko::find($id);
+                $toko = Toko::with('user')->find($id);
             } else {
                 $toko = (object) $tokoResponse->json()['data'];
             }
 
             if (!$toko) {
                 abort(404, 'Toko tidak ditemukan');
+            }
+
+            // Ensure is_verified_seller exists
+            if (!isset($toko->is_verified_seller)) {
+                if ($toko instanceof \App\Models\Toko) {
+                    $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
+                } else {
+                    // If it's stdClass from API but missing the property, try to find in DB
+                    $dbToko = Toko::with('user')->find($toko->id);
+                    $toko->is_verified_seller = $dbToko->user->is_verified_seller ?? false;
+                }
             }
 
             // Ambil produk toko
@@ -160,10 +183,28 @@ class TokoController extends Controller
     }
 
     /**
+     * Show verification instructions page
+     */
+    public function verify()
+    {
+        // Jika sudah terverifikasi, alihkan ke profil toko
+        if (auth()->user()->is_verified_seller) {
+            return redirect()->route('profil_toko');
+        }
+
+        return view('toko.verify-wa');
+    }
+
+    /**
      * Show create toko form
      */
     public function create()
     {
+        // Cek apakah user sudah terverifikasi sebagai penjual
+        if (!auth()->user()->is_verified_seller) {
+            return redirect()->route('toko.verify');
+        }
+
         // Cek dulu apakah user sudah punya toko (dari API)
         try {
             $response = Http::withHeaders([
@@ -190,6 +231,11 @@ class TokoController extends Controller
      */
     public function store(Request $request)
     {
+        // Proteksi jika ada yang mencoba menembak API langsung
+        if (!auth()->user()->is_verified_seller) {
+            return response()->json(['success' => false, 'message' => 'Akun Anda belum terverifikasi sebagai penjual.'], 403);
+        }
+
         $request->validate([
             'nama_toko' => 'required|string|max:255',
             'deskripsi_toko' => 'required|string',
@@ -197,6 +243,7 @@ class TokoController extends Controller
             'provinsi' => 'required|string',
             'kota' => 'required|string',
             'kecamatan' => 'required|string',
+            'kode_pos' => 'required|string|max:10',
             'kode_wilayah' => 'required|string',
             'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp'
         ]);
@@ -249,6 +296,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
@@ -306,6 +354,7 @@ class TokoController extends Controller
                 'provinsi' => 'required|string',
                 'kota' => 'required|string',
                 'kecamatan' => 'required|string',
+                'kode_pos' => 'required|string|max:10',
                 'kode_wilayah' => 'required|string',
                 'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp'
             ]);
@@ -351,6 +400,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
@@ -363,6 +413,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ];

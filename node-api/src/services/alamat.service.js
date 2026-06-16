@@ -13,6 +13,7 @@ exports.getUserAlamat = async (userId) => {
             provinsi,
             kota,
             kecamatan,
+            kode_pos,
             kode_wilayah,
             nama_penerima,
             nomor_penerima,
@@ -42,6 +43,7 @@ exports.getAlamatById = async (alamatId) => {
             provinsi,
             kota,
             kecamatan,
+            kode_pos,
             kode_wilayah,
             nama_penerima,
             nomor_penerima,
@@ -75,6 +77,7 @@ exports.createAlamat = async (userId, data) => {
             provinsi,
             kota,
             kecamatan,
+            kode_pos,
             kode_wilayah,
             nama_penerima,
             nomor_penerima,
@@ -114,14 +117,15 @@ exports.createAlamat = async (userId, data) => {
         // Insert new alamat
         const [result] = await connection.query(
             `INSERT INTO alamats 
-            (user_id, alamat, provinsi, kota, kecamatan, kode_wilayah, nama_penerima, nomor_penerima, is_default, created_at, updated_at) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (user_id, alamat, provinsi, kota, kecamatan, kode_pos, kode_wilayah, nama_penerima, nomor_penerima, is_default, created_at, updated_at) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 userId,
                 alamat,
                 provinsi || null,
                 kota || null,
                 kecamatan || null,
+                kode_pos || null,
                 kode_wilayah || null,
                 nama_penerima,
                 nomor_penerima,
@@ -176,6 +180,7 @@ exports.updateAlamat = async (alamatId, userId, data) => {
             provinsi,
             kota,
             kecamatan,
+            kode_pos,
             kode_wilayah,
             nama_penerima,
             nomor_penerima,
@@ -221,6 +226,7 @@ exports.updateAlamat = async (alamatId, userId, data) => {
                 provinsi = ?,
                 kota = ?,
                 kecamatan = ?,
+                kode_pos = ?,
                 kode_wilayah = ?,
                 nama_penerima = ?, 
                 nomor_penerima = ?, 
@@ -232,6 +238,7 @@ exports.updateAlamat = async (alamatId, userId, data) => {
                 provinsi || null,
                 kota || null,
                 kecamatan || null,
+                kode_pos || null,
                 kode_wilayah || null,
                 nama_penerima,
                 nomor_penerima,

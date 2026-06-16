@@ -80,6 +80,16 @@
                         </div>
                       </div>
                       <div class="mb-2">
+                        <label for="kodePosInput" class="form-label small mb-1">Kode Pos</label>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          id="kodePosInput"
+                          placeholder="Contoh: 12345"
+                          maxlength="10"
+                        />
+                      </div>
+                      <div class="mb-2">
                         <label for="alamatInput" class="form-label small mb-1"
                           >Alamat Lengkap</label
                         >

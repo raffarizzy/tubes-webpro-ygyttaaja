@@ -78,7 +78,7 @@ exports.create = async (req, res) => {
     console.log('BODY RECEIVED:', JSON.stringify(req.body, null, 2));
 
     // Validasi input yang lebih informatif
-    const requiredFields = ['toko_id', 'category_id', 'nama', 'deskripsi', 'harga', 'stok', 'imagePath'];
+    const requiredFields = ['toko_id', 'category_id', 'nama', 'deskripsi', 'harga', 'stok'];
     const missingFields = requiredFields.filter(field => !req.body[field]);
 
     if (missingFields.length > 0) {

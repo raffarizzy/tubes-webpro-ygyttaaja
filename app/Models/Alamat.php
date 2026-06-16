@@ -12,6 +12,7 @@ class Alamat extends Model
         'provinsi',
         'kota',
         'kecamatan',
+        'kode_pos',
         'kode_wilayah',
         'is_default', // UBAH DARI isDefault
         'nama_penerima',

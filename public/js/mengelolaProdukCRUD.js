@@ -21,12 +21,14 @@ function openTambahModal() {
     ).show();
 }
 
-function openEditModal(id, nama, harga, stok, imagePath, deskripsi) {
+function openEditModal(id, nama, harga, stok, imagePath, deskripsi, berat, categoryId) {
     // Deklarasi variabel dengan getElementById
     const editId = document.getElementById('editId');
     const editNama = document.getElementById('editNama');
+    const editKategori = document.getElementById('editKategori');
     const editHarga = document.getElementById('editHarga');
     const editStok = document.getElementById('editStok');
+    const editBerat = document.getElementById('editBerat');
     const editDeskripsi = document.getElementById('editDeskripsi');
     const previewEditGambar = document.getElementById('previewEditGambar');
     const modalEdit = document.getElementById('modalEdit');
@@ -34,8 +36,10 @@ function openEditModal(id, nama, harga, stok, imagePath, deskripsi) {
     // Set nilai
     editId.value = id;
     editNama.value = nama;
+    if (editKategori) editKategori.value = categoryId || '';
     editHarga.value = harga;
     editStok.value = stok;
+    if (editBerat) editBerat.value = berat || 1000;
     if (editDeskripsi) editDeskripsi.value = deskripsi || '';
 
     // Set preview gambar
@@ -89,6 +93,34 @@ function simpanProduk() {
     });
 }
 
+function tambahProduk(event) {
+    if (event) event.preventDefault();
+    const form = document.getElementById('productForm');
+    const formData = new FormData(form);
+
+    fetch('/product', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(res => {
+        if (res.success) {
+            alert('Produk berhasil ditambahkan');
+            location.reload();
+        } else {
+            alert(res.message ?? 'Gagal menyimpan produk');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Server error');
+    });
+}
+
 
 // UPDATE
 function updateProduk() {
@@ -97,6 +129,7 @@ function updateProduk() {
     const editKategori = document.getElementById('editKategori');
     const editHarga = document.getElementById('editHarga');
     const editStok = document.getElementById('editStok');
+    const editBerat = document.getElementById('editBerat');
     const editDeskripsi = document.getElementById('editDeskripsi');
     const editGambar = document.getElementById('editGambar');
     
@@ -107,6 +140,7 @@ function updateProduk() {
     fd.append('category_id', editKategori.value);
     fd.append('harga', editHarga.value);
     fd.append('stok', editStok.value);
+    fd.append('berat', editBerat ? editBerat.value : 1000);
     fd.append('deskripsi', editDeskripsi.value);
     
     // Tambahkan gambar jika ada file baru yang dipilih
