@@ -43,11 +43,20 @@ class ProductController extends Controller
                 
                 // Reconstruct toko & category as objects
                 if (isset($product->nama_toko)) {
+                    $isVerified = $product->is_verified_seller ?? null;
+                    
+                    // If missing from API, try to check DB
+                    if ($isVerified === null && isset($product->toko_id)) {
+                        $dbToko = \App\Models\Toko::with('user')->find($product->toko_id);
+                        $isVerified = $dbToko->user->is_verified_seller ?? false;
+                    }
+
                     $product->toko = (object) [
                         'id' => $product->toko_id ?? null,
                         'nama_toko' => $product->nama_toko,
                         'lokasi' => $product->toko_lokasi ?? null,
                         'logo_path' => $product->toko_logo ?? null,
+                        'is_verified_seller' => $isVerified ?? false,
                     ];
                 }
                 
@@ -78,10 +87,15 @@ class ProductController extends Controller
             Log::error("Error in ProductController@show: " . $e->getMessage());
             
             // Fallback ke Eloquent
-            $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+            $product = \App\Models\Product::with(['toko.user', 'category'])->find($id);
             
             if (!$product) {
                 abort(404, 'Product not found');
+            }
+
+            // Ensure is_verified_seller exists on the toko object
+            if ($product->toko) {
+                $product->toko->is_verified_seller = $product->toko->user->is_verified_seller ?? false;
             }
 
             $ratings = \App\Models\Rating::with('user')
@@ -109,10 +123,10 @@ class ProductController extends Controller
                 'stok' => 'required|integer',
                 'berat' => 'required|integer|min:1',
                 'deskripsi' => 'required|string',
-                'image' => 'required|image|mimes:jpg,jpeg,png,webp'
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp'
             ]);
 
-            $imagePath = null;
+            $imagePath = 'produk/default.png'; // Set default image
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
                 $filename = hexdec(uniqid()) . '.webp';

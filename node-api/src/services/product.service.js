@@ -18,12 +18,14 @@ exports.getById = async (id) => {
         t.nama_toko,
         t.lokasi AS toko_lokasi,
         t.logo_path AS toko_logo,
+        u.is_verified_seller,
         p.category_id,
         c.judulKategori AS category_nama,
         p.created_at,
         p.updated_at
      FROM products p
      LEFT JOIN tokos t ON p.toko_id = t.id
+     LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN categories c ON p.category_id = c.id
      WHERE p.id = ?`,
     [id]
@@ -50,10 +52,12 @@ exports.getAll = async (limit = 20, offset = 0) => {
         t.nama_toko,
         t.lokasi AS toko_lokasi,
         t.logo_path AS toko_logo,
+        u.is_verified_seller,
         p.category_id,
         c.judulKategori AS category_nama
      FROM products p
      LEFT JOIN tokos t ON p.toko_id = t.id
+     LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN categories c ON p.category_id = c.id
      ORDER BY p.created_at DESC
      LIMIT ? OFFSET ?`,
@@ -79,9 +83,12 @@ exports.getByToko = async (tokoId) => {
         p.imagePath,
         p.category_id,
         c.judulKategori AS category_nama,
+        u.is_verified_seller,
         p.created_at
      FROM products p
      LEFT JOIN categories c ON p.category_id = c.id
+     LEFT JOIN tokos t ON p.toko_id = t.id
+     LEFT JOIN users u ON t.user_id = u.id
      WHERE p.toko_id = ?
      ORDER BY p.created_at DESC`,
     [tokoId]
@@ -106,9 +113,11 @@ exports.getByCategory = async (categoryId) => {
         p.imagePath,
         p.toko_id,
         t.nama_toko,
+        u.is_verified_seller,
         p.created_at
      FROM products p
      LEFT JOIN tokos t ON p.toko_id = t.id
+     LEFT JOIN users u ON t.user_id = u.id
      WHERE p.category_id = ?
      ORDER BY p.created_at DESC`,
     [categoryId]

@@ -31,21 +31,23 @@ exports.checkUserHasToko = async (userId) => {
 exports.getByUserId = async (userId) => {
   const [rows] = await db.query(
     `SELECT 
-      id,
-      user_id,
-      nama_toko,
-      deskripsi_toko,
-      lokasi,
-      provinsi,
-      kota,
-      kecamatan,
-      kode_pos,
-      kode_wilayah,
-      logo_path,
-      created_at,
-      updated_at
-     FROM tokos 
-     WHERE user_id = ?`,
+      t.id,
+      t.user_id,
+      t.nama_toko,
+      t.deskripsi_toko,
+      t.lokasi,
+      t.provinsi,
+      t.kota,
+      t.kecamatan,
+      t.kode_pos,
+      t.kode_wilayah,
+      t.logo_path,
+      t.created_at,
+      t.updated_at,
+      u.is_verified_seller
+     FROM tokos t
+     JOIN users u ON t.user_id = u.id
+     WHERE t.user_id = ?`,
     [userId]
   );
   
@@ -58,19 +60,21 @@ exports.getByUserId = async (userId) => {
 exports.getById = async (tokoId) => {
   const [rows] = await db.query(
     `SELECT 
-      id,
-      user_id,
-      nama_toko,
-      deskripsi_toko,
-      lokasi,
-      kota,
-      kecamatan,
-      kode_pos,
-      kode_wilayah,
-      logo_path,
-      created_at
-     FROM tokos 
-     WHERE id = ?`,
+      t.id,
+      t.user_id,
+      t.nama_toko,
+      t.deskripsi_toko,
+      t.lokasi,
+      t.kota,
+      t.kecamatan,
+      t.kode_pos,
+      t.kode_wilayah,
+      t.logo_path,
+      t.created_at,
+      u.is_verified_seller
+     FROM tokos t
+     JOIN users u ON t.user_id = u.id
+     WHERE t.id = ?`,
     [tokoId]
   );
   

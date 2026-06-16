@@ -54,15 +54,14 @@
             ></textarea>
           </div>
           <div class="form-group">
-            <label>Upload Gambar *</label>
+            <label>Upload Gambar</label>
             <input
               type="file"
               id="imageProduk"
               name="image"
               accept="image/jpeg,image/jpg,image/png"
-              required
             />
-            <small style="color: #666;">Format: JPG, JPEG, PNG</small>
+            <small style="color: #666;">Format: JPG, JPEG, PNG (Opsional)</small>
           </div>
           <div class="form-group" style="display: none;">
             <label>Toko ID</label>

@@ -376,7 +376,12 @@
             <div class="shop-details">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
                     <div>
-                        <h1>{{ $toko->nama_toko }}</h1>
+                        <h1 class="d-flex align-items-center gap-2">
+                            {{ $toko->nama_toko }}
+                            @if($toko->is_verified_seller)
+                                <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.2rem;" title="Verified Seller"></i>
+                            @endif
+                        </h1>
                         <p>{{ $toko->deskripsi_toko }}</p>
                         <div class="d-flex gap-2 flex-wrap">
                             <span class="shop-badge">
@@ -488,7 +493,11 @@
                         @foreach($toko->products as $p)
                         <div class="product-card" id="produk-{{ $p->id }}" data-category="{{ $p->category->judulKategori ?? '' }}" onclick="!event.target.closest('.product-actions') && (window.location.href='{{ route('produk.detail', $p->id) }}')" style="cursor: pointer;">
                             <div class="product-image-wrapper">
-                                <img src="{{ asset('storage/'.$p->imagePath) }}" 
+                                @php
+                                    $pImg = $p->imagePath ?: 'produk/default.png';
+                                    $pImg = asset('storage/'.$pImg);
+                                @endphp
+                                <img src="{{ $pImg }}" 
                                      class="product-image" 
                                      alt="{{ $p->nama }}">
                             </div>
@@ -788,7 +797,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Gambar</label>
-                                <input type="file" name="image" class="form-control" accept="image/*" required onchange="previewImage(this, 'previewTambah')">
+                                <input type="file" name="image" class="form-control" accept="image/*" onchange="previewImage(this, 'previewTambah')">
                                 <img id="previewTambah" class="preview-image" style="display:none">
                             </div>
                         </div>

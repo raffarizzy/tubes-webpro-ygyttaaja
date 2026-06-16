@@ -155,12 +155,16 @@ function createProductCard(produk) {
 
     // Fix path gambar
     let imagePath;
-    if (produk.imagePath.startsWith("http")) {
-        imagePath = produk.imagePath;
-    } else if (produk.imagePath.startsWith("produk/")) {
-        imagePath = `/storage/${produk.imagePath}`;
+    let rawPath = produk.imagePath || 'produk/default.png';
+
+    if (rawPath.startsWith("http")) {
+        imagePath = rawPath;
+    } else if (rawPath.startsWith("produk/")) {
+        imagePath = `/storage/${rawPath}`;
+    } else if (rawPath.startsWith("/storage/")) {
+        imagePath = rawPath;
     } else {
-        imagePath = produk.imagePath;
+        imagePath = `/storage/${rawPath}`;
     }
 
     // Hitung harga diskon jika ada
@@ -181,6 +185,7 @@ function createProductCard(produk) {
         <div class="toko-info">
             <i class="bi bi-shop"></i>
             <span>${produk.nama_toko || 'Medcom Seller'}</span>
+            ${produk.is_verified_seller ? '<i class="bi bi-patch-check-fill text-primary" style="font-size: 0.8rem; margin-left: 4px;"></i>' : ''}
         </div>
 
         <h3>${produk.nama}</h3>

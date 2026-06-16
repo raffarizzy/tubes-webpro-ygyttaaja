@@ -58,6 +58,11 @@ class TokoController extends Controller
 
             $toko = $tokoResponse->json()['data'];
             $toko = (object) $toko;
+            
+            // Ensure is_verified_seller exists
+            if (!isset($toko->is_verified_seller)) {
+                $toko->is_verified_seller = auth()->user()->is_verified_seller;
+            }
 
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
@@ -85,11 +90,13 @@ class TokoController extends Controller
             Log::error('Error in TokoController@index: ' . $e->getMessage());
             
             // Fallback ke database Laravel jika API error
-            $toko = Toko::where('user_id', auth()->id())->first();
+            $toko = Toko::with('user')->where('user_id', auth()->id())->first();
 
             if (!$toko) {
                 return redirect()->route('toko.create');
             }
+
+            $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
 
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
             $productIds = $toko->products->pluck('id');
@@ -122,13 +129,24 @@ class TokoController extends Controller
             
             if (!$tokoResponse->successful()) {
                 // Fallback ke Eloquent
-                $toko = Toko::find($id);
+                $toko = Toko::with('user')->find($id);
             } else {
                 $toko = (object) $tokoResponse->json()['data'];
             }
 
             if (!$toko) {
                 abort(404, 'Toko tidak ditemukan');
+            }
+
+            // Ensure is_verified_seller exists
+            if (!isset($toko->is_verified_seller)) {
+                if ($toko instanceof \App\Models\Toko) {
+                    $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
+                } else {
+                    // If it's stdClass from API but missing the property, try to find in DB
+                    $dbToko = Toko::with('user')->find($toko->id);
+                    $toko->is_verified_seller = $dbToko->user->is_verified_seller ?? false;
+                }
             }
 
             // Ambil produk toko
