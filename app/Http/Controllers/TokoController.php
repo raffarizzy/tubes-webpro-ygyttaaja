@@ -59,16 +59,20 @@ class TokoController extends Controller
             $toko = $tokoResponse->json()['data'];
             $toko = (object) $toko;
             
+            // Cari data di Laravel untuk mendapatkan ID yang benar
+            $laravelToko = Toko::where('user_id', auth()->id())->first();
+            $realLaravelId = $laravelToko ? $laravelToko->id : ($toko->id ?? null);
+
             // Ensure is_verified_seller exists
             if (!isset($toko->is_verified_seller)) {
                 $toko->is_verified_seller = auth()->user()->is_verified_seller;
             }
 
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
-            $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
+            $toko->products = Product::with('category')->where('toko_id', $realLaravelId)->get();
 
             // Ambil pesanan masuk (termasuk untuk produk yang sudah di-soft delete)
-            $productIds = Product::withTrashed()->where('toko_id', $toko->id)->pluck('id')->toArray();
+            $productIds = Product::withTrashed()->where('toko_id', $realLaravelId)->pluck('id')->toArray();
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
                 ->with(['order.user', 'order.alamat', 'product' => function($q) {
                     $q->withTrashed();
@@ -132,8 +136,8 @@ class TokoController extends Controller
             $tokoResponse = Http::get($this->nodeApiUrl . '/' . $id);
             
             if (!$tokoResponse->successful()) {
-                // Fallback ke Eloquent
-                $toko = Toko::with('user')->find($id);
+                // Fallback ke Eloquent - Cari berdasarkan ID Laravel atau node_toko_id
+                $toko = Toko::with('user')->where('id', $id)->orWhere('node_toko_id', $id)->first();
             } else {
                 $toko = (object) $tokoResponse->json()['data'];
             }
@@ -142,19 +146,26 @@ class TokoController extends Controller
                 abort(404, 'Toko tidak ditemukan');
             }
 
+            // Cari data di Laravel untuk mendapatkan ID yang benar (karena $id bisa jadi node_id)
+            $laravelToko = Toko::where('id', $id)->orWhere('node_toko_id', $id)->first();
+            $realLaravelId = $laravelToko ? $laravelToko->id : ($toko->id ?? $id);
+
             // Ensure is_verified_seller exists
             if (!isset($toko->is_verified_seller)) {
                 if ($toko instanceof \App\Models\Toko) {
                     $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
                 } else {
                     // If it's stdClass from API but missing the property, try to find in DB
-                    $dbToko = Toko::with('user')->find($toko->id);
+                    $dbToko = $laravelToko ?: Toko::with('user')->find($realLaravelId);
                     $toko->is_verified_seller = $dbToko->user->is_verified_seller ?? false;
                 }
             }
 
+            // Ambil produk (ambil dari DB Laravel menggunakan ID Laravel yang benar)
+            $toko->products = Product::with('category')->where('toko_id', $realLaravelId)->get();
+
             // Ambil pesanan masuk (termasuk untuk produk yang sudah di-soft delete)
-            $productIds = Product::withTrashed()->where('toko_id', $toko->id)->pluck('id');
+            $productIds = Product::withTrashed()->where('toko_id', $realLaravelId)->pluck('id');
 
             // Statistik
             $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
@@ -164,7 +175,7 @@ class TokoController extends Controller
             $averageRating = \App\Models\Rating::whereIn('product_id', $productIds)->avg('rating') ?: 0;
 
             // Cek apakah ini toko milik user yang login
-            $isOwner = auth()->check() && $toko->user_id == auth()->id();
+            $isOwner = auth()->check() && ($toko->user_id ?? ($laravelToko->user_id ?? null)) == auth()->id();
 
             // Ambil detail pesanan masuk jika owner
             $incomingOrders = collect();
@@ -316,18 +327,19 @@ class TokoController extends Controller
             $nodeTokoId = $response->json()['data']['id'];
 
             // 4. Simpan ke Database Laravel (Eloquent) - use auto-increment id, simpan Node.js ID terpisah
-            // Toko::create([
-            //     'user_id' => auth()->id(),
-            //     'node_toko_id' => $nodeTokoId,
-            //     'nama_toko' => $request->nama_toko,
-            //     'deskripsi_toko' => $request->deskripsi_toko,
-            //     'lokasi' => $request->lokasi,
-            //     'provinsi' => $request->provinsi,
-            //     'kota' => $request->kota,
-            //     'kecamatan' => $request->kecamatan,
-            //     'kode_wilayah' => $request->kode_wilayah,
-            //     'logo_path' => $logoPath,
-            // ]);
+            Toko::create([
+                'user_id' => auth()->id(),
+                'node_toko_id' => $nodeTokoId,
+                'nama_toko' => $request->nama_toko,
+                'deskripsi_toko' => $request->deskripsi_toko,
+                'lokasi' => $request->lokasi,
+                'provinsi' => $request->provinsi,
+                'kota' => $request->kota,
+                'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
+                'kode_wilayah' => $request->kode_wilayah,
+                'logo_path' => $logoPath,
+            ]);
 
             return redirect()->route('profil_toko')
                 ->with('success', 'Toko berhasil dibuat!');
@@ -365,14 +377,25 @@ class TokoController extends Controller
             ]);
 
             // 1. Update di database Laravel
-            $toko = Toko::findOrFail($id);
+            // Cari berdasarkan ID Laravel atau node_toko_id yang sesuai dengan user yang login
+            $toko = Toko::where(function($q) use ($id) {
+                $q->where('id', $id)
+                  ->orWhere('node_toko_id', $id);
+            })->where('user_id', auth()->id())->first();
 
-            // Cek ownership
-            if ($toko->user_id !== auth()->id()) {
+            // Jika tidak ditemukan dengan user_id, cek apakah memang tokonya ada tapi bukan milik user ini
+            if (!$toko) {
+                $exists = Toko::where('id', $id)->orWhere('node_toko_id', $id)->exists();
+                if ($exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda tidak memiliki akses untuk mengupdate toko ini'
+                    ], 403);
+                }
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda tidak memiliki akses untuk mengupdate toko ini'
-                ], 403);
+                    'message' => 'Toko tidak ditemukan'
+                ], 404);
             }
 
             $logoPath = $toko->logo_path;
@@ -423,13 +446,15 @@ class TokoController extends Controller
                 'logo_path' => $logoPath
             ];
 
+            // Gunakan node_toko_id yang benar saat memanggil API
+            $nodeId = $toko->node_toko_id ?: $id;
+
             $response = Http::withHeaders([
                 'x-user-id' => auth()->id()
-            ])->patch($this->nodeApiUrl . '/' . $id, $apiData);
+            ])->patch($this->nodeApiUrl . '/' . $nodeId, $apiData);
 
             if (!$response->successful()) {
                 Log::warning('Failed to update toko in Node.js API: ' . $response->body());
-                // Tidak rollback karena minimal sudah tersimpan di Laravel
             }
 
             return response()->json([
@@ -462,20 +487,31 @@ class TokoController extends Controller
     public function destroy($id)
     {
         try {
-            $toko = Toko::findOrFail($id);
+            // Cari berdasarkan ID Laravel atau node_toko_id
+            $toko = Toko::where(function($q) use ($id) {
+                $q->where('id', $id)
+                  ->orWhere('node_toko_id', $id);
+            })->where('user_id', auth()->id())->first();
 
-            // Cek ownership
-            if ($toko->user_id !== auth()->id()) {
+            if (!$toko) {
+                $exists = Toko::where('id', $id)->orWhere('node_toko_id', $id)->exists();
+                if ($exists) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Anda tidak memiliki akses untuk menghapus toko ini'
+                    ], 403);
+                }
                 return response()->json([
                     'success' => false,
-                    'message' => 'Anda tidak memiliki akses untuk menghapus toko ini'
-                ], 403);
+                    'message' => 'Toko tidak ditemukan'
+                ], 404);
             }
 
             // 1. Hapus dari Node.js API
+            $nodeIdToUse = $toko->node_toko_id ?: $id;
             $response = Http::withHeaders([
                 'x-user-id' => auth()->id()
-            ])->delete($this->nodeApiUrl . '/' . $id);
+            ])->delete($this->nodeApiUrl . '/' . $nodeIdToUse);
 
             if (!$response->successful()) {
                 Log::warning('Failed to delete toko in Node.js API: ' . $response->body());
