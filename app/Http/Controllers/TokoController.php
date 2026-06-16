@@ -67,10 +67,12 @@ class TokoController extends Controller
             // Pastikan produk ada agar view tidak crash (ambil dari DB Laravel)
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
 
-            // Ambil pesanan masuk
-            $productIds = $toko->products->pluck('id');
+            // Ambil pesanan masuk (termasuk untuk produk yang sudah di-soft delete)
+            $productIds = Product::withTrashed()->where('toko_id', $toko->id)->pluck('id')->toArray();
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
-                ->with(['order.user', 'order.alamat'])
+                ->with(['order.user', 'order.alamat', 'product' => function($q) {
+                    $q->withTrashed();
+                }])
                 ->orderBy('id', 'desc')
                 ->get();
 
@@ -99,9 +101,11 @@ class TokoController extends Controller
             $toko->is_verified_seller = $toko->user->is_verified_seller ?? false;
 
             $toko->products = Product::with('category')->where('toko_id', $toko->id)->get();
-            $productIds = $toko->products->pluck('id');
+            $productIds = Product::withTrashed()->where('toko_id', $toko->id)->pluck('id')->toArray();
             $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
-                ->with(['order.user', 'order.alamat'])
+                ->with(['order.user', 'order.alamat', 'product' => function($q) {
+                    $q->withTrashed();
+                }])
                 ->orderBy('id', 'desc')
                 ->get();
 
@@ -149,9 +153,8 @@ class TokoController extends Controller
                 }
             }
 
-            // Ambil produk toko
-            $toko->products = Product::where('toko_id', $toko->id)->get();
-            $productIds = $toko->products->pluck('id');
+            // Ambil pesanan masuk (termasuk untuk produk yang sudah di-soft delete)
+            $productIds = Product::withTrashed()->where('toko_id', $toko->id)->pluck('id');
 
             // Statistik
             $successOrdersCount = \App\Models\OrderItems::whereIn('product_id', $productIds)
@@ -163,11 +166,13 @@ class TokoController extends Controller
             // Cek apakah ini toko milik user yang login
             $isOwner = auth()->check() && $toko->user_id == auth()->id();
 
-            // Jika owner, ambil pesanan masuk (untuk dashboard)
+            // Ambil detail pesanan masuk jika owner
             $incomingOrders = collect();
             if ($isOwner) {
                 $incomingOrders = \App\Models\OrderItems::whereIn('product_id', $productIds)
-                    ->with(['order.user', 'order.alamat'])
+                    ->with(['order.user', 'order.alamat', 'product' => function($q) {
+                        $q->withTrashed();
+                    }])
                     ->orderBy('id', 'desc')
                     ->get();
             }
@@ -533,10 +538,10 @@ class TokoController extends Controller
         try {
             $order = \App\Models\Order::findOrFail($orderId);
             
-            // Verifikasi bahwa order ini berisi produk dari toko user ini
+            // Verifikasi bahwa order ini berisi produk dari toko user ini (termasuk yang sudah di-delete)
             $toko = Toko::where('user_id', auth()->id())->first();
             $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
-                $q->where('toko_id', $toko->id);
+                $q->withTrashed()->where('toko_id', $toko->id);
             })->exists();
 
             if (!$ownsProduct) {
@@ -565,7 +570,7 @@ class TokoController extends Controller
             
             $toko = Toko::where('user_id', auth()->id())->first();
             $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
-                $q->where('toko_id', $toko->id);
+                $q->withTrashed()->where('toko_id', $toko->id);
             })->exists();
 
             if (!$ownsProduct) {
@@ -598,7 +603,7 @@ class TokoController extends Controller
             
             $toko = Toko::where('user_id', auth()->id())->first();
             $ownsProduct = $order->items()->whereHas('product', function($q) use ($toko) {
-                $q->where('toko_id', $toko->id);
+                $q->withTrashed()->where('toko_id', $toko->id);
             })->exists();
 
             if (!$ownsProduct) {
