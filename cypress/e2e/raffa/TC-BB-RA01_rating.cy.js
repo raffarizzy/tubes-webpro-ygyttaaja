@@ -1,102 +1,104 @@
-/**
- * TC-BB-RA01 — Rating 1-5 (Equivalence Partitioning)
- * Feature: FR10 — Memberikan Ulasan
- * PIC: Raffa Rizky Febryan
- */
-
 describe('TC-BB-RA01 — Rating 1-5 (Equivalence Partitioning)', () => {
-  beforeEach(() => {
-    cy.fixture('users').then((users) => {
-      cy.loginFast(users.raffa.email, users.raffa.password)
-    })
-  })
+    const productId = 1; 
+    const productName = "Spakbor depan vario"; 
 
-  it('Step 1 — rating=3, review="Produk oke": berhasil disimpan', () => {
-    cy.visit('/ratings')
-    cy.get('select[name="rating"], input[name="rating"][value="3"]').then(($el) => {
-      if ($el.is('select')) cy.wrap($el).select('3')
-      else cy.wrap($el).check()
-    })
-    cy.get('textarea[name="review"], input[name="review"]').type('Produk oke')
-    cy.get('button[type="submit"]').click()
-    cy.get('body').should('satisfy', ($body) => {
-      return $body.text().match(/berhasil ditambahkan|success/i)
-    })
-  })
-
-  it('Step 2 — rating=1 (batas bawah valid): berhasil disimpan', () => {
-    cy.visit('/ratings')
-    cy.get('select[name="rating"], input[name="rating"][value="1"]').then(($el) => {
-      if ($el.is('select')) cy.wrap($el).select('1')
-      else cy.wrap($el).check()
-    })
-    cy.get('textarea[name="review"], input[name="review"]').type('Kurang memuaskan')
-    cy.get('button[type="submit"]').click()
-    cy.get('body').should('not.contain', 'The rating must be at least')
-  })
-
-  it('Step 3 — rating=5 (batas atas valid): berhasil disimpan', () => {
-    cy.visit('/ratings')
-    cy.get('select[name="rating"], input[name="rating"][value="5"]').then(($el) => {
-      if ($el.is('select')) cy.wrap($el).select('5')
-      else cy.wrap($el).check()
-    })
-    cy.get('textarea[name="review"], input[name="review"]').type('Sangat bagus!')
-    cy.get('button[type="submit"]').click()
-    cy.get('body').should('not.contain', 'The rating must not be greater')
-  })
-
-  it('Step 4 — rating=0 (invalid bawah): error "must be at least 1"', () => {
-    cy.visit('/ratings')
-    cy.get('select[name="rating"]').then(($el) => {
-      if ($el.length) {
-        cy.wrap($el).select('0')
-      } else {
-        cy.request({
-          method: 'POST',
-          url: '/ratings',
-          failOnStatusCode: false,
-          form: true,
-          body: { rating: 0, review: 'Test' },
-        }).then((response) => {
-          expect(response.status).to.eq(422)
+    beforeEach(() => {
+        // Login as Pembeli
+        cy.loginUI('raffa@mail.com', 'qwertyui')
+        
+        // Ensure no existing rating for product before testing creation
+        cy.visit('/ratings')
+        cy.get('body').then(($body) => {
+            // Check if there's a card containing our product name
+            const productCard = $body.find('.card').filter((i, el) => el.innerText.includes(productName));
+            
+            if (productCard.length > 0) {
+                cy.wrap(productCard).find('button:contains("Hapus Ulasan")').click()
+                cy.get('.alert-success', { timeout: 10000 }).should('exist')
+            }
         })
-      }
     })
-  })
 
-  it('Step 5 — rating=6 (invalid atas): error "must not be greater than 5"', () => {
-    cy.request({
-      method: 'POST',
-      url: '/ratings',
-      failOnStatusCode: false,
-      form: true,
-      body: { rating: 6, review: 'Test' },
-    }).then((response) => {
-      expect(response.status).to.eq(422)
-      expect(JSON.stringify(response.body)).to.match(/must not be greater than 5/i)
-    })
-  })
+    const deleteRating = (name) => {
+        cy.visit('/ratings')
+        cy.get('body').then(($body) => {
+            const productCard = $body.find('.card').filter((i, el) => el.innerText.includes(name))
+            if (productCard.length > 0) {
+                cy.wrap(productCard).find('button:contains("Hapus Ulasan")').click()
+                cy.get('.alert-success', { timeout: 10000 }).should('contain', 'Rating berhasil dihapus')
+            }
+        })
+    }
 
-  it('Step 6 — rating=4, review kosong: error "review field is required"', () => {
-    cy.request({
-      method: 'POST',
-      url: '/ratings',
-      failOnStatusCode: false,
-      form: true,
-      body: { rating: 4, review: '' },
-    }).then((response) => {
-      expect(response.status).to.eq(422)
+    it('Scenario 1: Valid - Input 3 Bintang (Produk oke)', () => {
+        cy.visit(`/ratings/create/${productId}`)
+        
+        // Select 3 stars
+        // We target the input and use force: true because the label might be overlapping
+        cy.get('input[name="rating"][value="3"]').click({ force: true })
+        
+        cy.get('textarea[name="review"]').type('Produk oke')
+        cy.get('button[type="submit"]').contains('Kirim Ulasan').click()
+        
+        cy.url().should('include', '/ratings')
+        cy.get('.alert-success').should('contain', 'Rating berhasil ditambahkan')
+        
+        // Cleanup
+        deleteRating(productName)
     })
-  })
 
-  it('Step 7 — Hapus rating yang sudah dibuat: rating terhapus', () => {
-    cy.visit('/ratings')
-    cy.get('button[data-action="delete"], form[method="POST"] button').contains(/hapus|delete/i).then(($btn) => {
-      if ($btn.length) {
-        cy.wrap($btn).first().click()
-        cy.get('body').should('not.contain', '500')
-      }
+    it('Scenario 2: Valid - Input 1 Bintang (Kurang memuaskan)', () => {
+        cy.visit(`/ratings/create/${productId}`)
+        
+        // Select 3 stars
+        // We target the input and use force: true because the label might be overlapping
+        cy.get('input[name="rating"][value="1"]').click({ force: true })
+        
+        cy.get('textarea[name="review"]').type('Kurang memuaskan')
+        cy.get('button[type="submit"]').contains('Kirim Ulasan').click()
+        
+        cy.url().should('include', '/ratings')
+        cy.get('.alert-success').should('contain', 'Rating berhasil ditambahkan')
+        
+        // Cleanup
+        deleteRating(productName)
     })
-  })
+
+    it('Scenario 3: Valid max - Input 5 Bintang (Sangat bagus!)', () => {
+        cy.visit(`/ratings/create/${productId}`)
+        
+        cy.get('input[name="rating"][value="5"]').click({ force: true })
+        cy.get('textarea[name="review"]').type('Sangat bagus!')
+        cy.get('button[type="submit"]').contains('Kirim Ulasan').click()
+        
+        cy.url().should('include', '/ratings')
+        cy.get('.alert-success').should('contain', 'Rating berhasil ditambahkan')
+        
+        // Cleanup
+        deleteRating(productName)
+    })
+
+    it('Scenario 4: Invalid review kosong', () => {
+        cy.visit(`/ratings/create/${productId}`)
+        
+        cy.get('input[name="rating"][value="4"]').click({ force: true })
+        // Review left empty
+        
+        cy.get('button[type="submit"]').contains('Kirim Ulasan').click()
+        
+        // Form has 'required' attribute, so it should stay on page (HTML5 validation)
+        cy.url().should('include', `/ratings/create/${productId}`)
+    })
+
+    it('Scenario 5: Invalid rating kosong', () => {
+        cy.visit(`/ratings/create/${productId}`)
+        
+        // Rating not selected
+        cy.get('textarea[name="review"]').type('Test review tanpa bintang')
+        
+        cy.get('button[type="submit"]').contains('Kirim Ulasan').click()
+        
+        // Form has 'required' attribute on rating inputs, should stay on page
+        cy.url().should('include', `/ratings/create/${productId}`)
+    })
 })

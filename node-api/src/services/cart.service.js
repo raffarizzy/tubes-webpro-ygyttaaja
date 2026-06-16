@@ -22,7 +22,7 @@ exports.getCartItems = async (userId) => {
     INNER JOIN keranjangs k ON bk.keranjang_id = k.id
     INNER JOIN products p ON bk.product_id = p.id
     INNER JOIN tokos t ON p.toko_id = t.id
-    WHERE k.user_id = ?
+    WHERE k.user_id = ? AND p.deleted_at IS NULL
     ORDER BY bk.created_at DESC
   `;
 
