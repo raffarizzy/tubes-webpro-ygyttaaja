@@ -136,6 +136,7 @@ Route::middleware('auth')->group(function () {
     // ============================================
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
     Route::post('/product/import', [ProductController::class, 'import'])->name('product.import');
+    Route::post('/product/import-bulk', [ProductController::class, 'importBulk'])->name('product.import.bulk');
     Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 

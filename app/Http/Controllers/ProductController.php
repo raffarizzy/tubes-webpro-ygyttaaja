@@ -190,13 +190,73 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan server: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+            ]);
+            }
+            }
 
-    /**
-     * IMPORT produk via CSV
-     */
+            /**
+            * IMPORT BULK dari JSON (Preview Modal)
+            */
+            public function importBulk(Request $request)
+            {
+            try {
+            $request->validate([
+                'products' => 'required|array',
+                'products.*.nama' => 'required|string',
+                'products.*.category_id' => 'required',
+                'products.*.harga' => 'required|numeric',
+                'products.*.stok' => 'required|integer',
+                'products.*.berat' => 'required|integer',
+                'products.*.deskripsi' => 'nullable|string'
+            ]);
+
+            $tokoId = auth()->user()->toko->id ?? null;
+            if (!$tokoId) {
+                return response()->json(['success' => false, 'message' => 'User belum memiliki toko'], 400);
+            }
+
+            $apiUrl = config('services.node_api.url') . '/api/products';
+            $successCount = 0;
+            $errors = [];
+
+            foreach ($request->products as $p) {
+                $response = Http::timeout(5)->post($apiUrl, [
+                    'toko_id' => $tokoId,
+                    'category_id' => $p['category_id'],
+                    'nama' => $p['nama'],
+                    'harga' => $p['harga'],
+                    'stok' => $p['stok'],
+                    'berat' => $p['berat'],
+                    'deskripsi' => $p['deskripsi'] ?? '',
+                    'imagePath' => 'produk/default.png',
+                    'diskon' => 0
+                ]);
+
+                if ($response->successful()) {
+                    $successCount++;
+                } else {
+                    $errors[] = "Gagal mengimpor '{$p['nama']}': " . ($response->json('message') ?? 'Error API');
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'count' => $successCount,
+                'errors' => $errors
+            ]);
+
+            } catch (\Exception $e) {
+            Log::error("Bulk Import Error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memproses impor: ' . $e->getMessage()
+            ], 500);
+            }
+            }
+
+            /**
+            * IMPORT produk via CSV
+            */
     public function import(Request $request)
     {
         try {

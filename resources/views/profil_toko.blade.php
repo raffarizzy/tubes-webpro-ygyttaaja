@@ -1008,15 +1008,52 @@
         </div>
     </div>
 </div>
+
+{{-- Modal Preview CSV --}}
+<div class="modal fade" id="modalPreviewCSV" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Pratinjau Impor Produk</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Silakan periksa kembali data produk Anda sebelum disimpan. Anda dapat mengedit atau menghapus baris langsung dari tabel ini.</p>
+                <div class="table-responsive" style="max-height: 400px;">
+                    <table class="table table-sm table-hover align-middle">
+                        <thead class="bg-light sticky-top">
+                            <tr>
+                                <th>Nama Produk</th>
+                                <th style="width: 150px;">Kategori</th>
+                                <th style="width: 120px;">Harga (Rp)</th>
+                                <th style="width: 80px;">Stok</th>
+                                <th style="width: 100px;">Berat (g)</th>
+                                <th>Deskripsi</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="previewCSVBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                <button type="button" id="btnSubmitImport" class="btn btn-primary rounded-pill px-4" onclick="submitImport()">Simpan Semua Produk</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endif
 
 @endsection
 
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 <script>
     const TOKO_ID = {{ $toko->id }};
     const STORE_PRODUCT_URL = "{{ route('product.store') }}";
+    let csvData = []; 
 
     @if($isOwner)
     function openDetailOrderModal(data) {
@@ -1110,29 +1147,76 @@ let html = '<div class="timeline-small">';
         if (!input.files || !input.files[0]) return;
         
         const file = input.files[0];
-        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-            alert('Silakan pilih file CSV yang valid.');
-            return;
-        }
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(results) {
+                csvData = results.data.map((row, index) => ({
+                    id: index,
+                    nama: row.nama_produk || row[Object.keys(row)[0]],
+                    category_id: row.category_id || row[Object.keys(row)[1]],
+                    harga: row.harga || row[Object.keys(row)[2]],
+                    stok: row.stok || row[Object.keys(row)[3]],
+                    berat: row.berat || row[Object.keys(row)[4]],
+                    deskripsi: row.deskripsi || row[Object.keys(row)[5]]
+                }));
+                renderPreviewTable();
+                new bootstrap.Modal(document.getElementById('modalPreviewCSV')).show();
+                input.value = '';
+            }
+        });
+    }
 
-        if (!confirm('Apakah Anda yakin ingin mengimpor produk dari file ini?')) {
-            input.value = '';
-            return;
-        }
+    function renderPreviewTable() {
+        const tbody = document.getElementById('previewCSVBody');
+        tbody.innerHTML = '';
+        csvData.forEach((row, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm" value="${row.nama}" onchange="updateCSVRow(${index}, 'nama', this.value)"></td>
+                <td>
+                    <select class="form-select form-select-sm" onchange="updateCSVRow(${index}, 'category_id', this.value)">
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" ${row.category_id == {{ $cat->id }} ? 'selected' : ''}>{{ $cat->judulKategori }}</option>
+                        @endforeach
+                    </select>
+                </td>
+                <td><input type="number" class="form-control form-control-sm" value="${row.harga}" onchange="updateCSVRow(${index}, 'harga', this.value)"></td>
+                <td><input type="number" class="form-control form-control-sm" value="${row.stok}" onchange="updateCSVRow(${index}, 'stok', this.value)"></td>
+                <td><input type="number" class="form-control form-control-sm" value="${row.berat}" onchange="updateCSVRow(${index}, 'berat', this.value)"></td>
+                <td><input type="text" class="form-control form-control-sm" value="${row.deskripsi}" onchange="updateCSVRow(${index}, 'deskripsi', this.value)"></td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="removeCSVRow(${index})"><i class="bi bi-trash"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
-        const formData = new FormData();
-        formData.append('csv_file', file);
-        formData.append('_token', '{{ csrf_token() }}');
+    function updateCSVRow(index, field, value) {
+        csvData[index][field] = value;
+    }
 
-        // Show loading
-        const btn = document.querySelector('button[onclick*="csvInput"]');
+    function removeCSVRow(index) {
+        csvData.splice(index, 1);
+        renderPreviewTable();
+    }
+
+    function submitImport() {
+        if (csvData.length === 0) return;
+
+        const btn = document.getElementById('btnSubmitImport');
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mengimpor...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Memproses...';
 
-        fetch("{{ route('product.import') }}", {
+        fetch("{{ route('product.import.bulk') }}", {
             method: 'POST',
-            body: formData
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ products: csvData })
         })
         .then(res => res.json())
         .then(data => {
@@ -1150,7 +1234,6 @@ let html = '<div class="timeline-small">';
         .finally(() => {
             btn.disabled = false;
             btn.innerHTML = originalText;
-            input.value = '';
         });
     }
 
