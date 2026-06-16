@@ -692,6 +692,24 @@
     </div>
 </div>
 
+{{-- Modal Full Description --}}
+<div class="modal fade" id="modalFullDesc" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Deskripsi Toko</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted" style="white-space: pre-line;">{{ $toko->deskripsi_toko }}</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-medcom-blue rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if($isOwner)
 {{-- MODALS --}}
 
@@ -972,24 +990,6 @@
     </div>
 </div>
 
-{{-- Modal Full Description --}}
-<div class="modal fade" id="modalFullDesc" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Deskripsi Toko</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <p class="text-muted" style="white-space: pre-line;">{{ $toko->deskripsi_toko }}</p>
-            </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-medcom-blue rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 {{-- Modal Hapus --}}
 <div class="modal fade" id="modalHapus" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -1262,8 +1262,11 @@ let html = '<div class="timeline-small">';
         });
     }
 
+    @endif
+
     // Persistensi Tab setelah Refresh
     document.addEventListener('DOMContentLoaded', function() {
+        @if($isOwner)
         prefillTokoLocation();
         const tokoProv = document.getElementById('tokoProvinsi');
         const tokoKota = document.getElementById('tokoKota');
