@@ -26,6 +26,7 @@ class User extends Authenticatable
         'birthDate',
         'gender',
         'pfpPath',
+        'is_verified_seller',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified_seller' => 'boolean',
         ];
     }
 

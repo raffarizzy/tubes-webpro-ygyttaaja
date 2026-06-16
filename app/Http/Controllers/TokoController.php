@@ -25,6 +25,11 @@ class TokoController extends Controller
      */
     public function index()
     {
+        // Cek apakah user sudah terverifikasi sebagai penjual
+        if (!auth()->user()->is_verified_seller) {
+            return redirect()->route('toko.verify');
+        }
+
         try {
             // Panggil Node.js API untuk cek apakah user punya toko
             $response = Http::withHeaders([
@@ -160,10 +165,28 @@ class TokoController extends Controller
     }
 
     /**
+     * Show verification instructions page
+     */
+    public function verify()
+    {
+        // Jika sudah terverifikasi, alihkan ke profil toko
+        if (auth()->user()->is_verified_seller) {
+            return redirect()->route('profil_toko');
+        }
+
+        return view('toko.verify-wa');
+    }
+
+    /**
      * Show create toko form
      */
     public function create()
     {
+        // Cek apakah user sudah terverifikasi sebagai penjual
+        if (!auth()->user()->is_verified_seller) {
+            return redirect()->route('toko.verify');
+        }
+
         // Cek dulu apakah user sudah punya toko (dari API)
         try {
             $response = Http::withHeaders([
@@ -190,6 +213,11 @@ class TokoController extends Controller
      */
     public function store(Request $request)
     {
+        // Proteksi jika ada yang mencoba menembak API langsung
+        if (!auth()->user()->is_verified_seller) {
+            return response()->json(['success' => false, 'message' => 'Akun Anda belum terverifikasi sebagai penjual.'], 403);
+        }
+
         $request->validate([
             'nama_toko' => 'required|string|max:255',
             'deskripsi_toko' => 'required|string',
