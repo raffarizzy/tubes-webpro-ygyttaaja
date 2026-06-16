@@ -382,7 +382,14 @@
                                 <i class="bi bi-patch-check-fill text-primary" style="font-size: 1.2rem;" title="Verified Seller"></i>
                             @endif
                         </h1>
-                        <p>{{ $toko->deskripsi_toko }}</p>
+                        <p class="mb-2">
+                            @if(strlen($toko->deskripsi_toko) > 160)
+                                <span id="short-desc">{{ Str::limit($toko->deskripsi_toko, 160) }}</span>
+                                <a href="javascript:void(0)" class="text-primary fw-600 text-decoration-none ms-1" onclick="openFullDescModal()">Baca Selengkapnya</a>
+                            @else
+                                {{ $toko->deskripsi_toko }}
+                            @endif
+                        </p>
                         <div class="d-flex gap-2 flex-wrap">
                             <span class="shop-badge">
                                 <i class="bi bi-geo-alt"></i> {{ $toko->lokasi }}
@@ -965,6 +972,24 @@
     </div>
 </div>
 
+{{-- Modal Full Description --}}
+<div class="modal fade" id="modalFullDesc" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Deskripsi Toko</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-muted" style="white-space: pre-line;">{{ $toko->deskripsi_toko }}</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-medcom-blue rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Modal Hapus --}}
 <div class="modal fade" id="modalHapus" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
@@ -1335,19 +1360,33 @@ let html = '<div class="timeline-small">';
 
         const searchInputToko = document.getElementById('search-produk-toko');
         const filterKategoriToko = document.getElementById('filter-kategori-toko');
-        const produkCards = document.querySelectorAll('.product-card');
 
         function filterProdukToko() {
-            const term = searchInputToko.value.toLowerCase();
-            const cat = filterKategoriToko.value;
-            produkCards.forEach(card => {
-                const matchTitle = card.querySelector('.product-title').textContent.toLowerCase().includes(term);
-                const matchCat = cat === "" || card.getAttribute('data-category') === cat;
-                card.style.display = (matchTitle && matchCat) ? 'block' : 'none';
+            const term = searchInputToko.value.toLowerCase().trim();
+            const cat = filterKategoriToko.value.trim();
+            const cards = document.querySelectorAll('.product-card');
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const cardCat = card.getAttribute('data-category').trim();
+                
+                const matchTitle = title.includes(term);
+                const matchCat = cat === "" || cardCat === cat;
+                
+                if (matchTitle && matchCat) {
+                    card.style.setProperty('display', 'block', 'important');
+                } else {
+                    card.style.setProperty('display', 'none', 'important');
+                }
             });
         }
+
         if (searchInputToko) searchInputToko.addEventListener('input', filterProdukToko);
         if (filterKategoriToko) filterKategoriToko.addEventListener('change', filterProdukToko);
+
+        window.openFullDescModal = function() {
+            new bootstrap.Modal(document.getElementById('modalFullDesc')).show();
+        };
     });
 </script>
 <script src="{{ asset('js/mengelolaProdukCRUD.js') }}"></script>
