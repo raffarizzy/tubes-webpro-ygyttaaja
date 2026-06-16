@@ -48,13 +48,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const subtotal = item.harga * item.jumlah;
 
+        // Path gambar: prioritaskan storage, fallback ke default.png
+        let imagePath = item.product.imagePath || "produk/default.png";
+        if (!imagePath.startsWith("http")) {
+            imagePath = `/storage/${imagePath}`;
+        }
+
         div.innerHTML = `
             <!-- Product Image -->
-            <img src="http://localhost:8000/storage/${
-                item.product.imagePath || "/img/placeholder.png"
-            }"
+            <img src="${imagePath}"
                  alt="${item.product.nama}"
-                 onerror="this.onerror=null; this.src='/img/placeholder.png';">
+                 onerror="this.onerror=null; this.src='/storage/produk/default.png';">
 
             <!-- Product Info -->
             <div class="info-produk">
