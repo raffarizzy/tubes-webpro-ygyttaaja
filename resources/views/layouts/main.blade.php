@@ -20,6 +20,16 @@
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
 
+    <style>
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+                width: 100%;
+                position: relative;
+            }
+        }
+    </style>
+
     @stack('styles')
 </head>
 

@@ -43,6 +43,27 @@
         .read-more-btn:hover {
           text-decoration: underline;
         }
+
+        /* Mobile Fix for Horizontal Scroll */
+        @media (max-width: 768px) {
+          body {
+            overflow-x: hidden;
+            width: 100%;
+          }
+          .container {
+            overflow-x: hidden;
+            padding-left: 15px !important;
+            padding-right: 15px !important;
+          }
+          .row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+          }
+          /* Fix for large gutters on mobile */
+          .g-5 {
+            --bs-gutter-x: 1rem !important;
+          }
+        }
     </style>
 @endpush
 
