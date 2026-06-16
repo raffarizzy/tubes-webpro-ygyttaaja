@@ -12,6 +12,7 @@ exports.getById = async (id) => {
         p.harga,
         p.diskon,
         p.stok,
+        p.berat,
         p.imagePath,
         p.toko_id,
         t.nama_toko,
@@ -43,6 +44,7 @@ exports.getAll = async (limit = 20, offset = 0) => {
         p.harga,
         p.diskon,
         p.stok,
+        p.berat,
         p.imagePath,
         p.toko_id,
         t.nama_toko,
@@ -73,6 +75,7 @@ exports.getByToko = async (tokoId) => {
         p.harga,
         p.diskon,
         p.stok,
+        p.berat,
         p.imagePath,
         p.category_id,
         c.judulKategori AS category_nama,
@@ -99,6 +102,7 @@ exports.getByCategory = async (categoryId) => {
         p.harga,
         p.diskon,
         p.stok,
+        p.berat,
         p.imagePath,
         p.toko_id,
         t.nama_toko,
@@ -123,11 +127,12 @@ exports.create = async (data) => {
     const category_id = parseInt(data.category_id);
     const harga = parseInt(data.harga);
     const stok = parseInt(data.stok);
+    const berat = data.berat ? parseInt(data.berat) : 1000;
     const diskon = data.diskon ? parseInt(data.diskon) : 0;
     
     const [result] = await db.query(
-      `INSERT INTO products (toko_id, category_id, nama, deskripsi, harga, diskon, stok, imagePath, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      `INSERT INTO products (toko_id, category_id, nama, deskripsi, harga, diskon, stok, berat, imagePath, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
       [
         toko_id,
         category_id,
@@ -136,6 +141,7 @@ exports.create = async (data) => {
         harga,
         diskon,
         stok,
+        berat,
         data.imagePath
       ]
     );
@@ -168,19 +174,20 @@ exports.update = async (id, data) => {
 
   // Update hanya field yang dikirim, sisanya pakai nilai lama
   const updated = {
-    toko_id: data.toko_id ?? old.toko_id,
-    category_id: data.category_id ?? old.category_id,
+    toko_id: data.toko_id !== undefined ? parseInt(data.toko_id) : old.toko_id,
+    category_id: data.category_id !== undefined ? parseInt(data.category_id) : old.category_id,
     nama: data.nama ?? old.nama,
     deskripsi: data.deskripsi ?? old.deskripsi,
-    harga: data.harga ?? old.harga,
-    diskon: data.diskon ?? old.diskon,
-    stok: data.stok ?? old.stok,
+    harga: data.harga !== undefined ? parseInt(data.harga) : old.harga,
+    diskon: data.diskon !== undefined ? parseInt(data.diskon) : old.diskon,
+    stok: data.stok !== undefined ? parseInt(data.stok) : old.stok,
+    berat: (data.berat !== undefined && data.berat !== '') ? parseInt(data.berat) : old.berat,
     imagePath: data.imagePath ?? old.imagePath,
   };
 
   await db.query(
     `UPDATE products
-     SET toko_id=?, category_id=?, nama=?, deskripsi=?, harga=?, diskon=?, stok=?, imagePath=?
+     SET toko_id=?, category_id=?, nama=?, deskripsi=?, harga=?, diskon=?, stok=?, berat=?, imagePath=?
      WHERE id=?`,
     [
       updated.toko_id,
@@ -190,6 +197,7 @@ exports.update = async (id, data) => {
       updated.harga,
       updated.diskon,
       updated.stok,
+      updated.berat,
       updated.imagePath,
       id
     ]

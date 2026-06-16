@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   Rp ${hargaFinal.toLocaleString("id-ID")}
                 </p>
                 <p class="small text-muted mb-0">Jumlah: ${jumlah} pcs</p>
+                <p class="small text-muted mb-0">Berat: ${product.berat || 1000} gram</p>
               </div>
             </div>
           </div>
@@ -536,6 +537,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const nama = document.getElementById("namaInput").value.trim();
         const alamat = document.getElementById("alamatInput").value.trim();
         const nomor = document.getElementById("nomorInput").value.trim();
+        const kodePos = document.getElementById("kodePosInput").value.trim();
         const isDefaultCheckbox = document.getElementById("defaultCheckbox");
         const isDefault = isDefaultCheckbox ? isDefaultCheckbox.checked : false;
 
@@ -565,6 +567,7 @@ document.addEventListener("DOMContentLoaded", function () {
             provinsi: provinsi,
             kota: kota,
             kecamatan: kecamatan,
+            kode_pos: kodePos,
             kode_wilayah: kode_wilayah,
             is_default: isDefault ? 1 : 0,
         };
@@ -702,6 +705,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("namaInput").value = data.nama_penerima;
         document.getElementById("alamatInput").value = data.alamat;
         document.getElementById("nomorInput").value = data.nomor_penerima;
+        document.getElementById("kodePosInput").value = data.kode_pos || "";
 
         // Repopulate regions
         await loadProvinces();
@@ -759,6 +763,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("namaInput").value = "";
         document.getElementById("alamatInput").value = "";
         document.getElementById("nomorInput").value = "";
+        document.getElementById("kodePosInput").value = "";
         const defaultCheckbox = document.getElementById("defaultCheckbox");
         if (defaultCheckbox) {
             defaultCheckbox.checked = false;

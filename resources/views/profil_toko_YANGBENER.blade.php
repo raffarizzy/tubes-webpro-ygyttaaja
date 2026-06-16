@@ -328,9 +328,6 @@
         border: 1px dashed #cbd5e1;
     }
 
-    .fw-500 { font-weight: 500; }
-    .fw-600 { font-weight: 600; }
-
     @media (max-width: 768px) {
         .shop-profile-card {
             flex-direction: column;
@@ -387,11 +384,9 @@
                             </span>
                         </div>
                     </div>
-                    @if($isOwner)
                     <button class="btn btn-outline-dark rounded-pill px-4" onclick="openEditTokoModal()">
                         <i class="bi bi-pencil-square me-2"></i> Edit Profil
                     </button>
-                    @endif
                 </div>
             </div>
         </div>
@@ -433,16 +428,14 @@
         <ul class="nav nav-pills gap-2 mb-4 mt-5" id="shopTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active rounded-pill px-4 fw-600" id="products-tab" data-bs-toggle="pill" data-bs-target="#products" type="button" role="tab">
-                    <i class="bi bi-grid me-2"></i> {{ $isOwner ? 'Produk Anda' : 'Semua Produk' }}
+                    <i class="bi bi-grid me-2"></i> Produk Anda
                 </button>
             </li>
-            @if($isOwner)
             <li class="nav-item" role="presentation">
                 <button class="nav-link rounded-pill px-4 fw-600" id="orders-tab" data-bs-toggle="pill" data-bs-target="#orders" type="button" role="tab">
                     <i class="bi bi-cart-check me-2"></i> Pesanan Masuk
                 </button>
             </li>
-            @endif
         </ul>
 
         <div class="tab-content" id="shopTabsContent">
@@ -450,8 +443,8 @@
             <div class="tab-pane fade show active" id="products" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
-                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">{{ $isOwner ? 'Daftar Produk' : 'Katalog Produk' }}</h2>
-                        <p class="text-muted mb-0">{{ $isOwner ? 'Kelola stok dan informasi produk Anda' : 'Temukan berbagai produk berkualitas dari toko kami' }}</p>
+                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">Produk Toko</h2>
+                        <p class="text-muted mb-0">Kelola katalog produk yang Anda jual</p>
                     </div>
                     <div class="d-flex gap-3 align-items-center">
                         <div class="input-group" style="width: 300px;">
@@ -464,29 +457,25 @@
                                 <option value="{{ $cat->judulKategori }}">{{ $cat->judulKategori }}</option>
                             @endforeach
                         </select>
-                        @if($isOwner)
                         <button class="btn-add-product" onclick="openTambahModal()">
                             <i class="bi bi-plus-lg"></i> Tambah Produk Baru
                         </button>
-                        @endif
                     </div>
                 </div>
 
                 @if($toko->products->count() == 0)
                     <div class="text-center py-5 bg-white rounded-4 shadow-sm">
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3 text-muted">Belum ada produk @if($isOwner) di toko Anda @endif</h4>
-                        @if($isOwner)
+                        <h4 class="mt-3 text-muted">Belum ada produk di toko Anda</h4>
                         <p class="text-muted">Mulai berjualan dengan menambahkan produk pertama Anda.</p>
                         <button class="btn btn-primary rounded-pill px-4" onclick="openTambahModal()">
                             Tambah Produk Sekarang
                         </button>
-                        @endif
                     </div>
                 @else
                     <div class="product-grid" id="produk-list">
                         @foreach($toko->products as $p)
-                        <div class="product-card" id="produk-{{ $p->id }}" data-category="{{ $p->category->judulKategori ?? '' }}" onclick="!event.target.closest('.product-actions') && (window.location.href='{{ route('produk.detail', $p->id) }}')" style="cursor: pointer;">
+                        <div class="product-card" id="produk-{{ $p->id }}" data-category="{{ $p->category->judulKategori ?? '' }}">
                             <div class="product-image-wrapper">
                                 <img src="{{ asset('storage/'.$p->imagePath) }}" 
                                      class="product-image" 
@@ -500,7 +489,6 @@
                                 </div>
                                 <p class="product-stock">Stok: <span class="fw-bold text-dark">{{ $p->stok }}</span></p>
                                 
-                                @if($isOwner)
                                 <div class="product-actions">
                                     <button class="btn-action btn-edit" 
                                         onclick="openEditModal(
@@ -509,9 +497,7 @@
                                             {{ $p->harga }},
                                             {{ $p->stok }},
                                             '{{ $p->imagePath }}',
-                                            {{ json_encode($p->deskripsi) }},
-                                            {{ $p->berat ?? 1000 }},
-                                            {{ $p->category_id }}
+                                            {{ json_encode($p->deskripsi) }}
                                         )">
                                         <i class="bi bi-pencil"></i> Edit
                                     </button>
@@ -519,7 +505,6 @@
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </div>
-                                @endif
                             </div>
                         </div>
                         @endforeach
@@ -528,7 +513,6 @@
             </div>
 
             {{-- Orders Tab --}}
-            @if($isOwner)
             <div class="tab-pane fade" id="orders" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
@@ -553,7 +537,7 @@
                                         <th class="py-3">Pembeli</th>
                                         <th class="py-3">Produk</th>
                                         <th class="py-3">Jumlah</th>
-                                        <th class="py-3">Total</th>
+                                        <th class="py-3">Subtotal</th>
                                         <th class="py-3 text-center">Status</th>
                                         <th class="pe-4 py-3 text-end">Aksi</th>
                                     </tr>
@@ -573,20 +557,17 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->nama_produk }}</div>
-                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
-                                                <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
-                                            </span>
-                                            <div class="text-muted small">Harga: Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
-                                            <div class="text-muted small">Ongkir: Rp {{ number_format($item->order->shipping_cost, 0, ',', '.') }}</div>
+                                        <td class="fw-600">
+                                            {{ $item->nama_produk }}
+                                            <div class="mt-1">
+                                                <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
+                                                    <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
+                                                </span>
+                                                <div class="text-muted" style="font-size: 0.7rem;">Ongkir: Rp {{ number_format($item->order->shipping_cost ?? 0, 0, ',', '.') }}</div>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->qty }}x</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
-                                        </td>
+                                        <td>{{ $item->qty }}x</td>
+                                        <td class="fw-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                                         <td class="text-center">
                                             @php
                                                 $statusClass = match($item->order->status) {
@@ -600,6 +581,7 @@
                                                 };
                                             @endphp
                                             <span class="badge {{ $statusClass }} rounded-pill px-3 py-2 text-capitalize">
+                                                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem"></i>
                                                 {{ $item->order->status === 'finished' ? 'Selesai' : $item->order->status }}
                                             </span>
                                         </td>
@@ -620,7 +602,6 @@
                                                             'subtotal' => $item->subtotal,
                                                             'ongkir' => $item->order->shipping_cost ?? 0,
                                                             'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
-                                                            'kurir_kode' => $item->order->courier_code ?? '-',
                                                             'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
                                                             'status' => $item->order->status,
                                                             'resi' => $item->order->nomor_resi ?? '-'
@@ -665,19 +646,17 @@
                     </div>
                 @endif
             </div>
-            @endif
         </div>
     </div>
 </div>
 
-@if($isOwner)
-{{-- MODALS --}}
+{{-- MODALS - Keeping same IDs for compatibility with mengelolaProdukCRUD.js --}}
 
 {{-- Modal Edit Toko --}}
 <div class="modal fade" id="modalEditToko" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
+            <div class="modal-header">
                 <h5 class="modal-title fw-bold">Pengaturan Toko</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -692,6 +671,7 @@
                         <textarea name="deskripsi_toko" class="form-control" rows="3" required>{{ $toko->deskripsi_toko }}</textarea>
                     </div>
 
+                    {{-- Lokasi Toko dengan Wilayah --}}
                     <div class="row g-2 mb-3">
                         <div class="col-md-4">
                             <label class="form-label small mb-1">Provinsi</label>
@@ -700,7 +680,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small mb-1">Kota</label>
+                            <label class="form-label small mb-1">Kota/Kabupaten</label>
                             <select class="form-select form-select-sm" id="tokoKota" required disabled>
                                 <option value="">Pilih Kota</option>
                             </select>
@@ -712,12 +692,7 @@
                             </select>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label small mb-1">Kode Pos</label>
-                        <input type="text" name="kode_pos" id="tokoKodePos" class="form-control" value="{{ $toko->kode_pos ?? '' }}" placeholder="Contoh: 12345" required>
-                    </div>
-
+                    
                     <input type="hidden" name="kode_wilayah" id="tokoKodeWilayah">
                     <input type="hidden" name="provinsi" id="hiddenProvinsi">
                     <input type="hidden" name="kota" id="hiddenKota">
@@ -733,7 +708,7 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-primary rounded-pill px-4" onclick="updateToko()">Simpan Perubahan</button>
             </div>
@@ -745,7 +720,7 @@
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
+            <div class="modal-header">
                 <h5 class="modal-title fw-bold">Tambah Produk Baru</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -755,7 +730,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Nama Produk</label>
-                                <input type="text" name="nama" class="form-control" required>
+                                <input type="text" name="nama" class="form-control" placeholder="Contoh: Busi Racing Iridium" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
@@ -775,19 +750,15 @@
                                     <label class="form-label">Stok</label>
                                     <input type="number" name="stok" class="form-control" required>
                                 </div>
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">Berat (Gram)</label>
-                                    <input type="number" name="berat" class="form-control" value="1000" required>
-                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Deskripsi</label>
-                                <textarea name="deskripsi" class="form-control" rows="4" required></textarea>
+                                <label class="form-label">Deskripsi Produk</label>
+                                <textarea name="deskripsi" class="form-control" rows="4" placeholder="Jelaskan detail produk Anda..." required></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Gambar</label>
+                                <label class="form-label">Gambar Produk</label>
                                 <input type="file" name="image" class="form-control" accept="image/*" required onchange="previewImage(this, 'previewTambah')">
                                 <img id="previewTambah" class="preview-image" style="display:none">
                             </div>
@@ -795,9 +766,9 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="simpanProduk()">Terbitkan</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="simpanProduk()">Terbitkan Produk</button>
             </div>
         </div>
     </div>
@@ -807,8 +778,8 @@
 <div class="modal fade" id="modalEdit" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Edit Produk</h5>
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Edit Informasi Produk</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -816,7 +787,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="mb-3">
-                            <label class="form-label">Nama</label>
+                            <label class="form-label">Nama Produk</label>
                             <input type="text" id="editNama" class="form-control" required>
                         </div>
                         <div class="mb-3">
@@ -824,58 +795,98 @@
                             <select id="editKategori" class="form-select" required>
                                 <option value="">Pilih Kategori</option>
                                 @foreach($categories as $cat)
-                                    <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
+                                    <option value="{{ $cat->id }}">{{ $cat->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Harga</label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Harga (Rp)</label>
                                 <input type="number" id="editHarga" class="form-control" required>
                             </div>
-                            <div class="col-6 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label class="form-label">Stok</label>
                                 <input type="number" id="editStok" class="form-control" required>
-                            </div>
-                            <div class="col-12 mb-3">
-                                <label class="form-label">Berat (Gram)</label>
-                                <input type="number" id="editBerat" class="form-control" required>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="mb-3">
                             <label class="form-label">Deskripsi</label>
-                            <textarea id="editDeskripsi" class="form-control" rows="6" required></textarea>
+                            <textarea id="editDeskripsi" class="form-control" rows="4" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Gambar</label>
+                            <label class="form-label">Ganti Gambar (Opsional)</label>
                             <input type="file" id="editGambar" class="form-control" accept="image/*">
                             <img id="previewEditGambar" class="preview-image">
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="updateProduk()">Simpan</button>
+                <button type="button" class="btn btn-primary rounded-pill px-4" onclick="updateProduk()">Simpan Perubahan</button>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Modal Detail Pesanan (STYLE DARI YANGBENER) --}}
-<div class="modal fade" id="modalDetailOrder" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header bg-medcom-blue text-white p-4">
-                <div class="d-flex justify-content-between align-items-center w-100">
-                    <h5 class="modal-title fw-bold mb-0">Detail Pesanan #<span id="detailId"></span></h5>
-                    <span id="detailStatusBadge" class="badge rounded-pill px-3 py-2 text-capitalize border border-white" style="font-size: 0.75rem;"></span>
-                </div>
-                <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
-            </div>
+{{-- Modal Hapus --}}
+<div class="modal fade" id="modalHapus" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content text-center">
             <div class="modal-body p-4">
+                <input type="hidden" id="hapusId">
+                <div class="mb-3 text-danger" style="font-size: 3rem;">
+                    <i class="bi bi-exclamation-circle"></i>
+                </div>
+                <h5 class="fw-bold">Hapus Produk?</h5>
+                <p class="text-muted">Tindakan ini tidak dapat dibatalkan.</p>
+                <div class="d-flex gap-2 justify-content-center mt-4">
+                    <button type="button" class="btn btn-light rounded-pill flex-fill" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-danger rounded-pill flex-fill" onclick="hapusProduk()">Hapus</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{{-- Modal Kirim (Input Resi) --}}
+<div class="modal fade" id="modalShip" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Input Nomor Resi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="formShip" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Nomor Resi Pengiriman</label>
+                        <input type="text" name="nomor_resi" class="form-control" placeholder="Contoh: JNE123456789" required>
+                    </div>
+                    <p class="small text-muted mb-0">Status pesanan akan berubah menjadi <span class="badge bg-info-subtle text-info">Shipped</span></p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim Pesanan</button>
+                </div>
+                </form>
+                </div>
+                </div>
+                </div>
+
+                {{-- Modal Detail Pesanan --}}
+                <div class="modal fade" id="modalDetailOrder" tabindex="-1">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-medcom-blue text-white p-4">
+                <h5 class="modal-title fw-bold">Detail Pesanan #<span id="detailId"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="p-3 bg-light rounded-3 mb-4">
@@ -931,69 +942,14 @@
                         </div>
                     </div>
                 </div>
+                </div>
+                <div class="modal-footer border-0 p-4">
+                <button type="button" class="btn btn-medcom-blue rounded-pill px-5" data-bs-dismiss="modal">Tutup</button>
+                </div>
+                </div>
+                </div>
+                </div>
 
-                {{-- Tracking Timeline Section --}}
-                <div id="trackingSection" class="mt-4 d-none">
-                    <h6 class="fw-bold small text-muted text-uppercase mb-3">Status Pengiriman (Live Tracking)</h6>
-                    <div id="trackingTimeline" class="p-3 bg-white border rounded-3 overflow-auto" style="max-height: 250px;">
-                        {{-- Timeline items will be injected here --}}
-                        <div class="text-center py-3 text-muted small">
-                            <div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer border-0 p-4 pt-0">
-                <button type="button" class="btn btn-medcom-blue rounded-pill px-5 w-100 py-2 fw-bold" data-bs-dismiss="modal">Tutup</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Modal Hapus --}}
-<div class="modal fade" id="modalHapus" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content text-center">
-            <div class="modal-body p-4">
-                <input type="hidden" id="hapusId">
-                <div class="mb-3 text-danger" style="font-size: 3rem;"><i class="bi bi-exclamation-circle"></i></div>
-                <h5 class="fw-bold">Hapus Produk?</h5>
-                <p class="text-muted small">Tindakan ini tidak dapat dibatalkan.</p>
-                <div class="d-flex gap-2 justify-content-center mt-4">
-                    <button type="button" class="btn btn-light rounded-pill flex-fill" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-danger rounded-pill flex-fill" onclick="hapusProduk()">Hapus</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- Modal Kirim --}}
-<div class="modal fade" id="modalShip" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold">Input Nomor Resi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formShip" method="POST">
-                @csrf
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small">Nomor Resi Pengiriman</label>
-                        <input type="text" name="nomor_resi" class="form-control" placeholder="Contoh: JNE123456789" required>
-                    </div>
-                    <p class="small text-muted mb-0">Status pesanan akan berubah menjadi <span class="badge bg-info-subtle text-info">Shipped</span></p>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4">Kirim Pesanan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endif
 
 @endsection
 
@@ -1003,7 +959,6 @@
     const TOKO_ID = {{ $toko->id }};
     const STORE_PRODUCT_URL = "{{ route('product.store') }}";
 
-    @if($isOwner)
     function openDetailOrderModal(data) {
         document.getElementById('detailId').textContent = data.id;
         document.getElementById('detailUserName').textContent = data.user_name;
@@ -1021,67 +976,8 @@
         document.getElementById('detailKurir').textContent = data.kurir;
         document.getElementById('detailResi').textContent = data.resi;
 
-        // --- Status Badge ---
-        const badge = document.getElementById('detailStatusBadge');
-        badge.textContent = data.status === 'finished' ? 'Selesai' : data.status;
-        badge.className = 'badge rounded-pill px-3 py-2 text-capitalize border border-white';
-        const s = data.status;
-        if (s === 'pending') badge.classList.add('bg-warning');
-        else if (s === 'paid') badge.classList.add('bg-success');
-        else if (s === 'processing') badge.classList.add('bg-primary');
-        else if (s === 'shipped') badge.classList.add('bg-info');
-        else if (s === 'finished') badge.classList.add('bg-success');
-        else if (s === 'cancelled') badge.classList.add('bg-danger');
-        else badge.classList.add('bg-secondary');
-
-        // --- Live Tracking Logic ---
-        const trackingSection = document.getElementById('trackingSection');
-        const trackingTimeline = document.getElementById('trackingTimeline');
-        console.log("INI KENAPA")
-        console.log(data.resi)
-        console.log(data.kurir_kode)
-        if (data.resi && data.resi !== '-' && data.kurir_kode) {
-            trackingSection.classList.remove('d-none');
-            trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...</div>';
-            
-            fetch(`/api/shipping/track/${data.resi}/${data.kurir_kode}`)
-                .then(res => res.json())
-                .then(res => {
-                    console.log(res.data.data.histories)
-                    if (res.data && res.data.data.histories) {
-let html = '<div class="timeline-small">';
-                        res.data.data.histories.forEach((h, index) => {
-                            html += `
-                                <div class="d-flex mb-3">
-                                    <div class="me-3 text-center" style="width: 20px;">
-                                        <i class="bi bi-circle-fill text-${index === 0 ? 'primary' : 'secondary'} small"></i>
-                                        ${index !== res.data.data.histories.length - 1 ? '<div class="border-start mx-auto h-100" style="width: 1px; min-height: 20px;"></div>' : ''}
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold small">${h.status}</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">
-                                            ${new Date(h.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })} - ${h.message || ''}
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        });
-                        html += '</div>';
-                        trackingTimeline.innerHTML = html;
-                    } else {
-                        trackingTimeline.innerHTML =
-                            '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
-                    }
-                })
-                .catch(err => {
-                    console.error('Tracking Error:', err);
-                    trackingTimeline.innerHTML = '<div class="text-center py-3 text-danger small">Gagal memuat data pelacakan.</div>';
-                });
-        } else {
-            trackingSection.classList.add('d-none');
-        }
-
-        new bootstrap.Modal(document.getElementById('modalDetailOrder')).show();
+        const modal = new bootstrap.Modal(document.getElementById('modalDetailOrder'));
+        modal.show();
     }
 
     function openShipModal(orderId) {
@@ -1093,7 +989,10 @@ let html = '<div class="timeline-small">';
 
     // Persistensi Tab setelah Refresh
     document.addEventListener('DOMContentLoaded', function() {
+        // Pre-fill existing location if available
         prefillTokoLocation();
+
+        // --- Wilayah Logic for Toko ---
         const tokoProv = document.getElementById('tokoProvinsi');
         const tokoKota = document.getElementById('tokoKota');
         const tokoKec = document.getElementById('tokoKecamatan');
@@ -1128,6 +1027,8 @@ let html = '<div class="timeline-small">';
                     tokoKota.appendChild(opt);
                 });
                 tokoKota.disabled = false;
+            } else {
+                tokoKota.disabled = true;
             }
             updateHiddenFields();
         }
@@ -1143,6 +1044,8 @@ let html = '<div class="timeline-small">';
                     tokoKec.appendChild(opt);
                 });
                 tokoKec.disabled = false;
+            } else {
+                tokoKec.disabled = true;
             }
             updateHiddenFields();
         }
@@ -1158,50 +1061,75 @@ let html = '<div class="timeline-small">';
         tokoKota.addEventListener('change', handleKotaChange);
         tokoKec.addEventListener('change', updateHiddenFields);
 
+        // Pre-fill existing location if available
         async function prefillTokoLocation() {
             await loadProvinces();
             const currentKode = "{{ $toko->kode_wilayah ?? '' }}";
+            console.log(currentKode);
+            console.log("ke run okk ajg");
             if (currentKode) {
                 const provCode = currentKode.substring(0, 2);
                 const cityCode = currentKode.substring(0, 5);
+                
                 tokoProv.value = provCode;
                 await handleProvChange();
+                
                 tokoKota.value = cityCode;
                 await handleKotaChange();
+                
                 tokoKec.value = currentKode;
                 updateHiddenFields();
             }
         }
-        @endif
 
+        // Ambil hash dari URL (misal: #orders)
         const hash = window.location.hash;
         if (hash) {
             const tabEl = document.querySelector(`button[data-bs-target="${hash}"]`);
-            if (tabEl) bootstrap.Tab.getOrCreateInstance(tabEl).show();
+            if (tabEl) {
+                bootstrap.Tab.getOrCreateInstance(tabEl).show();
+            }
         }
 
+        // Simpan hash ke URL setiap kali tab diklik
         const tabButtons = document.querySelectorAll('button[data-bs-toggle="pill"]');
         tabButtons.forEach(btn => {
             btn.addEventListener('shown.bs.tab', function(e) {
-                history.replaceState(null, null, e.target.getAttribute('data-bs-target'));
+                const target = e.target.getAttribute('data-bs-target');
+                history.replaceState(null, null, target);
             });
         });
 
+        // Search & Filter Produk Toko
         const searchInputToko = document.getElementById('search-produk-toko');
         const filterKategoriToko = document.getElementById('filter-kategori-toko');
         const produkCards = document.querySelectorAll('.product-card');
 
         function filterProdukToko() {
-            const term = searchInputToko.value.toLowerCase();
-            const cat = filterKategoriToko.value;
+            const searchTerm = searchInputToko.value.toLowerCase();
+            const selectedCategory = filterKategoriToko.value;
+
             produkCards.forEach(card => {
-                const matchTitle = card.querySelector('.product-title').textContent.toLowerCase().includes(term);
-                const matchCat = cat === "" || card.getAttribute('data-category') === cat;
-                card.style.display = (matchTitle && matchCat) ? 'block' : 'none';
+                const title = card.querySelector('.product-title').textContent.toLowerCase();
+                const productCategory = card.getAttribute('data-category');
+
+                const matchTitle = title.includes(searchTerm);
+                const matchCategory = selectedCategory === "" || productCategory === selectedCategory;
+
+                if (matchTitle && matchCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
             });
         }
-        if (searchInputToko) searchInputToko.addEventListener('input', filterProdukToko);
-        if (filterKategoriToko) filterKategoriToko.addEventListener('change', filterProdukToko);
+
+        if (searchInputToko) {
+            searchInputToko.addEventListener('input', filterProdukToko);
+        }
+        if (filterKategoriToko) {
+            filterKategoriToko.addEventListener('change', filterProdukToko);
+        }
     });
 </script>
 <script src="{{ asset('js/mengelolaProdukCRUD.js') }}"></script>

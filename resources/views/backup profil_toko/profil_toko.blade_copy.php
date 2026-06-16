@@ -553,9 +553,7 @@
                                         <th class="py-3">Pembeli</th>
                                         <th class="py-3">Produk</th>
                                         <th class="py-3">Jumlah</th>
-                                        <th class="py-3">Total</th>
-                                        <th class="py-3 text-center">Status</th>
-                                        <th class="pe-4 py-3 text-end">Aksi</th>
+                                        <th class="py-3">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -575,17 +573,7 @@
                                         </td>
                                         <td>
                                             <div class="fw-600">{{ $item->nama_produk }}</div>
-                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
-                                                <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
-                                            </span>
-                                            <div class="text-muted small">Harga: Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
-                                            <div class="text-muted small">Ongkir: Rp {{ number_format($item->order->shipping_cost, 0, ',', '.') }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->qty }}x</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
+                                            <div class="text-muted small">Qty: {{ $item->qty }}x | Total: Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
                                         </td>
                                         <td class="text-center">
                                             @php
@@ -620,7 +608,6 @@
                                                             'subtotal' => $item->subtotal,
                                                             'ongkir' => $item->order->shipping_cost ?? 0,
                                                             'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
-                                                            'kurir_kode' => $item->order->courier_code ?? '-',
                                                             'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
                                                             'status' => $item->order->status,
                                                             'resi' => $item->order->nomor_resi ?? '-'
@@ -1037,31 +1024,26 @@
         // --- Live Tracking Logic ---
         const trackingSection = document.getElementById('trackingSection');
         const trackingTimeline = document.getElementById('trackingTimeline');
-        console.log("INI KENAPA")
-        console.log(data.resi)
-        console.log(data.kurir_kode)
-        if (data.resi && data.resi !== '-' && data.kurir_kode) {
+        
+        if (data.resi && data.resi !== '-' && data.kurir) {
             trackingSection.classList.remove('d-none');
             trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...</div>';
             
-            fetch(`/api/shipping/track/${data.resi}/${data.kurir_kode}`)
+            fetch(`/api/shipping/track/${data.resi}/${data.kurir}`)
                 .then(res => res.json())
                 .then(res => {
-                    console.log(res.data.data.histories)
-                    if (res.data && res.data.data.histories) {
-let html = '<div class="timeline-small">';
-                        res.data.data.histories.forEach((h, index) => {
+                    if (res.success && res.data && res.data.data && res.data.data.history) {
+                        let html = '<div class="timeline-small">';
+                        res.data.data.history.forEach((h, index) => {
                             html += `
                                 <div class="d-flex mb-3">
                                     <div class="me-3 text-center" style="width: 20px;">
                                         <i class="bi bi-circle-fill text-${index === 0 ? 'primary' : 'secondary'} small"></i>
-                                        ${index !== res.data.data.histories.length - 1 ? '<div class="border-start mx-auto h-100" style="width: 1px; min-height: 20px;"></div>' : ''}
+                                        ${index !== res.data.data.history.length - 1 ? '<div class="border-start mx-auto h-100" style="width: 1px;"></div>' : ''}
                                     </div>
                                     <div>
                                         <div class="fw-bold small">${h.status}</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">
-                                            ${new Date(h.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })} - ${h.message || ''}
-                                        </div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">${h.time} - ${h.note || ''}</div>
                                     </div>
                                 </div>
                             `;
@@ -1069,8 +1051,7 @@ let html = '<div class="timeline-small">';
                         html += '</div>';
                         trackingTimeline.innerHTML = html;
                     } else {
-                        trackingTimeline.innerHTML =
-                            '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
+                        trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
                     }
                 })
                 .catch(err => {

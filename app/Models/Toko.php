@@ -15,6 +15,7 @@ class Toko extends Model
         'provinsi',
         'kota',
         'kecamatan',
+        'kode_pos',
         'kode_wilayah',
         'logo_path'
     ];

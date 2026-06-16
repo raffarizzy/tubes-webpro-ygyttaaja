@@ -96,6 +96,7 @@
         </div>
 
         <p><strong>Stok:</strong> <span id="product-stok">{{ $product->stok }}</span> Tersedia</p>
+        <p><strong>Berat:</strong> <span id="product-berat">{{ $product->berat ?? 1000 }}</span> Gram</p>
 
         <!-- Quantity -->
         <div class="p-3 bg-body-secondary rounded">
@@ -245,6 +246,7 @@
         'nama' => $product->nama,
         'harga' => $product->harga,
         'stok' => $product->stok,
+        'berat' => $product->berat ?? 1000,
         'imagePath' => $imagePath,
         'deskripsi' => $product->deskripsi,
       ];

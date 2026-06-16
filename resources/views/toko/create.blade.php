@@ -171,6 +171,11 @@
                     <input type="text" name="lokasi" class="form-control border-start-0 rounded-end-3" placeholder="Contoh: Jl. Sudirman No. 10" required>
                 </div>
             </div>
+
+            <div class="mb-3">
+                <label class="form-label">Kode Pos</label>
+                <input type="text" name="kode_pos" class="form-control" placeholder="Contoh: 12345" required maxlength="10">
+            </div>
             
             <input type="hidden" name="kode_wilayah" id="tokoKodeWilayah">
 

@@ -28,7 +28,7 @@
         --bs-btn-bg: #122c4f;
         --bs-btn-border-color: #122c4f;
         --bs-btn-hover-color: #ffffff;
-        --bs-btn-hover-bg: #0d2033; /* Darker blue on hover */
+        --bs-btn-hover-bg: #0d2033;
         --bs-btn-hover-border-color: #0d2033;
         --bs-btn-active-bg: #0a1829;
         --bs-btn-active-border-color: #0a1829;
@@ -42,7 +42,6 @@
         background-color: #122c4f !important;
     }
 
-    /* Bleed background to prevent white gap on scroll up */
     .shop-banner::before {
         content: "";
         position: absolute;
@@ -291,7 +290,6 @@
         transform: scale(1.05);
     }
 
-    /* Modal Styling */
     .modal-content {
         border-radius: 20px;
         border: none;
@@ -349,9 +347,7 @@
 
 @section('content')
 <div class="container-fluid p-0">
-    {{-- Banner & Profile --}}
     <div class="shop-banner">
-        {{-- Alerts di dalam Banner agar tidak mendorong layout ke bawah --}}
         <div class="container pt-3">
             @if(session('success'))
                 <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert">
@@ -398,7 +394,6 @@
     </div>
 
     <div class="container">
-        {{-- Stats Summary --}}
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
@@ -429,7 +424,6 @@
             </div>
         </div>
 
-        {{-- Tab Navigation --}}
         <ul class="nav nav-pills gap-2 mb-4 mt-5" id="shopTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active rounded-pill px-4 fw-600" id="products-tab" data-bs-toggle="pill" data-bs-target="#products" type="button" role="tab">
@@ -446,47 +440,32 @@
         </ul>
 
         <div class="tab-content" id="shopTabsContent">
-            {{-- Products Tab --}}
             <div class="tab-pane fade show active" id="products" role="tabpanel">
                 <div class="section-header mt-0">
                     <div>
-                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">{{ $isOwner ? 'Daftar Produk' : 'Katalog Produk' }}</h2>
-                        <p class="text-muted mb-0">{{ $isOwner ? 'Kelola stok dan informasi produk Anda' : 'Temukan berbagai produk berkualitas dari toko kami' }}</p>
+                        <h2 class="fw-bold mb-0" style="color: var(--primary-dark)">Daftar Produk</h2>
+                        <p class="text-muted mb-0">Kelola stok dan informasi produk Anda</p>
                     </div>
-                    <div class="d-flex gap-3 align-items-center">
-                        <div class="input-group" style="width: 300px;">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                            <input type="text" id="search-produk-toko" class="form-control border-start-0" placeholder="Cari produk Anda...">
-                        </div>
-                        <select id="filter-kategori-toko" class="form-select" style="width: 200px;">
-                            <option value="">Semua Kategori</option>
-                            @foreach($categories as $cat)
-                                <option value="{{ $cat->judulKategori }}">{{ $cat->judulKategori }}</option>
-                            @endforeach
-                        </select>
-                        @if($isOwner)
-                        <button class="btn-add-product" onclick="openTambahModal()">
-                            <i class="bi bi-plus-lg"></i> Tambah Produk Baru
-                        </button>
-                        @endif
-                    </div>
+                    @if($isOwner)
+                    <button class="btn-add-product" onclick="openTambahModal()">
+                        <i class="bi bi-plus-lg"></i> Tambah Produk Baru
+                    </button>
+                    @endif
                 </div>
 
                 @if($toko->products->count() == 0)
                     <div class="text-center py-5 bg-white rounded-4 shadow-sm">
                         <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                        <h4 class="mt-3 text-muted">Belum ada produk @if($isOwner) di toko Anda @endif</h4>
-                        @if($isOwner)
+                        <h4 class="mt-3 text-muted">Belum ada produk di toko Anda</h4>
                         <p class="text-muted">Mulai berjualan dengan menambahkan produk pertama Anda.</p>
                         <button class="btn btn-primary rounded-pill px-4" onclick="openTambahModal()">
                             Tambah Produk Sekarang
                         </button>
-                        @endif
                     </div>
                 @else
                     <div class="product-grid" id="produk-list">
                         @foreach($toko->products as $p)
-                        <div class="product-card" id="produk-{{ $p->id }}" data-category="{{ $p->category->judulKategori ?? '' }}" onclick="!event.target.closest('.product-actions') && (window.location.href='{{ route('produk.detail', $p->id) }}')" style="cursor: pointer;">
+                        <div class="product-card" id="produk-{{ $p->id }}" onclick="!event.target.closest('.product-actions') && (window.location.href='{{ route('produk.detail', $p->id) }}')" style="cursor: pointer;">
                             <div class="product-image-wrapper">
                                 <img src="{{ asset('storage/'.$p->imagePath) }}" 
                                      class="product-image" 
@@ -527,7 +506,6 @@
                 @endif
             </div>
 
-            {{-- Orders Tab --}}
             @if($isOwner)
             <div class="tab-pane fade" id="orders" role="tabpanel">
                 <div class="section-header mt-0">
@@ -553,9 +531,7 @@
                                         <th class="py-3">Pembeli</th>
                                         <th class="py-3">Produk</th>
                                         <th class="py-3">Jumlah</th>
-                                        <th class="py-3">Total</th>
-                                        <th class="py-3 text-center">Status</th>
-                                        <th class="pe-4 py-3 text-end">Aksi</th>
+                                        <th class="py-3">Subtotal</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -575,36 +551,12 @@
                                         </td>
                                         <td>
                                             <div class="fw-600">{{ $item->nama_produk }}</div>
-                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
-                                                <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
-                                            </span>
-                                            <div class="text-muted small">Harga: Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
-                                            <div class="text-muted small">Ongkir: Rp {{ number_format($item->order->shipping_cost, 0, ',', '.') }}</div>
+                                            <div class="text-muted small">Total: Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
                                         </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->qty }}x</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
-                                        </td>
-                                        <td class="text-center">
-                                            @php
-                                                $statusClass = match($item->order->status) {
-                                                    'pending' => 'bg-warning-subtle text-warning',
-                                                    'paid' => 'bg-success-subtle text-success border border-success',
-                                                    'processing' => 'bg-primary-subtle text-primary border border-primary',
-                                                    'shipped' => 'bg-info-subtle text-info border border-info',
-                                                    'finished' => 'bg-success text-white',
-                                                    'cancelled' => 'bg-danger-subtle text-danger',
-                                                    default => 'bg-secondary-subtle text-secondary'
-                                                };
-                                            @endphp
-                                            <span class="badge {{ $statusClass }} rounded-pill px-3 py-2 text-capitalize">
-                                                {{ $item->order->status === 'finished' ? 'Selesai' : $item->order->status }}
-                                            </span>
-                                        </td>
-                                        <td class="pe-4 text-end">
-                                            <div class="d-flex justify-content-end gap-2">
+                                        <td>{{ $item->qty }}x</td>
+                                        <td class="pe-4">
+                                            <div class="fw-bold mb-2">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
+                                            <div class="d-flex gap-2">
                                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" 
                                                         onclick="openDetailOrderModal({{ json_encode([
                                                             'id' => $item->order->id,
@@ -620,8 +572,8 @@
                                                             'subtotal' => $item->subtotal,
                                                             'ongkir' => $item->order->shipping_cost ?? 0,
                                                             'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
-                                                            'kurir_kode' => $item->order->courier_code ?? '-',
-                                                            'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'kurir_display' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'kurir' => $item->order->courier_code,
                                                             'status' => $item->order->status,
                                                             'resi' => $item->order->nomor_resi ?? '-'
                                                         ]) }})">
@@ -634,26 +586,10 @@
                                                             Terima
                                                         </button>
                                                     </form>
-                                                    <form action="{{ route('toko.order.reject', $item->order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menolak pesanan ini?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                            Tolak
-                                                        </button>
-                                                    </form>
                                                 @elseif($item->order->status === 'processing')
                                                     <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="openShipModal({{ $item->order->id }})">
                                                         Kirim
                                                     </button>
-                                                    <form action="{{ route('toko.order.reject', $item->order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                            Batal
-                                                        </button>
-                                                    </form>
-                                                @elseif($item->order->status === 'shipped')
-                                                    <div class="text-muted small">
-                                                        Resi: <span class="fw-bold text-dark">{{ $item->order->nomor_resi }}</span>
-                                                    </div>
                                                 @endif
                                             </div>
                                         </td>
@@ -673,7 +609,6 @@
 @if($isOwner)
 {{-- MODALS --}}
 
-{{-- Modal Edit Toko --}}
 <div class="modal fade" id="modalEditToko" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -741,7 +676,6 @@
     </div>
 </div>
 
-{{-- Modal Tambah Produk --}}
 <div class="modal fade" id="modalTambah" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -760,22 +694,21 @@
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
                                 <select name="category_id" class="form-select" required>
-                                    <option value="">Pilih Kategori</option>
                                     @foreach($categories as $cat)
                                         <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="row">
-                                <div class="col-md-6 mb-3">
+                                <div class="col-6 mb-3">
                                     <label class="form-label">Harga (Rp)</label>
                                     <input type="number" name="harga" class="form-control" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
+                                <div class="col-6 mb-3">
                                     <label class="form-label">Stok</label>
                                     <input type="number" name="stok" class="form-control" required>
                                 </div>
-                                <div class="col-md-12 mb-3">
+                                <div class="col-12 mb-3">
                                     <label class="form-label">Berat (Gram)</label>
                                     <input type="number" name="berat" class="form-control" value="1000" required>
                                 </div>
@@ -803,7 +736,6 @@
     </div>
 </div>
 
-{{-- Modal Edit Produk --}}
 <div class="modal fade" id="modalEdit" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -822,7 +754,6 @@
                         <div class="mb-3">
                             <label class="form-label">Kategori</label>
                             <select id="editKategori" class="form-select" required>
-                                <option value="">Pilih Kategori</option>
                                 @foreach($categories as $cat)
                                     <option value="{{ $cat->id }}">{{ $cat->judulKategori }}</option>
                                 @endforeach
@@ -864,7 +795,6 @@
     </div>
 </div>
 
-{{-- Modal Detail Pesanan (STYLE DARI YANGBENER) --}}
 <div class="modal fade" id="modalDetailOrder" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content border-0 shadow-lg">
@@ -936,7 +866,6 @@
                 <div id="trackingSection" class="mt-4 d-none">
                     <h6 class="fw-bold small text-muted text-uppercase mb-3">Status Pengiriman (Live Tracking)</h6>
                     <div id="trackingTimeline" class="p-3 bg-white border rounded-3 overflow-auto" style="max-height: 250px;">
-                        {{-- Timeline items will be injected here --}}
                         <div class="text-center py-3 text-muted small">
                             <div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...
                         </div>
@@ -950,7 +879,6 @@
     </div>
 </div>
 
-{{-- Modal Hapus --}}
 <div class="modal fade" id="modalHapus" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content text-center">
@@ -968,7 +896,6 @@
     </div>
 </div>
 
-{{-- Modal Kirim --}}
 <div class="modal fade" id="modalShip" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
@@ -1018,7 +945,7 @@
         document.getElementById('detailSubtotal').textContent = 'Rp ' + data.subtotal.toLocaleString('id-ID');
         document.getElementById('detailOngkir').textContent = 'Rp ' + data.ongkir.toLocaleString('id-ID');
         document.getElementById('detailTotal').textContent = 'Rp ' + data.total.toLocaleString('id-ID');
-        document.getElementById('detailKurir').textContent = data.kurir;
+        document.getElementById('detailKurir').textContent = data.kurir_display;
         document.getElementById('detailResi').textContent = data.resi;
 
         // --- Status Badge ---
@@ -1037,19 +964,16 @@
         // --- Live Tracking Logic ---
         const trackingSection = document.getElementById('trackingSection');
         const trackingTimeline = document.getElementById('trackingTimeline');
-        console.log("INI KENAPA")
-        console.log(data.resi)
-        console.log(data.kurir_kode)
-        if (data.resi && data.resi !== '-' && data.kurir_kode) {
+        
+        if (data.resi && data.resi !== '-' && data.kurir) {
             trackingSection.classList.remove('d-none');
             trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...</div>';
             
-            fetch(`/api/shipping/track/${data.resi}/${data.kurir_kode}`)
+            fetch(`/api/shipping/track/${data.resi}/${data.kurir}`)
                 .then(res => res.json())
                 .then(res => {
-                    console.log(res.data.data.histories)
-                    if (res.data && res.data.data.histories) {
-let html = '<div class="timeline-small">';
+                    if (res.success && res.data && res.data.data && res.data.data.histories) {
+                        let html = '<div class="timeline-small">';
                         res.data.data.histories.forEach((h, index) => {
                             html += `
                                 <div class="d-flex mb-3">
@@ -1069,8 +993,7 @@ let html = '<div class="timeline-small">';
                         html += '</div>';
                         trackingTimeline.innerHTML = html;
                     } else {
-                        trackingTimeline.innerHTML =
-                            '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
+                        trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
                     }
                 })
                 .catch(err => {

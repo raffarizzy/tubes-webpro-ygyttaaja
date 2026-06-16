@@ -107,6 +107,7 @@ class ProductController extends Controller
                 'category_id' => 'required|integer',
                 'harga' => 'required|numeric',
                 'stok' => 'required|integer',
+                'berat' => 'required|integer|min:1',
                 'deskripsi' => 'required|string',
                 'image' => 'required|image|mimes:jpg,jpeg,png,webp'
             ]);
@@ -148,6 +149,7 @@ class ProductController extends Controller
                 'nama' => $request->nama,
                 'harga' => $request->harga,
                 'stok' => $request->stok,
+                'berat' => $request->berat,
                 'deskripsi' => $request->deskripsi,
                 'imagePath' => $imagePath,
                 'diskon' => $request->diskon ?? 0
@@ -185,7 +187,7 @@ class ProductController extends Controller
     {
         try {
             $data = $request->only([
-                'nama', 'harga', 'stok', 'deskripsi', 'category_id', 'diskon'
+                'nama', 'harga', 'stok', 'berat', 'deskripsi', 'category_id', 'diskon'
             ]);
 
             if ($request->hasFile('image')) {

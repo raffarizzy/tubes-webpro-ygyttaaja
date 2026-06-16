@@ -39,6 +39,7 @@ exports.getByUserId = async (userId) => {
       provinsi,
       kota,
       kecamatan,
+      kode_pos,
       kode_wilayah,
       logo_path,
       created_at,
@@ -64,6 +65,7 @@ exports.getById = async (tokoId) => {
       lokasi,
       kota,
       kecamatan,
+      kode_pos,
       kode_wilayah,
       logo_path,
       created_at
@@ -87,8 +89,8 @@ exports.create = async (data) => {
   }
 
   const [result] = await db.query(
-    `INSERT INTO tokos (user_id, nama_toko, deskripsi_toko, lokasi, provinsi, kota, kecamatan, kode_wilayah, logo_path, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+    `INSERT INTO tokos (user_id, nama_toko, deskripsi_toko, lokasi, provinsi, kota, kecamatan, kode_pos, kode_wilayah, logo_path, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
     [
       data.user_id,
       data.nama_toko,
@@ -97,6 +99,7 @@ exports.create = async (data) => {
       data.provinsi || null,
       data.kota || null,
       data.kecamatan || null,
+      data.kode_pos || null,
       data.kode_wilayah || null,
       data.logo_path || null
     ]
@@ -128,17 +131,27 @@ exports.update = async (tokoId, userId, data) => {
     nama_toko: data.nama_toko ?? old.nama_toko,
     deskripsi_toko: data.deskripsi_toko ?? old.deskripsi_toko,
     lokasi: data.lokasi ?? old.lokasi,
+    provinsi: data.provinsi ?? old.provinsi,
+    kota: data.kota ?? old.kota,
+    kecamatan: data.kecamatan ?? old.kecamatan,
+    kode_pos: data.kode_pos ?? old.kode_pos,
+    kode_wilayah: data.kode_wilayah ?? old.kode_wilayah,
     logo_path: data.logo_path ?? old.logo_path,
   };
 
   await db.query(
     `UPDATE tokos
-     SET nama_toko=?, deskripsi_toko=?, lokasi=?, logo_path=?
+     SET nama_toko=?, deskripsi_toko=?, lokasi=?, provinsi=?, kota=?, kecamatan=?, kode_pos=?, kode_wilayah=?, logo_path=?, updated_at=NOW()
      WHERE id=? AND user_id=?`,
     [
       updated.nama_toko,
       updated.deskripsi_toko,
       updated.lokasi,
+      updated.provinsi,
+      updated.kota,
+      updated.kecamatan,
+      updated.kode_pos,
+      updated.kode_wilayah,
       updated.logo_path,
       tokoId,
       userId

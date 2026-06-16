@@ -225,6 +225,7 @@ class TokoController extends Controller
             'provinsi' => 'required|string',
             'kota' => 'required|string',
             'kecamatan' => 'required|string',
+            'kode_pos' => 'required|string|max:10',
             'kode_wilayah' => 'required|string',
             'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp'
         ]);
@@ -277,6 +278,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
@@ -334,6 +336,7 @@ class TokoController extends Controller
                 'provinsi' => 'required|string',
                 'kota' => 'required|string',
                 'kecamatan' => 'required|string',
+                'kode_pos' => 'required|string|max:10',
                 'kode_wilayah' => 'required|string',
                 'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp'
             ]);
@@ -379,6 +382,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ]);
@@ -391,6 +395,7 @@ class TokoController extends Controller
                 'provinsi' => $request->provinsi,
                 'kota' => $request->kota,
                 'kecamatan' => $request->kecamatan,
+                'kode_pos' => $request->kode_pos,
                 'kode_wilayah' => $request->kode_wilayah,
                 'logo_path' => $logoPath
             ];

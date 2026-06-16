@@ -553,9 +553,6 @@
                                         <th class="py-3">Pembeli</th>
                                         <th class="py-3">Produk</th>
                                         <th class="py-3">Jumlah</th>
-                                        <th class="py-3">Total</th>
-                                        <th class="py-3 text-center">Status</th>
-                                        <th class="pe-4 py-3 text-end">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -573,38 +570,10 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->nama_produk }}</div>
-                                            <span class="badge bg-light text-dark border fw-normal" style="font-size: 0.7rem;">
-                                                <i class="bi bi-truck text-primary"></i> {{ $item->order->courier_name ?? 'Kurir' }} ({{ $item->order->service_name ?? '-' }})
-                                            </span>
-                                            <div class="text-muted small">Harga: Rp {{ number_format($item->subtotal, 0, ',', '.') }}</div>
-                                            <div class="text-muted small">Ongkir: Rp {{ number_format($item->order->shipping_cost, 0, ',', '.') }}</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">{{ $item->qty }}x</div>
-                                        </td>
-                                        <td>
-                                            <div class="fw-600">Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
-                                        </td>
-                                        <td class="text-center">
-                                            @php
-                                                $statusClass = match($item->order->status) {
-                                                    'pending' => 'bg-warning-subtle text-warning',
-                                                    'paid' => 'bg-success-subtle text-success border border-success',
-                                                    'processing' => 'bg-primary-subtle text-primary border border-primary',
-                                                    'shipped' => 'bg-info-subtle text-info border border-info',
-                                                    'finished' => 'bg-success text-white',
-                                                    'cancelled' => 'bg-danger-subtle text-danger',
-                                                    default => 'bg-secondary-subtle text-secondary'
-                                                };
-                                            @endphp
-                                            <span class="badge {{ $statusClass }} rounded-pill px-3 py-2 text-capitalize">
-                                                {{ $item->order->status === 'finished' ? 'Selesai' : $item->order->status }}
-                                            </span>
-                                        </td>
-                                        <td class="pe-4 text-end">
-                                            <div class="d-flex justify-content-end gap-2">
+                                        <td>{{ $item->qty }}x</td>
+                                        <td class="pe-4">
+                                            <div class="fw-bold mb-2">Rp {{ number_format($item->subtotal + ($item->order->shipping_cost ?? 0), 0, ',', '.') }}</div>
+                                            <div class="d-flex gap-2">
                                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" 
                                                         onclick="openDetailOrderModal({{ json_encode([
                                                             'id' => $item->order->id,
@@ -620,8 +589,8 @@
                                                             'subtotal' => $item->subtotal,
                                                             'ongkir' => $item->order->shipping_cost ?? 0,
                                                             'total' => $item->subtotal + ($item->order->shipping_cost ?? 0),
-                                                            'kurir_kode' => $item->order->courier_code ?? '-',
-                                                            'kurir' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'kurir_display' => ($item->order->courier_name ?? 'Kurir').' ('.($item->order->service_name ?? '-').')',
+                                                            'kurir' => $item->order->courier_code,
                                                             'status' => $item->order->status,
                                                             'resi' => $item->order->nomor_resi ?? '-'
                                                         ]) }})">
@@ -634,26 +603,10 @@
                                                             Terima
                                                         </button>
                                                     </form>
-                                                    <form action="{{ route('toko.order.reject', $item->order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menolak pesanan ini?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                            Tolak
-                                                        </button>
-                                                    </form>
                                                 @elseif($item->order->status === 'processing')
                                                     <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="openShipModal({{ $item->order->id }})">
                                                         Kirim
                                                     </button>
-                                                    <form action="{{ route('toko.order.reject', $item->order->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin membatalkan pesanan ini?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                                            Batal
-                                                        </button>
-                                                    </form>
-                                                @elseif($item->order->status === 'shipped')
-                                                    <div class="text-muted small">
-                                                        Resi: <span class="fw-bold text-dark">{{ $item->order->nomor_resi }}</span>
-                                                    </div>
                                                 @endif
                                             </div>
                                         </td>
@@ -1018,7 +971,7 @@
         document.getElementById('detailSubtotal').textContent = 'Rp ' + data.subtotal.toLocaleString('id-ID');
         document.getElementById('detailOngkir').textContent = 'Rp ' + data.ongkir.toLocaleString('id-ID');
         document.getElementById('detailTotal').textContent = 'Rp ' + data.total.toLocaleString('id-ID');
-        document.getElementById('detailKurir').textContent = data.kurir;
+        document.getElementById('detailKurir').textContent = data.kurir_display;
         document.getElementById('detailResi').textContent = data.resi;
 
         // --- Status Badge ---
@@ -1037,19 +990,16 @@
         // --- Live Tracking Logic ---
         const trackingSection = document.getElementById('trackingSection');
         const trackingTimeline = document.getElementById('trackingTimeline');
-        console.log("INI KENAPA")
-        console.log(data.resi)
-        console.log(data.kurir_kode)
-        if (data.resi && data.resi !== '-' && data.kurir_kode) {
+        
+        if (data.resi && data.resi !== '-' && data.kurir) {
             trackingSection.classList.remove('d-none');
             trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small"><div class="spinner-border spinner-border-sm me-2" role="status"></div> Memuat status pengiriman...</div>';
             
-            fetch(`/api/shipping/track/${data.resi}/${data.kurir_kode}`)
+            fetch(`/api/shipping/track/${data.resi}/${data.kurir}`)
                 .then(res => res.json())
                 .then(res => {
-                    console.log(res.data.data.histories)
-                    if (res.data && res.data.data.histories) {
-let html = '<div class="timeline-small">';
+                    if (res.success && res.data && res.data.data && res.data.data.histories) {
+                        let html = '<div class="timeline-small">';
                         res.data.data.histories.forEach((h, index) => {
                             html += `
                                 <div class="d-flex mb-3">
@@ -1059,9 +1009,7 @@ let html = '<div class="timeline-small">';
                                     </div>
                                     <div>
                                         <div class="fw-bold small">${h.status}</div>
-                                        <div class="text-muted" style="font-size: 0.75rem;">
-                                            ${new Date(h.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })} - ${h.message || ''}
-                                        </div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">${h.date} - ${h.message || ''}</div>
                                     </div>
                                 </div>
                             `;
@@ -1069,8 +1017,7 @@ let html = '<div class="timeline-small">';
                         html += '</div>';
                         trackingTimeline.innerHTML = html;
                     } else {
-                        trackingTimeline.innerHTML =
-                            '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
+                        trackingTimeline.innerHTML = '<div class="text-center py-3 text-muted small">Data pelacakan belum tersedia.</div>';
                     }
                 })
                 .catch(err => {
