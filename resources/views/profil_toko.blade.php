@@ -470,9 +470,15 @@
                             @endforeach
                         </select>
                         @if($isOwner)
-                        <button class="btn-add-product" onclick="openTambahModal()">
-                            <i class="bi bi-plus-lg"></i> Tambah Produk Baru
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-success rounded-pill px-4 fw-600" onclick="document.getElementById('csvInput').click()">
+                                <i class="bi bi-file-earmark-spreadsheet me-2"></i> Import CSV
+                            </button>
+                            <input type="file" id="csvInput" style="display: none" accept=".csv" onchange="importCSV(this)">
+                            <button class="btn-add-product" onclick="openTambahModal()">
+                                <i class="bi bi-plus-lg"></i> Tambah Produk Baru
+                            </button>
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -1098,6 +1104,54 @@ let html = '<div class="timeline-small">';
         const form = document.getElementById('formShip');
         form.action = `/toko/orders/${orderId}/ship`;
         modal.show();
+    }
+
+    function importCSV(input) {
+        if (!input.files || !input.files[0]) return;
+        
+        const file = input.files[0];
+        if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+            alert('Silakan pilih file CSV yang valid.');
+            return;
+        }
+
+        if (!confirm('Apakah Anda yakin ingin mengimpor produk dari file ini?')) {
+            input.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('csv_file', file);
+        formData.append('_token', '{{ csrf_token() }}');
+
+        // Show loading
+        const btn = document.querySelector('button[onclick*="csvInput"]');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Mengimpor...';
+
+        fetch("{{ route('product.import') }}", {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Berhasil mengimpor ${data.count} produk.`);
+                location.reload();
+            } else {
+                alert(data.message || 'Gagal mengimpor produk.');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Terjadi kesalahan saat mengimpor data.');
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            input.value = '';
+        });
     }
 
     // Persistensi Tab setelah Refresh

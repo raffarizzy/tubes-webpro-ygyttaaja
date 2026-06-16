@@ -135,6 +135,7 @@ Route::middleware('auth')->group(function () {
     // PRODUCT MANAGEMENT (Oleh Penjual)
     // ============================================
     Route::post('/product/store', [ProductController::class, 'store'])->name('product.store');
+    Route::post('/product/import', [ProductController::class, 'import'])->name('product.import');
     Route::put('/product/{id}', [ProductController::class, 'update'])->name('product.update');
     Route::delete('/product/{id}', [ProductController::class, 'destroy'])->name('product.destroy');
 

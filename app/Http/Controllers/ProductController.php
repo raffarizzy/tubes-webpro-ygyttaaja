@@ -195,6 +195,71 @@ class ProductController extends Controller
     }
 
     /**
+     * IMPORT produk via CSV
+     */
+    public function import(Request $request)
+    {
+        try {
+            $request->validate([
+                'csv_file' => 'required|file|mimes:csv,txt'
+            ]);
+
+            $file = $request->file('csv_file');
+            $handle = fopen($file->getRealPath(), 'r');
+            
+            // Skip header
+            $header = fgetcsv($handle, 1000, ',');
+            
+            $tokoId = auth()->user()->toko->id ?? null;
+            if (!$tokoId) {
+                return response()->json(['success' => false, 'message' => 'User belum memiliki toko'], 400);
+            }
+
+            $apiUrl = config('services.node_api.url') . '/api/products';
+            $successCount = 0;
+            $errors = [];
+
+            while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+                // Mapping: 0: nama, 1: category_id, 2: harga, 3: stok, 4: berat, 5: deskripsi
+                if (count($data) < 6) continue;
+
+                $response = Http::timeout(5)->post($apiUrl, [
+                    'toko_id' => $tokoId,
+                    'category_id' => $data[1],
+                    'nama' => $data[0],
+                    'harga' => $data[2],
+                    'stok' => $data[3],
+                    'berat' => $data[4],
+                    'deskripsi' => $data[5],
+                    'imagePath' => 'produk/default.png',
+                    'diskon' => 0
+                ]);
+
+                if ($response->successful()) {
+                    $successCount++;
+                } else {
+                    $errors[] = "Gagal mengimpor '{$data[0]}': " . ($response->json('message') ?? 'Error API');
+                }
+            }
+
+            fclose($handle);
+
+            return response()->json([
+                'success' => true,
+                'count' => $successCount,
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("CSV Import Error: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengimpor file: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * UPDATE produk
      */
     public function update(Request $request, $id)
