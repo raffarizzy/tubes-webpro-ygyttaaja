@@ -119,8 +119,8 @@ class NavbarManager {
 
                 // User is logged in - show name and logout button
                 profilSection.innerHTML = `
-          <img src="/img/iconPengguna.png" id="iconPengguna" alt="User Icon" />
-          <a href="/profile" class="user-name-link">
+          <a href="/profile" class="user-name-link d-flex align-items-center gap-2 text-decoration-none">
+            <img src="/img/iconPengguna.png" id="iconPengguna" alt="User Icon" class="rounded-circle border border-white" style="width: 32px; height: 32px; object-fit: cover;" />
             <span class="user-name">${this.escapeHtml(
                 this.currentUser.nama
             )}</span>
@@ -137,7 +137,6 @@ class NavbarManager {
 
                 // User not logged in - show login link
                 profilSection.innerHTML = `
-          <img src="/img/iconPengguna.png" id="iconPengguna" alt="User Icon" />
           <a href="/login" class="login-link">Login</a>
         `;
             }
@@ -277,7 +276,7 @@ class NavbarManager {
             this.log("Current path:", currentPath);
 
             // Remove all active classes first
-            const navLinks = document.querySelectorAll("nav ul li a");
+            const navLinks = document.querySelectorAll(".nav-links li a");
             this.log(`Found ${navLinks.length} nav links`);
 
             navLinks.forEach((link) => {
