@@ -335,13 +335,127 @@
         .shop-profile-card {
             flex-direction: column;
             text-align: center;
-            bottom: -120px;
+            bottom: -70px; /* Posisi melayang di bawah banner */
+            padding: 50px 15px 20px; /* Padding atas lebih besar untuk memberi ruang logo */
+            gap: 10px;
+            width: 92%;
         }
         .shop-banner {
-            margin-bottom: 140px;
+            margin-bottom: 90px;
+            height: 300px; /* Ditambah lagi agar lebih lapang */
+            padding-top: 90px; /* Didorong lebih bawah agar tidak terpotong navbar mobile */
+        }
+        .shop-logo-wrapper {
+            position: absolute;
+            top: -45px; /* Logo diletakkan absolut di atas kartu */
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 0;
+            z-index: 10;
+        }
+        .shop-logo {
+            width: 90px;
+            height: 90px;
+            border-width: 3px;
+        }
+        .shop-details h1 {
+            justify-content: center;
+        }
+        .shop-details .d-flex.justify-content-between {
+            justify-content: center !important;
+        }
+        .shop-badge {
+            justify-content: center;
+            width: 100%;
+        }
+        .section-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .section-header > div:last-child {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 12px !important;
+        }
+        .section-header .input-group, 
+        .section-header .form-select {
+            width: 100% !important;
+        }
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .product-card {
+            border-radius: 12px;
+        }
+        .product-image-wrapper {
+            height: 140px;
+        }
+        .product-content {
+            padding: 10px;
+        }
+        .product-title {
+            font-size: 0.85rem;
+            height: 2.2rem;
+            margin: 4px 0;
+        }
+        .product-price {
+            font-size: 0.95rem;
+        }
+        .product-stock {
+            font-size: 0.75rem;
         }
         .product-actions {
             flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .btn-action {
+            padding: 6px;
+            font-size: 0.75rem;
+        }
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-top: 30px;
+        }
+        .stat-card {
+            padding: 12px;
+            flex-direction: column;
+            text-align: center;
+            gap: 8px;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+        }
+        .stat-info h3 {
+            font-size: 1.1rem;
+        }
+        .stat-info p {
+            font-size: 0.75rem;
+        }
+        .nav-pills {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-top: 30px !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+        }
+        .nav-pills::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .nav-pills .nav-item {
+            white-space: nowrap;
+        }
+        .nav-link {
+            padding: 8px 20px !important;
+            font-size: 0.85rem;
         }
     }
 </style>
@@ -383,8 +497,8 @@
                             @endif
                         </h1>
                         <p class="mb-2">
-                            @if(strlen($toko->deskripsi_toko) > 160)
-                                <span id="short-desc">{{ Str::limit($toko->deskripsi_toko, 160) }}</span>
+                            @if(strlen($toko->deskripsi_toko) > 90)
+                                <span id="short-desc">{{ Str::limit($toko->deskripsi_toko, 90) }}</span>
                                 <a href="javascript:void(0)" class="text-primary fw-600 text-decoration-none ms-1" onclick="openFullDescModal()">Baca Selengkapnya</a>
                             @else
                                 {{ $toko->deskripsi_toko }}
