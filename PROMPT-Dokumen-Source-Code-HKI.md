@@ -46,6 +46,13 @@ BAB X — Cuplikan Source Code
   X.20 Web Routes Laravel (Ringkasan Arsitektur Routing)
   X.21 Frontend: Filter & Pencarian Real-time + Pagination (JavaScript)
   X.22 Frontend: Alur Checkout Client-side (JavaScript)
+  X.23 Callback Pembayaran Duitku — Verifikasi Signature (Laravel)
+  X.24 Controller Toko — Alur Pesanan Penjual & Input Resi (Laravel)
+  X.25 Controller Order — Penyelesaian Pesanan (Laravel)
+  X.26 Controller Produk — Detail dengan Fallback & Agregasi Rating (Laravel)
+  X.27 Model Eloquent (Product, Order, User)
+  X.28 Utility Timestamp WIB (Node.js)
+  X.29 Service History — Riwayat Pesanan + Status Ulasan (Node.js)
 ```
 
 > Nomor bab menyesuaikan urutan dokumen keseluruhan (bisa X = 4, 5, dst. — sesuaikan sendiri). Tiap subbab: tampilkan judul subbab, tuliskan 1–2 kalimat konteks/penjelasan, lalu blok kode, lalu 1–2 kalimat penjelasan singkat setelah kode jika diperlukan.
@@ -1305,6 +1312,375 @@ payButton.addEventListener("click", async () => {
     }
 });
 ```
+
+---
+
+### X.23 — Callback Pembayaran Duitku — Verifikasi Signature (Laravel)
+
+**File:** `app/Http/Controllers/DuitkuCallbackController.php` & `routes/api.php`
+**Konteks:** Endpoint callback yang dipanggil server Duitku setelah pembayaran. Keamanannya dijaga dengan **verifikasi signature MD5** — server menghitung ulang `md5(merchantCode + amount + merchantOrderId + apiKey)` dan menolak request bila tidak cocok. Jika `resultCode = 00` (sukses), Order ID diekstrak dari `merchantOrderId` lalu status pesanan disinkronkan menjadi `paid` ke Node.js API.
+
+```php
+// routes/api.php — Callback bersifat public, dilindungi verifikasi signature
+Route::post('/duitku/callback', [DuitkuCallbackController::class, 'handle'])
+    ->name('duitku.callback');
+```
+
+```php
+// app/Http/Controllers/DuitkuCallbackController.php
+public function handle(Request $request)
+{
+    try {
+        $apiKey          = config('services.duitku.api_key');
+        $merchantCode    = $request->merchantCode;
+        $amount          = $request->amount;
+        $merchantOrderId = $request->merchantOrderId;
+        $signature       = $request->signature;
+        $resultCode      = $request->resultCode; // 00 = success
+
+        // 1. Verifikasi Signature: md5(merchantCode + amount + merchantOrderId + apiKey)
+        $calcSignature = md5($merchantCode . $amount . $merchantOrderId . $apiKey);
+
+        if ($signature !== $calcSignature) {
+            Log::error('Duitku Callback: Invalid Signature', [
+                'received' => $signature, 'calculated' => $calcSignature
+            ]);
+            return response()->json(['message' => 'Invalid Signature'], 400);
+        }
+
+        // 2. Jika pembayaran berhasil
+        if ($resultCode == '00') {
+            // Ekstrak Order ID dari format ORDER-123-xxxx
+            $orderId = str_replace('ORDER-', '', explode('-', $merchantOrderId)[1]);
+
+            // 3. Update status di Node.js API menjadi 'paid'
+            $response = Http::timeout(10)->put(
+                "{$this->nodeApiUrl}/orders/{$orderId}/status",
+                ['status' => 'paid']
+            );
+
+            return $response->successful()
+                ? response('OK', 200)
+                : response('Internal Server Error', 500);
+        }
+
+        return response('OK', 200);
+
+    } catch (\Exception $e) {
+        Log::error('Duitku Callback Error: ' . $e->getMessage());
+        return response('Internal Server Error', 500);
+    }
+}
+```
+
+> Catatan teknis: verifikasi signature MD5 mencegah pemalsuan notifikasi pembayaran — status pesanan hanya berubah menjadi `paid` bila request benar-benar berasal dari Duitku.
+
+---
+
+### X.24 — Controller Toko — Alur Pesanan Penjual & Input Nomor Resi (Laravel)
+
+**File:** `app/Http/Controllers/TokoController.php`
+**Konteks:** Mengatur transisi status pesanan dari sisi penjual: `acceptOrder` (paid → processing) dan `shipOrder` (processing → shipped, dengan input nomor resi). Setiap aksi memverifikasi kepemilikan — pesanan harus mengandung produk dari toko milik penjual yang sedang login (`withTrashed()` memastikan produk yang sudah di-soft-delete tetap terhitung).
+
+```php
+// Terima pesanan: paid -> processing
+public function acceptOrder($orderId)
+{
+    $order = \App\Models\Order::findOrFail($orderId);
+
+    // Verifikasi: order ini berisi produk milik toko user (termasuk produk soft-deleted)
+    $toko = Toko::where('user_id', auth()->id())->first();
+    $ownsProduct = $order->items()->whereHas('product', function ($q) use ($toko) {
+        $q->withTrashed()->where('toko_id', $toko->id);
+    })->exists();
+
+    if (!$ownsProduct)
+        return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+
+    if ($order->status !== 'paid')
+        return back()->with('error', 'Hanya pesanan yang sudah dibayar yang dapat diterima.');
+
+    $order->update(['status' => 'processing']);
+    return back()->with('success', 'Pesanan diterima dan sedang diproses.');
+}
+
+// Kirim pesanan: processing -> shipped (wajib input nomor resi)
+public function shipOrder(Request $request, $orderId)
+{
+    $request->validate(['nomor_resi' => 'required|string|max:100']);
+
+    $order = \App\Models\Order::findOrFail($orderId);
+
+    $toko = Toko::where('user_id', auth()->id())->first();
+    $ownsProduct = $order->items()->whereHas('product', function ($q) use ($toko) {
+        $q->withTrashed()->where('toko_id', $toko->id);
+    })->exists();
+
+    if (!$ownsProduct)
+        return back()->with('error', 'Anda tidak memiliki akses ke pesanan ini.');
+
+    if ($order->status !== 'processing')
+        return back()->with('error', 'Hanya pesanan yang sedang diproses yang dapat dikirim.');
+
+    $order->update([
+        'status'     => 'shipped',
+        'nomor_resi' => $request->nomor_resi,
+    ]);
+
+    return back()->with('success', 'Pesanan telah dikirim dengan nomor resi: ' . $request->nomor_resi);
+}
+```
+
+> Catatan teknis: status pesanan mengikuti alur terbatas (state machine) `paid → processing → shipped`, sehingga transisi yang tidak valid otomatis ditolak.
+
+---
+
+### X.25 — Controller Order — Penyelesaian Pesanan (Laravel)
+
+**File:** `app/Http/Controllers/OrderController.php`
+**Konteks:** Fungsi `finishOrder` dipakai pembeli untuk menandai pesanan sebagai selesai (`finished`). Laravel meneruskan perubahan status ke Node.js API yang menjadi sumber kebenaran data pesanan.
+
+```php
+public function finishOrder($id)
+{
+    if (!Auth::check()) {
+        return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+    }
+
+    try {
+        $user = Auth::user();
+
+        // Update status ke Node.js API
+        $response = Http::timeout(30)
+            ->put("{$this->nodeApiUrl}/orders/{$id}/status", ['status' => 'finished']);
+
+        if ($response->successful()) {
+            Log::info('Order finished successfully', ['order_id' => $id, 'user_id' => $user->id]);
+            return redirect()->route('riwayat.pesanan')
+                ->with('success', 'Terima kasih! Pesanan telah selesai.');
+        }
+
+        throw new \Exception($response->json('message') ?? 'Gagal menyelesaikan pesanan');
+
+    } catch (\Exception $e) {
+        Log::error('Order finish failed', ['order_id' => $id, 'error' => $e->getMessage()]);
+        return redirect()->back()
+            ->with('error', 'Gagal menyelesaikan pesanan: ' . $e->getMessage());
+    }
+}
+```
+
+---
+
+### X.26 — Controller Produk — Detail dengan Fallback & Agregasi Rating (Laravel)
+
+**File:** `app/Http/Controllers/ProductController.php`
+**Konteks:** Fungsi `show` mengambil detail produk dari Node.js API; jika API gagal/timeout, sistem otomatis **fallback** ke query Eloquent agar halaman tetap tampil. Setelah produk didapat, dilakukan agregasi rating (rata-rata bintang & jumlah ulasan) menggunakan Eloquent.
+
+```php
+public function show($id)
+{
+    try {
+        // Ambil produk dari Node.js API
+        $response = Http::timeout(5)->get(config('services.node_api.url') . "/api/products/{$id}");
+
+        if (!$response->successful()) {
+            // Fallback ke Eloquent jika API gagal
+            Log::warning("Node.js API failed, fallback to Eloquent for product {$id}");
+            $product = \App\Models\Product::with(['toko', 'category'])->find($id);
+        } else {
+            $product = (object) $response->json('data');
+            // ... (rekonstruksi objek toko & kategori dari data API dipersingkat) ...
+        }
+
+        if (!$product) abort(404, 'Product not found');
+
+        // Agregasi rating dengan Eloquent
+        $ratings = \App\Models\Rating::with('user')
+            ->where('product_id', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $avgRating   = $ratings->avg('rating') ?? 0;
+        $ratingCount = $ratings->count();
+
+        return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
+
+    } catch (\Exception $e) {
+        Log::error("Error in ProductController@show: " . $e->getMessage());
+
+        // Fallback penuh ke Eloquent saat terjadi exception
+        $product = \App\Models\Product::with(['toko.user', 'category'])->find($id);
+        if (!$product) abort(404, 'Product not found');
+
+        $ratings     = \App\Models\Rating::with('user')->where('product_id', $id)->get();
+        $avgRating   = $ratings->avg('rating') ?? 0;
+        $ratingCount = $ratings->count();
+
+        return view('detail-produk', compact('product', 'ratings', 'avgRating', 'ratingCount'));
+    }
+}
+```
+
+> Catatan teknis: mekanisme fallback API → database membuat aplikasi tetap tahan (resilient) meski layanan Node.js sedang tidak tersedia.
+
+---
+
+### X.27 — Model Eloquent (Product, Order, User)
+
+**File:** `app/Models/Product.php`, `app/Models/Order.php`, `app/Models/User.php`
+**Konteks:** Definisi model Eloquent beserta relasi antar entitas. Model `Product` menerapkan `SoftDeletes`, `Order` memiliki relasi ke item/penerima, dan `User` mengelola casting atribut sensitif (`password` di-hash, `is_verified_seller` boolean) serta helper `getOrCreateCart()`.
+
+```php
+// app/Models/Product.php
+class Product extends Model
+{
+    use SoftDeletes; // produk "dihapus" tetap tersimpan demi integritas riwayat pesanan
+
+    protected $fillable = [
+        'toko_id', 'category_id', 'nama', 'deskripsi',
+        'harga', 'diskon', 'stok', 'imagePath', 'berat',
+    ];
+
+    public function orderItems() { return $this->hasMany(OrderItems::class); }
+    public function toko()       { return $this->belongsTo(Toko::class); }
+    public function category()   { return $this->belongsTo(Category::class); }
+}
+
+// app/Models/Order.php
+class Order extends Model
+{
+    protected $fillable = [
+        'user_id', 'alamat_id', 'total_harga', 'status', 'nomor_resi',
+        'payment_url', 'courier_code', 'courier_name', 'service_name', 'shipping_cost',
+    ];
+
+    public function items()  { return $this->hasMany(OrderItems::class); }
+    public function user()   { return $this->belongsTo(User::class); }
+    public function alamat() { return $this->belongsTo(Alamat::class); }
+}
+
+// app/Models/User.php
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    protected $fillable = [
+        'name', 'email', 'password', 'phone',
+        'birthDate', 'gender', 'pfpPath', 'is_verified_seller',
+    ];
+
+    protected $hidden = ['password', 'remember_token'];
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at'  => 'datetime',
+            'password'           => 'hashed',
+            'is_verified_seller' => 'boolean',
+        ];
+    }
+
+    public function toko()      { return $this->hasOne(Toko::class); }
+    public function keranjang() { return $this->hasOne(Keranjang::class); }
+
+    // Ambil keranjang aktif user, atau buat baru jika belum ada
+    public function getOrCreateCart(): Keranjang
+    {
+        return $this->keranjang()->firstOrCreate(
+            ['user_id' => $this->id],
+            ['status' => 'active']
+        );
+    }
+}
+```
+
+---
+
+### X.28 — Utility Timestamp WIB (Node.js)
+
+**File:** `node-api/src/utils/dateHelper.js`
+**Konteks:** Helper waktu berbasis `moment-timezone` untuk menjamin seluruh pencatatan tanggal/jam konsisten dalam zona waktu WIB (Asia/Jakarta). Fungsi `getWIBTimestamp()` dipakai pada pembuatan order dan alamat (lihat X.7 dan X.17).
+
+```javascript
+const moment = require("moment-timezone");
+
+// Timestamp WIB siap-pakai untuk MySQL (YYYY-MM-DD HH:mm:ss)
+exports.getWIBTimestamp = () => {
+    return moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+};
+
+// Konversi UTC ke WIB
+exports.convertToWIB = (date) => {
+    return moment(date).tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+};
+
+// Format tanggal ke WIB dengan pola kustom
+exports.formatWIB = (date, format = "DD MMM YYYY HH:mm") => {
+    return moment(date).tz("Asia/Jakarta").format(format);
+};
+```
+
+---
+
+### X.29 — Service History — Riwayat Pesanan + Status Ulasan (Node.js)
+
+**File:** `node-api/src/services/history.service.js`
+**Konteks:** Mengambil seluruh riwayat pesanan milik user beserta detail item dan alamat. Untuk setiap item, sebuah **subquery terkorelasi** mengecek apakah user sudah pernah memberi rating pada produk tersebut (`rating_id`), sehingga frontend dapat menampilkan tombol "Beri Ulasan" hanya pada produk yang belum diulas.
+
+```javascript
+const db = require("../config/db");
+
+// Ambil semua pesanan user + item + status ulasan (rating_id)
+exports.getUserOrders = async (userId) => {
+    const [orderRows] = await db.query(
+        `SELECT o.id, o.user_id, o.alamat_id, o.total_harga, o.status,
+                o.payment_url, o.payment_reference, o.nomor_resi,
+                o.courier_code, o.courier_name, o.service_name, o.shipping_cost,
+                o.created_at, o.updated_at,
+                a.nama_penerima, a.alamat, a.nomor_penerima
+         FROM orders o
+         LEFT JOIN alamats a ON o.alamat_id = a.id
+         WHERE o.user_id = ?
+         ORDER BY o.id DESC, o.created_at DESC`,
+        [userId]
+    );
+
+    const orders = [];
+    for (const order of orderRows) {
+        const [itemRows] = await db.query(
+            `SELECT oi.id, oi.product_id, oi.nama_produk, oi.harga, oi.qty, oi.subtotal,
+                    p.imagePath AS product_image, p.deskripsi AS product_deskripsi,
+                    (SELECT id FROM ratings WHERE user_id = ? AND product_id = oi.product_id) AS rating_id
+             FROM order_items oi
+             LEFT JOIN products p ON oi.product_id = p.id
+             WHERE oi.order_id = ?`,
+            [userId, order.id]
+        );
+
+        orders.push({
+            ...order,
+            items: itemRows.map((item) => ({
+                id: item.id,
+                product_id: item.product_id,
+                nama_produk: item.nama_produk,
+                harga: item.harga,
+                qty: item.qty,
+                subtotal: item.subtotal,
+                rating_id: item.rating_id, // null = belum diulas
+                product: { image_path: item.product_image, deskripsi: item.product_deskripsi },
+            })),
+            alamat: order.alamat_id
+                ? { nama_penerima: order.nama_penerima, alamat: order.alamat, nomor_penerima: order.nomor_penerima }
+                : null,
+        });
+    }
+
+    return orders;
+};
+```
+
+> Catatan teknis: penggunaan subquery terkorelasi `rating_id` menyatukan data pesanan dan status ulasan dalam satu kueri, menghindari N+1 request dari frontend.
 
 ---
 
