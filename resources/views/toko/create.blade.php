@@ -127,6 +127,18 @@
             </div>
         @endif
 
+        
+        @if ($errors->any())
+            <div class="alert alert-danger rounded-3 border-0">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+
         <form action="{{ route('toko.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 

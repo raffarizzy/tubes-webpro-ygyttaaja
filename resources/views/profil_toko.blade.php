@@ -489,7 +489,7 @@
             </div>
             <div class="shop-details">
                 <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                    <div>
+                    <div data-toko-id="{{ $toko->id }}">
                         <h1 class="d-flex align-items-center gap-2">
                             {{ $toko->nama_toko }}
                             @if($toko->is_verified_seller)

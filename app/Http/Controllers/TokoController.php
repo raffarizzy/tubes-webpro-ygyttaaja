@@ -326,21 +326,6 @@ class TokoController extends Controller
 
             $nodeTokoId = $response->json()['data']['id'];
 
-            // 4. Simpan ke Database Laravel (Eloquent) - use auto-increment id, simpan Node.js ID terpisah
-            Toko::create([
-                'user_id' => auth()->id(),
-                'node_toko_id' => $nodeTokoId,
-                'nama_toko' => $request->nama_toko,
-                'deskripsi_toko' => $request->deskripsi_toko,
-                'lokasi' => $request->lokasi,
-                'provinsi' => $request->provinsi,
-                'kota' => $request->kota,
-                'kecamatan' => $request->kecamatan,
-                'kode_pos' => $request->kode_pos,
-                'kode_wilayah' => $request->kode_wilayah,
-                'logo_path' => $logoPath,
-            ]);
-
             return redirect()->route('profil_toko')
                 ->with('success', 'Toko berhasil dibuat!');
 
