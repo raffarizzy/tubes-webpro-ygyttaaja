@@ -22,6 +22,10 @@ function openTambahModal() {
 }
 
 function openEditModal(id, nama, harga, stok, imagePath, deskripsi, berat, categoryId) {
+    // Clear any previous alerts
+    const alertContainer = document.getElementById('editAlertContainer');
+    if (alertContainer) alertContainer.innerHTML = '';
+
     // Deklarasi variabel dengan getElementById
     const editId = document.getElementById('editId');
     const editNama = document.getElementById('editNama');
@@ -32,7 +36,7 @@ function openEditModal(id, nama, harga, stok, imagePath, deskripsi, berat, categ
     const editDeskripsi = document.getElementById('editDeskripsi');
     const previewEditGambar = document.getElementById('previewEditGambar');
     const modalEdit = document.getElementById('modalEdit');
-    
+
     // Set nilai
     editId.value = id;
     editNama.value = nama;
@@ -55,7 +59,7 @@ function openEditModal(id, nama, harga, stok, imagePath, deskripsi, berat, categ
 function openHapusModal(id) {
     const hapusId = document.getElementById('hapusId');
     const modalHapus = document.getElementById('modalHapus');
-    
+
     hapusId.value = id;
     new bootstrap.Modal(modalHapus).show();
 }
@@ -74,23 +78,23 @@ function simpanProduk() {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json' 
+            'Accept': 'application/json'
         },
         body: formData
     })
-    .then(res => res.json())
-    .then(res => {
-        if (res.success) {
-            alert('Produk berhasil ditambahkan');
-            location.reload();
-        } else {
-            alert(res.message ?? 'Gagal menyimpan produk');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Server error');
-    });
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                alert('Produk berhasil ditambahkan');
+                location.reload();
+            } else {
+                alert(res.message ?? 'Gagal menyimpan produk');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Server error');
+        });
 }
 
 function tambahProduk(event) {
@@ -106,19 +110,19 @@ function tambahProduk(event) {
         },
         body: formData
     })
-    .then(res => res.json())
-    .then(res => {
-        if (res.success) {
-            alert('Produk berhasil ditambahkan');
-            location.reload();
-        } else {
-            alert(res.message ?? 'Gagal menyimpan produk');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Server error');
-    });
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                alert('Produk berhasil ditambahkan');
+                location.reload();
+            } else {
+                alert(res.message ?? 'Gagal menyimpan produk');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Server error');
+        });
 }
 
 
@@ -132,7 +136,7 @@ function updateProduk() {
     const editBerat = document.getElementById('editBerat');
     const editDeskripsi = document.getElementById('editDeskripsi');
     const editGambar = document.getElementById('editGambar');
-    
+
     const fd = new FormData();
     fd.append('_token', csrf);
     fd.append('_method', 'PUT');
@@ -142,51 +146,83 @@ function updateProduk() {
     fd.append('stok', editStok.value);
     fd.append('berat', editBerat ? editBerat.value : 1000);
     fd.append('deskripsi', editDeskripsi.value);
-    
+
     // Tambahkan gambar jika ada file baru yang dipilih
     if (editGambar.files.length > 0) {
         fd.append('image', editGambar.files[0]);
     }
 
-    fetch(`/product/${editId.value}`, { 
+    fetch(`/product/${editId.value}`, {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': csrf
+            'X-CSRF-TOKEN': csrf,
+            'Accept': 'application/json'
         },
-        body: fd 
+        body: fd
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            alert('Produk berhasil diupdate');
-            location.reload();
-        } else {
-            alert('Gagal update produk');
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        alert('Gagal update produk');
-    });
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Produk berhasil diupdate');
+                location.reload();
+            } else {
+                const alertContainer = document.getElementById('editAlertContainer');
+                if (alertContainer) {
+                    let errorList = '';
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(key => {
+                            errorList += `<li>${data.errors[key].join(', ')}</li>`;
+                        });
+                    } else {
+                        errorList = `<li>${data.message || 'Gagal update produk'}</li>`;
+                    }
+                    alertContainer.innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-3" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Gagal update produk:</strong>
+                            <ul class="mb-0 mt-1 ps-3">
+                                ${errorList}
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                } else {
+                    alert(data.message || 'Gagal update produk');
+                }
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            const alertContainer = document.getElementById('editAlertContainer');
+            if (alertContainer) {
+                alertContainer.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-3" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i> Gagal update produk
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+            } else {
+                alert('Gagal update produk');
+            }
+        });
 }
 
 // DELETE
 function hapusProduk() {
     const hapusId = document.getElementById('hapusId');
     const modalHapus = document.getElementById('modalHapus');
-    
+
     fetch(`/product/${hapusId.value}`, {
-        method:'DELETE',
-        headers:{ 'X-CSRF-TOKEN': csrf }
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': csrf }
     }).then(() => {
         document.getElementById(`produk-${hapusId.value}`).remove();
         bootstrap.Modal.getInstance(modalHapus).hide();
         alert('Produk berhasil dihapus');
     })
-    .catch(err => {
-        console.error(err);
-        alert('Gagal hapus produk');
-    });
+        .catch(err => {
+            console.error(err);
+            alert('Gagal hapus produk');
+        });
 }
 
 function updateToko() {
@@ -202,31 +238,31 @@ function updateToko() {
         },
         body: formData
     })
-    .then(async res => {
-        if (!res.ok) {
-            const text = await res.text();
-            console.error('SERVER ERROR:', text);
-            throw new Error('Server error');
-        }
-        return res.json();
-    })
-    .then(data => {
-        if (data.success) {
-            alert('Toko berhasil diupdate');
-            location.reload();
-        }
-    })
-    .catch(err => {
-        alert('Gagal update toko. Cek console.');
-        console.error(err);
-    });
+        .then(async res => {
+            if (!res.ok) {
+                const text = await res.text();
+                console.error('SERVER ERROR:', text);
+                throw new Error('Server error');
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('Toko berhasil diupdate');
+                location.reload();
+            }
+        })
+        .catch(err => {
+            alert('Gagal update toko. Cek console.');
+            console.error(err);
+        });
 }
 
 // Event listener untuk preview gambar saat edit
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const editGambar = document.getElementById('editGambar');
     if (editGambar) {
-        editGambar.addEventListener('change', function() {
+        editGambar.addEventListener('change', function () {
             if (this.files && this.files[0]) {
                 previewImage(this, 'previewEditGambar');
             }

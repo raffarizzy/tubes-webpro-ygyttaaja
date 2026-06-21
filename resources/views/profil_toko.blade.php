@@ -967,6 +967,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div id="editAlertContainer"></div>
                 <input type="hidden" id="editId">
                 <div class="row">
                     <div class="col-md-6">
