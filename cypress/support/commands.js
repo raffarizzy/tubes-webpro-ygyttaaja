@@ -13,20 +13,10 @@ Cypress.Commands.add('loginUI', (email, password) => {
  */
 Cypress.Commands.add('loginFast', (email, password) => {
   cy.session([email, password], () => {
-    cy.request({
-      method: 'POST',
-      url: '/login',
-      form: true,
-      body: { email, password, _token: '' },
-      followRedirect: false,
-    }).then(() => {
-      // session cookie is stored automatically
-    })
-    // fallback: just use UI login inside session
     cy.visit('/login')
     cy.get('input[name="email"]').type(email)
     cy.get('input[name="password"]').type(password)
-    cy.get('button[type="submit"]').click()
+    cy.get('button[name="loginBtn"]').click()
     cy.url().should('not.include', '/login')
   })
 })

@@ -325,6 +325,16 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $request->validate([
+                'nama' => 'required|string',
+                'category_id' => 'required|integer',
+                'harga' => 'required|numeric|gt:0',
+                'stok' => 'required|integer|min:0',
+                'berat' => 'required|integer|gt:0',
+                'deskripsi' => 'required|string',
+                'image' => 'nullable|image|mimes:jpg,jpeg,png'
+            ]);
+
             $data = $request->only([
                 'nama', 'harga', 'stok', 'berat', 'deskripsi', 'category_id', 'diskon'
             ]);
@@ -358,6 +368,12 @@ class ProductController extends Controller
                     'message' => 'Gagal update di API: ' . ($response->json('message') ?? 'Error tidak dikenal')
                 ], 500);
             }
+        } catch (\Illuminate\Validation\ValidationException $v) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $v->errors()
+            ], 422);
         } catch (\Exception $e) {
             Log::error("General Error in ProductController@update: " . $e->getMessage());
             return response()->json([

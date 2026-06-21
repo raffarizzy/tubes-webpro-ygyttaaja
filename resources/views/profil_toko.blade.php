@@ -648,7 +648,8 @@
                                             {{ json_encode($p->deskripsi) }},
                                             {{ $p->berat ?? 1000 }},
                                             {{ $p->category_id }}
-                                        )">
+                                        )"
+                                        name="btnEditProduk">
                                         <i class="bi bi-pencil"></i> Edit
                                     </button>
                                     <button class="btn-action btn-delete" onclick="openHapusModal({{ $p->id }})">
