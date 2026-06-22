@@ -28,8 +28,9 @@ exports.index = async (req, res) => {
   try {
     const limit = req.query.limit || 20;
     const offset = req.query.offset || 0;
+    const search = req.query.search || '';
 
-    const products = await service.getAll(limit, offset);
+    const products = await service.getAll(limit, offset, search);
 
     return response.success(res, products, 'Berhasil mengambil daftar produk');
   } catch (error) {

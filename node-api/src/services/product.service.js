@@ -37,9 +37,8 @@ exports.getById = async (id) => {
 /**
  * Get all products dengan pagination
  */
-exports.getAll = async (limit = 20, offset = 0) => {
-  const [rows] = await db.query(
-    `SELECT
+exports.getAll = async (limit = 20, offset = 0, search = '') => {
+  let sql = `SELECT
         p.id,
         p.nama,
         p.deskripsi,
@@ -59,11 +58,19 @@ exports.getAll = async (limit = 20, offset = 0) => {
      LEFT JOIN tokos t ON p.toko_id = t.id
      LEFT JOIN users u ON t.user_id = u.id
      LEFT JOIN categories c ON p.category_id = c.id
-     WHERE p.deleted_at IS NULL
-     ORDER BY p.created_at DESC
-     LIMIT ? OFFSET ?`,
-    [parseInt(limit), parseInt(offset)]
-  );
+     WHERE p.deleted_at IS NULL`;
+
+  const params = [];
+  if (search) {
+    sql += ` AND p.nama LIKE ?`;
+    params.push(`%${search}%`);
+  }
+
+  sql += ` ORDER BY p.created_at DESC
+     LIMIT ? OFFSET ?`;
+  params.push(parseInt(limit), parseInt(offset));
+
+  const [rows] = await db.query(sql, params);
 
   return rows;
 };
