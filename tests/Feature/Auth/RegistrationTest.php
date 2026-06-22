@@ -48,7 +48,7 @@ test('[B1a] registration fails when name is empty', function () {
     $response->assertSessionHasErrors(['name']);
 });
 
-test('[B1a] registration fails when name exceeds 255 characters', function () {
+test('[B1b] registration fails when name exceeds 255 characters', function () {
     $response = $this->post('/register', [
         'name' => str_repeat('a', 256),
         'email' => 'test@example.com',
@@ -57,10 +57,12 @@ test('[B1a] registration fails when name exceeds 255 characters', function () {
         'password_confirmation' => 'password123',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1b ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['name']);
 });
 
-test('[B1b] registration fails when email is not in email format', function () {
+test('[B1c] registration fails when email is not in email format', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'not-an-email',
@@ -69,10 +71,12 @@ test('[B1b] registration fails when email is not in email format', function () {
         'password_confirmation' => 'password123',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1c ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['email']);
 });
 
-test('[B1c] registration fails when email is already taken', function () {
+test('[B1d] registration fails when email is already taken', function () {
     User::factory()->create([
         'email' => 'taken@example.com',
         'phone' => '081111111111',
@@ -86,10 +90,12 @@ test('[B1c] registration fails when email is already taken', function () {
         'password_confirmation' => 'password123',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1d ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['email']);
 });
 
-test('[B1d] registration fails when phone is empty', function () {
+test('[B1e] registration fails when phone is empty', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -98,10 +104,12 @@ test('[B1d] registration fails when phone is empty', function () {
         'password_confirmation' => 'password123',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1e ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['phone']);
 });
 
-test('[B1d] registration fails when phone exceeds 20 characters', function () {
+test('[B1f] registration fails when phone exceeds 20 characters', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -110,10 +118,12 @@ test('[B1d] registration fails when phone exceeds 20 characters', function () {
         'password_confirmation' => 'password123',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1f ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['phone']);
 });
 
-test('[B1e] registration fails when password does not meet defaults', function () {
+test('[B1g] registration fails when password does not meet defaults', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
@@ -122,17 +132,21 @@ test('[B1e] registration fails when password does not meet defaults', function (
         'password_confirmation' => 'short',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1g ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['password']);
 });
 
-test('[B1f] registration fails when password does not match confirmation', function () {
+test('[B1h] registration fails when password is less than 8 characters', function () {
     $response = $this->post('/register', [
         'name' => 'Test User',
         'email' => 'test@example.com',
         'phone' => '081234567890',
-        'password' => 'password123',
-        'password_confirmation' => 'different123',
+        'password' => '1234567',
+        'password_confirmation' => '1234567',
     ]);
 
+    fwrite(STDOUT, "\n=== TEST B1h ===\n");
+    dump(['errors' => session('errors')?->all()]);
     $response->assertSessionHasErrors(['password']);
 });

@@ -253,13 +253,13 @@ class TokoController extends Controller
         }
 
         $request->validate([
-            'nama_toko' => 'required|string|max:255',
-            'deskripsi_toko' => 'required|string',
-            'lokasi' => 'required|string|max:255',
+            'nama_toko' => 'required|string|max:50',
+            'deskripsi_toko' => 'required|string|max:100',
+            'lokasi' => 'required|string|max:100',
             'provinsi' => 'required|string',
             'kota' => 'required|string',
             'kecamatan' => 'required|string',
-            'kode_pos' => 'required|string|max:10',
+            'kode_pos' => 'required|string|max:5',
             'kode_wilayah' => 'required|string',
             'logo' => 'required|image|mimes:jpeg,png,jpg,gif,webp'
         ]);

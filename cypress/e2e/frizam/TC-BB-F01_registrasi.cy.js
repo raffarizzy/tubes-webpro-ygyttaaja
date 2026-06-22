@@ -30,7 +30,7 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
     cy.get('button[name="daftarBtn"]').click()
-    
+
     // Mengecek validasi HTML5 "required" pada input email
     cy.get('input[name="email"]').then(($input) => {
       expect($input[0].validationMessage).to.not.be.empty
@@ -40,7 +40,7 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
   it('Step 4 — Email duplikat: error "The email has already been taken"', () => {
     cy.visit('/register')
     cy.get('input[name="name"]').type('BudiTest')
-    cy.get('input[name="email"]').type('existing@sparehub.com')
+    cy.get('input[name="email"]').type('frizam@mail.com')
     cy.get('input[name="phone"]').type('08123456789')
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
@@ -70,7 +70,7 @@ describe('TC-BB-F01 — Registrasi Akun (Equivalence Partitioning)', () => {
     cy.get('input[name="password"]').type('Password123!')
     cy.get('input[name="password_confirmation"]').type('Password123!')
     cy.get('button[name="daftarBtn"]').click()
-    
+
     // Mengecek validasi HTML5 "required" pada input nama
     cy.get('input[name="name"]').then(($input) => {
       expect($input[0].validationMessage).to.not.be.empty
