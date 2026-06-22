@@ -20,6 +20,7 @@ class StoreTokoWhiteBoxTest extends TestCase
     {
         return User::factory()->create([
             'is_verified_seller' => true,
+            'phone' => '081234567890',
         ]);
     }
 
@@ -27,6 +28,7 @@ class StoreTokoWhiteBoxTest extends TestCase
     {
         return User::factory()->create([
             'is_verified_seller' => false,
+            'phone' => '081234567890',
         ]);
     }
 
@@ -81,6 +83,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->post(route('toko.store'), $this->validPayload());
 
+        $this->dumpResult('IP1', $response);
+
         $response->assertRedirect(route('profil_toko'));
         $response->assertSessionHas('success', 'Toko berhasil dibuat!');
 
@@ -103,6 +107,8 @@ class StoreTokoWhiteBoxTest extends TestCase
 
         $response = $this->actingAs($user)
             ->post(route('toko.store'), $this->validPayload());
+
+        $this->dumpResult('IP2', $response);
 
         $response->assertStatus(403);
         $response->assertJson([
@@ -129,6 +135,8 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
 
+        $this->dumpResult('IP3', $response);
+
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['nama_toko']);
     }
@@ -150,6 +158,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
+
+        $this->dumpResult('IP4', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['deskripsi_toko']);
@@ -173,6 +183,8 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
 
+        $this->dumpResult('IP5', $response);
+
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['lokasi']);
     }
@@ -194,6 +206,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
+
+        $this->dumpResult('IP6', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['provinsi']);
@@ -217,6 +231,8 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
 
+        $this->dumpResult('IP7', $response);
+
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['kota']);
     }
@@ -238,6 +254,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
+
+        $this->dumpResult('IP8', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['kecamatan']);
@@ -261,6 +279,8 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
 
+        $this->dumpResult('IP9', $response);
+
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['kode_pos']);
     }
@@ -282,6 +302,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
+
+        $this->dumpResult('IP10', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['kode_wilayah']);
@@ -305,6 +327,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $payload);
+
+        $this->dumpResult('IP11', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHasErrors(['logo']);
@@ -336,6 +360,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $this->validPayload());
+
+        $this->dumpResult('IP12', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHas('error');
@@ -376,6 +402,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->post(route('toko.store'), $this->validPayload());
 
+        $this->dumpResult('IP13', $response);
+
         $response->assertRedirect(route('profil_toko'));
         $response->assertSessionHas('success', 'Toko berhasil dibuat!');
 
@@ -411,6 +439,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $this->validPayload());
+
+        $this->dumpResult('IP14', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHas('error', 'Anda sudah memiliki toko');
@@ -467,8 +497,14 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->with('public')
             ->andReturn($disk);
 
+        Storage::shouldReceive('url')
+            ->zeroOrMoreTimes()
+            ->andReturn('/storage/toko/fake.webp');
+
         $response = $this->actingAs($user)
             ->post(route('toko.store'), $this->validPayload());
+
+        $this->dumpResult('IP15', $response);
 
         $response->assertRedirect(route('profil_toko'));
         $response->assertSessionHas('success', 'Toko berhasil dibuat!');
@@ -508,6 +544,8 @@ class StoreTokoWhiteBoxTest extends TestCase
         $response = $this->actingAs($user)
             ->from('/buat-toko')
             ->post(route('toko.store'), $this->validPayload());
+
+        $this->dumpResult('IP16', $response);
 
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHas('error');
@@ -553,9 +591,25 @@ class StoreTokoWhiteBoxTest extends TestCase
             ->from('/buat-toko')
             ->post(route('toko.store'), $this->validPayload());
 
+        $this->dumpResult('IP17', $response);
+
         $response->assertRedirect('/buat-toko');
         $response->assertSessionHas('error');
 
         $this->assertCount(0, Storage::disk('public')->allFiles('toko'));
+    }
+
+    private function dumpResult(string $name, $response)
+    {
+        fwrite(STDOUT, "\n=== {$name} ===\n");
+        if ($response->status() === 403) {
+            dump($response->json());
+        } elseif (session()->has('errors')) {
+            dump(['errors' => session('errors')->all()]);
+        } elseif (session()->has('error')) {
+            dump(['error_session' => session('error')]);
+        } elseif (session()->has('success')) {
+            dump(['success_session' => session('success')]);
+        }
     }
 }
