@@ -21,27 +21,9 @@
         }
         .description-content {
           white-space: pre-line;
-          overflow: hidden;
-          display: -webkit-box;
-          -webkit-line-clamp: 4;
-          -webkit-box-orient: vertical;
-          transition: all 0.3s ease;
-        }
-        .description-content.expanded {
-          display: block;
-          -webkit-line-clamp: unset;
-        }
-        .read-more-btn {
-          color: #122c4f;
-          font-weight: 700;
-          cursor: pointer;
-          font-size: 0.9rem;
-          display: none;
-          margin-top: 10px;
-          text-decoration: none;
-        }
-        .read-more-btn:hover {
-          text-decoration: underline;
+          word-break: break-word;
+          overflow-wrap: break-word;
+          word-wrap: break-word;
         }
 
         /* Mobile Fix for Horizontal Scroll */
@@ -72,7 +54,7 @@
   <div class="container py-5">
     <div class="row g-5 justify-content-center">
       <!-- GAMBAR PRODUK -->
-      <div class="col-md-6 d-flex justify-content-center align-items-center">
+      <div class="col-md-6 d-flex justify-content-center align-items-start">
           @php
             $imagePath = $product->imagePath ?? 'produk/default.png';
             if (!$imagePath) {
@@ -201,7 +183,6 @@
           <h5 class="color-medcom fw-semibold">Deskripsi</h5>
           <div class="description-container">
             <p id="product-description" class="text-muted mb-0 description-content">{{ $product->deskripsi }}</p>
-            <a href="javascript:void(0)" id="btn-read-more" class="read-more-btn">Baca Selengkapnya</a>
           </div>
         </div>
 
@@ -284,30 +265,7 @@
     window.PRODUCT_DATA = @json($productJsData);
     window.USER_ID = {{ auth()->check() ? auth()->id() : 'null' }};
 
-    // Read More functionality for Description
-    document.addEventListener("DOMContentLoaded", () => {
-      const descContent = document.getElementById('product-description');
-      const readMoreBtn = document.getElementById('btn-read-more');
-
-      if (descContent && readMoreBtn) {
-        // Show button only if content exceeds 4 lines
-        if (descContent.scrollHeight > descContent.clientHeight) {
-          readMoreBtn.style.display = 'inline-block';
-        }
-
-        readMoreBtn.addEventListener('click', function() {
-          const isExpanded = descContent.classList.contains('expanded');
-          
-          if (isExpanded) {
-            descContent.classList.remove('expanded');
-            this.textContent = 'Baca Selengkapnya';
-          } else {
-            descContent.classList.add('expanded');
-            this.textContent = 'Sembunyikan';
-          }
-        });
-      }
-    });
+    // Description display script removed
   </script>
   <script src="{{ asset('js/detail-produk.js') }}"></script>
 @endpush
