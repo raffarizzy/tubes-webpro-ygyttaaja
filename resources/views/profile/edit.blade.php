@@ -58,7 +58,7 @@
                 <div class="avatar-wrapper">
                     <img
                         style="width:150px;height:150px"
-                        src="{{ auth()->user()->pfpPath ?? 'https://i.ibb.co.com/ZRkqGfJ3/default-avatar-medcomtize.png' }}"
+                        src="{{ auth()->user()->pfpPath ?? 'https://i.ibb.co/ZRkqGfJ3/default-avatar-medcomtize.png' }}"
                         alt="Avatar"
                         class="bg-secondary rounded-circle mb-4"
                     >

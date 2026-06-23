@@ -1,58 +1,80 @@
 /**
  * TC-BB-N01 — Pencarian Keyword (Equivalence Partitioning)
- * Feature: FR3 — Pencarian Sparepart
+ * Feature: FR3 — Pencarian Produk
  * PIC: Naufal Muhammad Dzulfikar
  */
 
-describe('TC-BB-N01 — Pencarian Keyword (Equivalence Partitioning)', () => {
-  it('Step 1 — Keyword "Oli": produk yang mengandung "Oli" tampil', () => {
-    cy.visit('/')
-    cy.get('input[name="search"], input[placeholder*="cari" i], input[type="search"]').type('Oli')
-    cy.get('form').submit()
-    cy.get('body').should('satisfy', ($body) => {
-      return $body.text().match(/oli/i) || $body.text().match(/tidak ditemukan|no product/i)
+const products = [
+  {
+    id: 1,
+    nama: 'Oli Mesin 10W-40',
+    deskripsi: 'Oli mesin untuk motor harian',
+    harga: 75000,
+    diskon: 0,
+    stok: 20,
+    imagePath: 'img/iconOli.png',
+    toko_id: 1,
+    nama_toko: 'Medcom Official',
+    category_id: 1,
+    category_nama: 'Oli',
+  },
+  {
+    id: 2,
+    nama: 'Filter Udara Racing',
+    deskripsi: 'Filter udara performa tinggi',
+    harga: 55000,
+    diskon: 0,
+    stok: 10,
+    imagePath: 'img/iconOli.png',
+    toko_id: 1,
+    nama_toko: 'Medcom Official',
+    category_id: 2,
+    category_nama: 'Filter',
+  },
+]
+
+describe('TC-BB-N01 pencarian produk', () => {
+  beforeEach(() => {
+    cy.on('window:alert', (message) => {
+      throw new Error(`Unexpected alert: ${message}`)
     })
-  })
 
-  it('Step 2 — Keyword "oli mesin" (multi-kata lowercase): produk ditemukan case-insensitive', () => {
-    cy.visit('/')
-    cy.get('input[name="search"], input[placeholder*="cari" i], input[type="search"]').type('oli mesin')
-    cy.get('form').submit()
-    cy.get('body').should('not.contain', '500')
-  })
+    cy.intercept('GET', 'http://localhost:3001/api/products', {
+      statusCode: 200,
+      body: { success: true, data: products },
+    }).as('getProducts')
 
-  it('Step 3 — Tanpa keyword (kosong): semua produk tampil', () => {
-    cy.visit('/')
-    cy.get('[data-testid="product-card"], .product-card, .product-item').should('have.length.gte', 1)
-  })
-
-  it('Step 4 — Keyword tidak ada "zzz999xabc": pesan tidak ditemukan / grid kosong', () => {
-    cy.visit('/')
-    cy.get('input[name="search"], input[placeholder*="cari" i], input[type="search"]').type('zzz999xabc')
-    cy.get('form').submit()
-    cy.get('body').should('satisfy', ($body) => {
-      return (
-        $body.text().match(/tidak ditemukan|no product|not found|kosong/i) ||
-        $body.find('[data-testid="product-card"], .product-card').length === 0
-      )
+    cy.intercept('GET', '/keranjang/data', {
+      statusCode: 200,
+      body: { success: true, data: { total_items: 0 } },
     })
+
+    cy.visit('/')
+    cy.wait('@getProducts')
   })
 
-  it('Step 5 — Keyword "<script>alert(1)</script>": tidak ada eksekusi JS, halaman aman', () => {
-    cy.visit('/')
-    cy.get('input[name="search"], input[placeholder*="cari" i], input[type="search"]').type(
-      '<script>alert(1)</script>'
-    )
-    cy.get('form').submit()
-    // Verify no XSS — page should still load normally
-    cy.get('body').should('exist')
-    cy.get('body').should('not.contain', '500')
-    // Ensure the raw script tag is not rendered as executable
-    cy.document().then((doc) => {
-      const scripts = [...doc.querySelectorAll('script')].filter((s) =>
-        s.textContent.includes('alert(1)')
-      )
-      expect(scripts).to.have.length(0)
-    })
+  it('menampilkan produk saat mencari keyword "Oli"', () => {
+    cy.get('#search-input').type('Oli')
+    cy.get('#produk-container .card-produk').contains('Oli Mesin 10W-40').should('be.visible')
+  })
+
+  it('menampilkan produk saat mencari keyword lengkap', () => {
+    cy.get('#search-input').type('oli mesin')
+    cy.get('#produk-container .card-produk').contains('Oli Mesin 10W-40').should('be.visible')
+  })
+
+  it('menampilkan semua produk saat keyword kosong', () => {
+    cy.get('#search-input').clear()
+    cy.get('#produk-container .card-produk').should('have.length', 2)
+  })
+
+  it('menampilkan pesan tidak ditemukan untuk keyword yang tidak cocok', () => {
+    cy.get('#search-input').type('zzz999xabc')
+    cy.get('#produk-container').should('contain', 'Tidak ada produk ditemukan')
+  })
+
+  it('tidak menjalankan script dari input pencarian', () => {
+    cy.get('#search-input').type('<script>alert(1)</script>')
+    cy.get('#produk-container').should('contain', 'Tidak ada produk ditemukan')
   })
 })

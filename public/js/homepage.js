@@ -179,7 +179,7 @@ function createProductCard(produk) {
         <div class="img-container">
             <img src="${imagePath}" 
                  alt="${produk.nama}" 
-                 onerror="this.src='/img/iconOli.png'" />
+                 onerror="this.onerror=null;this.src='/img/iconOli.png'" />
         </div>
 
         <div class="toko-info">

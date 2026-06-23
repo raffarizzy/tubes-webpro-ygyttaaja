@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Pengguna - Medcom</title>
-    <link rel="icon" href="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png">
+    <link rel="icon" href="https://i.ibb.co/VcGWcqFG/icon-Spare-Hub.png">
 
     <!-- BOOTSTRAP -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +18,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#122C4F;">
         <div class="container">
             <a href="login.html" class="navbar-brand">
-                <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo Medcom" width="40">
+                <img src="https://i.ibb.co/VcGWcqFG/icon-Spare-Hub.png" id="logo" alt="Logo Medcom" width="40">
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
@@ -31,7 +31,7 @@
                     <li class="nav-item"><a href="keranjang.blade.php" class="nav-link">Keranjang</a></li>
                     <li class="nav-item"><a href="profil_toko.html" class="nav-link">Toko Saya</a></li>
                     <li class="nav-item d-flex align-items-center ms-3">
-                        <img src="https://i.ibb.co.com/CpnrrVtb/icon-Pengguna.png" width="28" class="me-2">
+                        <img src="https://i.ibb.co/CpnrrVtb/icon-Pengguna.png" width="28" class="me-2">
                         <a href="edit_profil.html" class="nav-link">Pengguna</a>
                     </li>
                 </ul>

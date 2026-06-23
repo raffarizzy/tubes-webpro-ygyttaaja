@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Favicon -->
-    <link rel="icon" href="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" />
+    <link rel="icon" href="https://i.ibb.co/qMV58T6P/medcom-Navbar.png" />
 
     <!-- Navbar CSS -->
     <link rel="stylesheet" href="{{ asset('css/navbar-unified.css') }}" />
@@ -37,7 +37,7 @@
     <!-- NAVBAR -->
     <nav>
         <a href="{{ url('/') }}" class="navbar-brand">
-            <img src="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" id="logo" alt="Logo Medcom" />
+            <img src="https://i.ibb.co/qMV58T6P/medcom-Navbar.png" id="logo" alt="Logo Medcom" />
         </a>
 
         <ul class="nav-links">

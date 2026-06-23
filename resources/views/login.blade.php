@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Medcom</title>
-    <link rel="icon" href="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" />
+    <link rel="icon" href="https://i.ibb.co/qMV58T6P/medcom-Navbar.png" />
     <link rel="stylesheet" href="css/login.css" />
     <link
       rel="stylesheet"
@@ -14,7 +14,7 @@
   <body>
     <div class="login-container">
       <div class="login-card">
-        <img src="https://i.ibb.co.com/qMV58T6P/medcom-Navbar.png" alt="Logo" class="logo" />
+        <img src="https://i.ibb.co/qMV58T6P/medcom-Navbar.png" alt="Logo" class="logo" />
         <h1>Medcom</h1>
         <p class="subtitle">Login ke akun Anda</p>
 

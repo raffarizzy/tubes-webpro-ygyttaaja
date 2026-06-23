@@ -9,7 +9,7 @@
             <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
                 <div class="mb-4">
                     <div class="bg-primary-subtle rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                        <img src="https://i.ibb.co.com/spW2xV2t/medcom-logo-Copy.png" style="width: 125px; height: 125px;"></img>
+                        <img src="https://i.ibb.co/spW2xV2t/medcom-logo-Copy.png" style="width: 125px; height: 125px;"></img>
                     </div>
                 </div>
                 

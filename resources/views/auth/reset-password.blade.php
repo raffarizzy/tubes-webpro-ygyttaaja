@@ -14,7 +14,7 @@
 
 <div class="card shadow-sm p-4" style="width: 400px;">
     <div class="text-center mb-4">
-        <img src="https://i.ibb.co.com/VcGWcqFG/icon-Spare-Hub.png" alt="Logo" width="60" class="mb-2">
+        <img src="https://i.ibb.co/VcGWcqFG/icon-Spare-Hub.png" alt="Logo" width="60" class="mb-2">
         <h4 class="fw-bold text-primary">Atur Ulang Password</h4>
         <p class="text-muted small">Silakan masukkan password baru Anda.</p>
     </div>
