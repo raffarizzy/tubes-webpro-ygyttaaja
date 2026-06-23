@@ -94,6 +94,23 @@ function updateResultsInfo() {
     const resultsInfoEl = document.getElementById("results-info");
     if (!resultsInfoEl) return;
 
+    // Check if category is valid
+    const categoryFilter = document.getElementById("category-filter");
+    let isCategoryValid = true;
+    if (categoryFilter && filterState.category !== "") {
+        const options = Array.from(categoryFilter.options).map(opt => opt.value);
+        if (!options.includes(filterState.category)) {
+            isCategoryValid = false;
+        }
+    }
+
+    if (!isCategoryValid) {
+        resultsInfoEl.textContent = `Error: Kategori "${filterState.category}" tidak valid`;
+        resultsInfoEl.style.color = '#dc3545';
+        return;
+    }
+
+    resultsInfoEl.style.color = '#666'; // Reset color
     const total = filteredProdukData.length;
     const originalTotal = produkData.length;
 
@@ -114,11 +131,15 @@ function renderProduk() {
     // Clear container
     container.innerHTML = "";
 
-    // Calculate pagination
-    const totalPages = Math.ceil(filteredProdukData.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const currentProducts = filteredProdukData.slice(startIndex, endIndex);
+    // Check if category is valid
+    const categoryFilter = document.getElementById("category-filter");
+    let isCategoryValid = true;
+    if (categoryFilter && filterState.category !== "") {
+        const options = Array.from(categoryFilter.options).map(opt => opt.value);
+        if (!options.includes(filterState.category)) {
+            isCategoryValid = false;
+        }
+    }
 
     // Set container style
     container.style.cssText = `
@@ -129,6 +150,22 @@ function renderProduk() {
         margin: 0 auto;
         padding: 0 20px;
     `;
+
+    if (!isCategoryValid) {
+        container.innerHTML = `
+            <div id="category-error" style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: #dc3545;">
+                <h3 style="margin-bottom: 10px;">Kategori Tidak Valid</h3>
+                <p>Kategori yang Anda pilih tidak terdaftar di sistem kami.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Calculate pagination
+    const totalPages = Math.ceil(filteredProdukData.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentProducts = filteredProdukData.slice(startIndex, endIndex);
 
     // Render products for current page
     if (currentProducts.length === 0) {
@@ -464,6 +501,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // GLOBAL DEBUG FUNCTIONS
 
+window.filterState = filterState;
+window.applyFilters = applyFilters;
+
 window.resetCart = function () {
     localStorage.removeItem("keranjangData");
     localStorage.removeItem("cartCount");
@@ -485,4 +525,4 @@ console.log(
     "%c🏠 HOMEPAGE LOADED",
     "color: #0066cc; font-weight: bold; font-size: 14px;"
 );
-console.log("Commands: resetCart(), viewCart()");
+console.log("Commands: resetCart(), viewCart(), filterState, applyFilters()");

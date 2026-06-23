@@ -1,8 +1,8 @@
 {
   "riziq": {
     "name": "Riziq Rizwan",
-    "email": "riziq@medcom.com",
-    "password": "Password123!"
+    "email": "riziqrizwan2@gmail.com",
+    "password": "riziqssj1"
   },
   "tester": {
     "name": "Tester User",
@@ -20,12 +20,17 @@
   },
   "userA": {
     "name": "User A",
-    "email": "usera@medcom.com",
-    "password": "Password123!"
+    "email": "riziqrizwan2@gmail.com",
+    "password": "riziqssj1"
   },
   "userB": {
     "name": "User B",
-    "email": "userb@medcom.com",
+    "email": "rusdi@gmail.com",
+    "password": "Password123!"
+  },
+  "luciano": {
+    "name": "Luciano",
+    "email": "luciano@gmail.com",
     "password": "Password123!"
   }
 }
